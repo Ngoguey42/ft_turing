@@ -6,12 +6,18 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 13:58:38 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/13 16:08:09 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/13 16:17:49 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
 module Make =
-  functor (State : Hashtbl.HashedType) ->
+  functor (State : sig
+			  type t
+			  val hash : t -> int
+			  val equal : t -> t -> bool
+			  val tostring : t -> string
+			end) ->
+  (* functor (State : Hashtbl.HashedType) -> *)
   struct
 
 	type seq = State.t list
@@ -40,7 +46,7 @@ module Make =
 	  if List.length a <> List.length b then
 		false
 	  else if List.fold_left2
-				(fun bool a' b' -> if bool then true else State.equal a' b')
+				(fun bool a' b' -> if bool = false || (State.equal a' b') = false then false else true)
 				true a b then
 		true
 	  else
@@ -55,14 +61,22 @@ module Make =
 	  then (
 		match psq with
 		| Some psq' when _sequencesEqual csq psq'	->
-		   Printf.eprintf "\tFailed\n%!";
+		   Printf.eprintf "\tFaile %s\n%!" (State.tostring st);
+		   Printf.eprintf "[%!";
+		   List.iter (fun v ->
+			   Printf.eprintf "%2s;" (State.tostring v)) csq;
+		   Printf.eprintf "]\n%!";
+		   Printf.eprintf "[%!";
+		   List.iter (fun v ->
+			   Printf.eprintf "%2s;" (State.tostring v)) psq';
+		   Printf.eprintf "]\n%!";
 		   failwith "Loop detected, implement suitable error"
 		| _											->
-		   Printf.eprintf "\tResetting\n%!";
+		   Printf.eprintf "\tReset %s\n%!" (State.tostring st);
 		   _resetStateSequences st entry
 	  )
 	  else (
-		Printf.eprintf "\tUpdating \n%!";
+		Printf.eprintf "\tUpdat %s\n%!" (State.tostring st);
 		_insertStateInSequence curState st entry
 	  )
 
@@ -73,7 +87,7 @@ module Make =
 				;curseq = []} in
 	  StateHtbl.iter (_update curState) ht;
 	  if not (StateHtbl.mem ht curState) then (
-		Printf.eprintf "\tInserting\n%!";
+		Printf.eprintf "\tInser %s\n%!" (State.tostring curState);
 		StateHtbl.add ht curState tmp
 	  )
   end
