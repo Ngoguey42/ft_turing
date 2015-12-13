@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 13:58:38 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/13 15:38:36 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/13 16:08:09 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -14,39 +14,29 @@ module Make =
   functor (State : Hashtbl.HashedType) ->
   struct
 
-	module StateSequences =
-	  struct
+	type seq = State.t list
+	type seqs = {
+		prevseq	: seq option;
+		curseq	: seq;
+	  }
 
-		type seq = State.t list
-		type t = {
-			start	: State.t;
-			prevseq	: seq option;
-			curseq	: seq;
-		  }
-
-		let equal {start = a} {start = b} =
-		  State.equal a b
-
-		let hash {start = a} =
-		  State.hash a
-
-	  end
-
-	module StateHtbl = Hashtbl.Make(StateSequences)
+	module StateHtbl = Hashtbl.Make(State)
 
 	let ht = StateHtbl.create 128
 
-	let _resetStateSequences ({StateSequences.curseq = csq} as entry) =
-	  StateHtbl.replace ht entry {entry with
-								   StateSequences.prevseq = Some csq
-								  ;StateSequences.curseq = []}
+	let _resetStateSequences key {curseq = csq} =
 
-	let _insertStateInSequence st ({StateSequences.curseq = csq} as entry) =
-	  StateHtbl.replace ht entry {entry with
-								   StateSequences.curseq = st::csq}
+	  StateHtbl.replace ht key {prevseq = Some csq
+							   ;curseq = []}
+
+	let _insertStateInSequence st key ({curseq = csq} as value) =
+
+	  StateHtbl.replace ht key {value with
+								 curseq = st::csq}
 
 
 	let _sequencesEqual a b =
+
 	  if List.length a <> List.length b then
 		false
 	  else if List.fold_left2
@@ -57,23 +47,33 @@ module Make =
 		false
 
 
-	let _update curState _ ({StateSequences.start = st
-							;StateSequences.prevseq = psq
-							;StateSequences.curseq = csq} as entry) =
+	let _update curState st ({
+							prevseq = psq
+							;curseq = csq} as entry) =
 
 	  if State.equal curState st
 	  then (
 		match psq with
 		| Some psq' when _sequencesEqual csq psq'	->
+		   Printf.eprintf "\tFailed\n%!";
 		   failwith "Loop detected, implement suitable error"
 		| _											->
-		   _resetStateSequences entry
+		   Printf.eprintf "\tResetting\n%!";
+		   _resetStateSequences st entry
 	  )
-	  else
-		_insertStateInSequence curState entry
-
+	  else (
+		Printf.eprintf "\tUpdating \n%!";
+		_insertStateInSequence curState st entry
+	  )
 
 	let update curState =
-	  StateHtbl.iter (_update curState) ht
 
+	  let tmp = {
+				prevseq = None
+				;curseq = []} in
+	  StateHtbl.iter (_update curState) ht;
+	  if not (StateHtbl.mem ht curState) then (
+		Printf.eprintf "\tInserting\n%!";
+		StateHtbl.add ht curState tmp
+	  )
   end
