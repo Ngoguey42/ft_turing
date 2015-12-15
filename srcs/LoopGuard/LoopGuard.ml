@@ -6,9 +6,13 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 13:58:38 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/13 16:17:49 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/15 17:53:56 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
+
+(* LoopGuard searches for recurrences in successive states.
+ * type t must be exhaustive while representing a state.
+ *)
 
 module Make =
   functor (State : sig
@@ -53,9 +57,8 @@ module Make =
 		false
 
 
-	let _update curState st ({
-							prevseq = psq
-							;curseq = csq} as entry) =
+	let _update curState st ({ prevseq = psq
+							 ; curseq = csq } as entry) =
 
 	  if State.equal curState st
 	  then (
