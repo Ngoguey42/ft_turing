@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 13:58:38 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/17 18:38:44 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/17 18:40:04 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -74,7 +74,7 @@ module Make =
 		| Some llast' when llast' = fronti ->
 		   let count = _dq_count_unclaimed_toward_back (fronti + 1) 1 in
 		   Printf.eprintf "\tdropping %delements %dleft\n%!" count (backi - fronti + 1 - count);
-		   Core.Dequeue.drop_front dq ~n:count
+		   Core.Dequeue.drop_front dq ~n:count;
 		   ()
 		| Some llast' ->
 		   Core.Dequeue.set_exn dq llast' {claimed = false; state = curState}
