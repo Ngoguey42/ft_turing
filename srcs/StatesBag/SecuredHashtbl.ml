@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/19 15:46:48 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/19 15:48:18 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/19 17:09:07 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -16,6 +16,16 @@
 (*      Is a functor with private functions/variables the same as a
  *  statically instanciated class?
  *)
+
+
+module DefaultCouple = struct
+  let hash = Hashtbl.hash
+  let equal = (=)
+  let key_invariants = [||]
+  let val_invariants = [||]
+  let ktostring _ = "undefined"
+  let vtostring _ = "()"
+end
 
 module Make =
   functor (Couple : sig
@@ -27,6 +37,7 @@ module Make =
 			  val val_invariants : (string * (tv -> bool)) array
 			  val ktostring : tk -> string
 			  val vtostring : tv -> string
+			  val name : string
 			end) ->
   struct
 
@@ -35,17 +46,20 @@ module Make =
 
 	let _key_redundant_error : Couple.tk -> unit = fun k ->
 	  Couple.ktostring k
-	  |> Printf.sprintf "Key \"%s\" showed up twice"
+	  |> Printf.sprintf "%s Key \"%s\" showed up twice"
+						Couple.name
 	  |> failwith
 
 	let _key_invariant_error : Couple.tk -> string -> unit = fun k name ->
 	  Couple.ktostring k
-	  |> Printf.sprintf "Invariant \"%s\" failed for key = \"%s\"" name
+	  |> Printf.sprintf "%s Invariant \"%s\" failed for key = \"%s\""
+						Couple.name name
 	  |> failwith
 
 	let _val_invariant_error : Couple.tv -> string -> unit = fun v name ->
 	  Couple.vtostring v
-	  |> Printf.sprintf "Invariant \"%s\" failed for value = \"%s\"" name
+	  |> Printf.sprintf "%s Invariant \"%s\" failed for value = \"%s\""
+						Couple.name name
 	  |> failwith
 
 	let add : Couple.tk -> Couple.tv -> unit = fun k v ->
@@ -62,5 +76,8 @@ module Make =
 
 	let find : Couple.tk -> Couple.tv = fun k ->
 	  CoupleHtbl.find _ht k
+
+	let mem : Couple.tk -> bool = fun k ->
+	  CoupleHtbl.mem _ht k
 
   end
