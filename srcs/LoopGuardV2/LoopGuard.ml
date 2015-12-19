@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 13:58:38 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/19 12:05:26 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/19 13:13:29 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -14,6 +14,10 @@
  * type t must be exhaustive when representing states.
  * Core.dequeue(dq) stores successive states (Enqueued back)
  * Hashtbl(ht) stores states' 2 latests indices in dq
+ *)
+
+(* 		Is a functor with private functions/variables the same as a
+ * 	statically instanciated class?
  *)
 
 module Make =
