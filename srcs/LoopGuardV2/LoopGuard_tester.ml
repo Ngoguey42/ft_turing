@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 15:41:24 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/17 18:32:27 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/19 09:34:43 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -41,7 +41,7 @@ let () =
   let prev = ref 42 in
   let pprev = ref 42 in
 
-  for i = 0 to 100000000 do
+  for i = 0 to 10_000_000 do
   	let v = Random.int 500 in
 
 	if v <> !prev && v <> !pprev then (
