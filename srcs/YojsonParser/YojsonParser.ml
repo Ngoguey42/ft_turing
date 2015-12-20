@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 16:25:13 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/20 17:46:03 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/20 18:00:37 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -52,14 +52,24 @@ let _hashtbl_of_array a =
 let (~|) a = _hashtbl_of_array a
 let (~~) n f c = n, (f, c)
 
-let t =
+let transition_handler =
   StaticAssoc
 	~| [|
-	  ~~ "name" NoFun @@ String (Fun "save_name")
-	; ~~ "alphabet" NoFun @@ List (NoFun, String (Fun "save_letter"))
-	; ~~ "blank" NoFun @@ String (Fun "save_blank")
-	; ~~ "states" NoFun @@ List (NoFun, String (Fun "save_state"))
-	; ~~ "initial" NoFun @@ String (Fun "save_initial")
-	; ~~ "finals" NoFun @@ List (NoFun, String (Fun "save_final"))
-	; ~~ "transitions" NoFun @@ DynamicAssoc ((Fun "save_transitions"), NoHandle)
+	  ~~ "read" NoFun @@ String (Fun "sv_trans_read")
+	; ~~ "to_state" NoFun @@ String (Fun "sv_trans_tostate")
+	; ~~ "write" NoFun @@ String (Fun "sv_trans_write")
+	; ~~ "action" NoFun @@ String (Fun "sv_trans_action")
+	|]
+
+let file_handler =
+  StaticAssoc
+	~| [|
+	  ~~ "name" NoFun @@ String (Fun "sv_name")
+	; ~~ "alphabet" NoFun @@ List (NoFun, String (Fun "sv_letter"))
+	; ~~ "blank" NoFun @@ String (Fun "sv_blank")
+	; ~~ "states" NoFun @@ List (NoFun, String (Fun "sv_state"))
+	; ~~ "initial" NoFun @@ String (Fun "sv_initial")
+	; ~~ "finals" NoFun @@ List (NoFun, String (Fun "sv_final"))
+	; ~~ "transitions" NoFun
+	  @@ DynamicAssoc ((Fun "sv_trans_name"), List (NoFun, transition_handler))
 	|]
