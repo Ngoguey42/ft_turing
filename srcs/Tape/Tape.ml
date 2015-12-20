@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/15 14:00:02 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/15 17:49:37 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/20 14:34:01 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -25,7 +25,7 @@ type t = {
 	i		: int;
   }
 
-type move = Left | Right
+type action = Left | Right
 
 
 (* of_string ************************ *)
@@ -52,8 +52,8 @@ let of_string str blank =
 
 (* action *************************** *)
 
-let action ({left = l; right = r; blank = blank; i = i} as tape) input move =
-  let dst, src, di = match move with
+let action ({left = l; right = r; blank = blank; i = i} as tape) input action =
+  let dst, src, di = match action with
 	| Left	-> r, l, -1
 	| Right	-> l, r, 1
   in
