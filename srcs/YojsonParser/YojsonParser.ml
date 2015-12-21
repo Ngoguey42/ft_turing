@@ -6,11 +6,10 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 16:25:13 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/21 15:32:44 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/21 17:38:20 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
-(* let f = Yojson.Basic.from_file *)
 
 
 (* (\* type jsonlololol = [ `Assoc *\) *)
@@ -38,11 +37,15 @@
 (* 			| `Null *)
 
 (* ************************************************************************** *)
-(* Yojson Semantic Checker *)
+(* Yojson Semantic Matcher *)
 
 type 'a status = Fail of string | Success of 'a
+
 type 'a func = 'a -> string -> 'a status
 
+
+(* AssocDeclared; *)
+(* AssocDefined *)
 type 'a handler = AssocStatic of bool * bool * (string, 'a handler) Hashtbl.t
 				| AssocDynamic of bool * int * 'a func * 'a handler
 				| List of int * 'a handler
@@ -57,6 +60,53 @@ let assoc_dynamic ~uniq ~min ~f entries =
 let list ~min entries =
   List (min, entries)
 
+
+let rec handle_assoc_static data l (_, _, fields) =
+  Printf.eprintf "handle_assoc_static\n%!";
+  List.iter (fun (str, json') ->
+	  let sem' = Hashtbl.find fields str in
+	  Printf.eprintf "handle_assoc_static loop with %s\n%!" str;
+	  aux data sem' json'
+	) l;
+  ()
+
+and handle_assoc_dynamic data l (_, _, _, entries) =
+  Printf.eprintf "handle_assoc_dynamic\n%!";
+  List.iter (fun (str, json') ->
+	  Printf.eprintf "handle_assoc_dynamic loop with %s\n%!" str;
+	  aux data entries json'
+	) l;
+  ()
+
+and handle_list data l (_, entries) =
+  Printf.eprintf "handle_list\n%!";
+  List.iter (fun (json') ->
+	  Printf.eprintf "handle_list loop\n%!";
+	  aux data entries json'
+	) l;
+	()
+
+and handle_string data str fn =
+  Printf.eprintf "handle_string with %s \n%!" str;
+  ()
+
+and aux data sem json =
+  match sem, json with
+  | AssocStatic (b, b', ht),	`Assoc l -> handle_assoc_static data l (b, b', ht)
+  | AssocDynamic (b,i,f,h),		`Assoc l -> handle_assoc_dynamic data l (b,i,f,h)
+  | List (i,a),					`List l -> handle_list data l (i,a)
+  | String fn, 					`String s -> handle_string data s fn
+
+  | AssocStatic _, _ | AssocDynamic _, _ -> failwith "Unmatching assoc"
+  | List _, _ -> failwith "Unmatching list"
+  | String _, _ -> failwith "Unmatching string"
+
+
+let unfold data semantic json =
+  aux data semantic json;
+  data
+
+
 (* ************************************************************************** *)
 (* TmpProgramData *)
 
@@ -69,12 +119,12 @@ let list ~min entries =
 
 type parsing_data = {
 	name		: string option;
-	blank		: string option;
-	initial		: string option;
+	(* blank		: string option; *)
+	(* initial		: string option; *)
 
-	alphabet	: string list option;
-	states		: string list option;
-	finals		: string list option;
+	(* alphabet	: string list option; *)
+	(* states		: string list option; *)
+	(* finals		: string list option; *)
 
 	(* transitions	: transition_data; *)
   }
@@ -102,7 +152,7 @@ let (~|) : ('a * 'b) array -> ('a, 'b) Hashtbl.t = fun a ->
 (* 	  Success {database with blank} *)
 (*   ) *)
 
-let transition_handler =
+let transition_semantic =
   list ~min:0
   @@ assoc_static ~uniq:true ~compl:true
   @@ ~| [|
@@ -112,7 +162,7 @@ let transition_handler =
 	   ; "action", String placeholder
 	   |]
 
-let file_handler =
+let file_semantic =
   assoc_static ~uniq:true ~compl:true
   @@ ~| [|
 		 "name", String placeholder
@@ -123,5 +173,16 @@ let file_handler =
 	   ; "states" , list ~min:1 (String placeholder)
 	   ; "finals", list ~min:1 (String placeholder)
 	   ; "transitions", assoc_dynamic ~uniq:true ~min:0 ~f:placeholder
-									  transition_handler
+									  transition_semantic
 	   |]
+
+
+(* ************************************************************************** *)
+(* Main *)
+
+let () =
+  let j = Yojson.Basic.from_file "unary_sub.json" in
+  let data = {name = None} in
+  let data = unfold data file_semantic j in
+  (* Yojson.Basic.pretty_to_channel ~std:false stdout j; *)
+  ()
