@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 16:25:13 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/21 17:38:20 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/21 18:45:44 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -43,7 +43,6 @@ type 'a status = Fail of string | Success of 'a
 
 type 'a func = 'a -> string -> 'a status
 
-
 (* AssocDeclared; *)
 (* AssocDefined *)
 type 'a handler = AssocStatic of bool * bool * (string, 'a handler) Hashtbl.t
@@ -61,34 +60,91 @@ let list ~min entries =
   List (min, entries)
 
 
-let rec handle_assoc_static data l (_, _, fields) =
-  Printf.eprintf "handle_assoc_static\n%!";
-  List.iter (fun (str, json') ->
+let (++) = (@@)
+let (/>) = (|>)
+
+let errormsg fname why json =
+  Yojson.Basic.pretty_to_string json
+  |> Printf.sprintf "%s failed because \"%s\" at \"%s\"" fname why
+
+
+let errormsg2 fname why json json' =
+  Printf.sprintf "%s failed because \"%s\" at \"%s\" in \"%s\"" fname why
+  ++ Yojson.Basic.pretty_to_string json
+  ++ Yojson.Basic.pretty_to_string json'
+
+
+let rec handle_assoc_static data l (uniq, compl, fields) =
+  (* Printf.eprintf "handle_assoc_static\n%!"; *)
+  let llen =  List.length l in
+  let uniqlen = List.length @@ List.sort_uniq Pervasives.compare l in
+
+  if uniq && uniqlen <> llen then
+	failwith
+	@@ errormsg "handle_assoc_static"
+	   ++ Printf.sprintf "duplicates not allowed by parameter"
+	   ++ `Assoc l;
+
+  if compl && Hashtbl.length fields <> uniqlen then
+	failwith
+	@@ errormsg "handle_assoc_static"
+	   ++ Printf.sprintf "missing field not allowed by parameter"
+	   ++ `Assoc l;
+
+  List.fold_left (fun data' (str, json') ->
 	  let sem' = Hashtbl.find fields str in
-	  Printf.eprintf "handle_assoc_static loop with %s\n%!" str;
-	  aux data sem' json'
-	) l;
-  ()
+	  (* Printf.eprintf "handle_assoc_static loop with %s\n%!" str; *)
+	  aux data' sem' json'
+	) data l
 
-and handle_assoc_dynamic data l (_, _, _, entries) =
-  Printf.eprintf "handle_assoc_dynamic\n%!";
-  List.iter (fun (str, json') ->
-	  Printf.eprintf "handle_assoc_dynamic loop with %s\n%!" str;
-	  aux data entries json'
-	) l;
-  ()
 
-and handle_list data l (_, entries) =
-  Printf.eprintf "handle_list\n%!";
-  List.iter (fun (json') ->
-	  Printf.eprintf "handle_list loop\n%!";
-	  aux data entries json'
-	) l;
-	()
+and handle_assoc_dynamic data l (uniq, min, fn, entries) =
+  (* Printf.eprintf "handle_assoc_dynamic\n%!"; *)
+  let llen =  List.length l in
+
+  if uniq && List.length @@ List.sort_uniq Pervasives.compare l <> llen then
+	failwith
+	@@ errormsg "handle_assoc_dynamic"
+	   ++ Printf.sprintf "duplicates not allowed by parameter"
+	   ++ `Assoc l;
+
+  if llen < min then
+	failwith
+	@@ errormsg "handle_assoc_dynamic"
+	   ++ Printf.sprintf "list length to low (%d < %d)" llen min
+	   ++ `Assoc l;
+
+  List.fold_left (fun data' (str, json') ->
+	  (* Printf.eprintf "handle_assoc_dynamic loop with %s\n%!" str; *)
+	  match fn data' str with
+	  | Fail why -> failwith
+					@@ errormsg2 "handle_assoc_dynamic" why
+					   ++ `String str
+					   ++ `Assoc l
+	  | Success data'' -> aux data'' entries json'
+	) data l
+
+
+and handle_list data l (min, entries) =
+  (* Printf.eprintf "handle_list\n%!"; *)
+  if List.length l < min then
+	failwith
+	@@ errormsg "handle_string"
+	   ++ Printf.sprintf "list length to low (%d < %d)" (List.length l) min
+	   ++ `List l;
+
+  List.fold_left (fun data' (json') ->
+	  (* Printf.eprintf "handle_list loop\n%!"; *)
+	  aux data' entries json'
+	) data l
+
 
 and handle_string data str fn =
-  Printf.eprintf "handle_string with %s \n%!" str;
-  ()
+  (* Printf.eprintf "handle_string with %s \n%!" str; *)
+  match fn data str with
+  | Fail why -> errormsg "handle_string" why @@ `String str |> failwith
+  | Success data' -> data'
+
 
 and aux data sem json =
   match sem, json with
@@ -103,8 +159,7 @@ and aux data sem json =
 
 
 let unfold data semantic json =
-  aux data semantic json;
-  data
+  aux data semantic json
 
 
 (* ************************************************************************** *)
@@ -132,8 +187,9 @@ type parsing_data = {
 (* ************************************************************************** *)
 (* Program Creator *)
 
-let placeholder (db: int) str =
-  Fail "lol"
+let placeholder (db: parsing_data) str =
+  (* Fail "lol" *)
+  Success db
 
 (* ~| Hashtbl constructor from array *)
 let (~|) : ('a * 'b) array -> ('a, 'b) Hashtbl.t = fun a ->
