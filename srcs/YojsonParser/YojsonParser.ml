@@ -6,24 +6,24 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 16:25:13 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/21 12:26:30 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/21 15:32:44 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
-let f = Yojson.Basic.from_file
+(* let f = Yojson.Basic.from_file *)
 
 
-(* type jsonlololol = [ `Assoc *)
-(* 				   | `List *)
-(* 				   | `String ] *)
-let f : Yojson.Basic.json -> unit = fun a ->
-  match a with
-  | `Bool b ->
-	 Printf.eprintf "bool %b\n%!" b
-  | _ -> ()
+(* (\* type jsonlololol = [ `Assoc *\) *)
+(* (\* 				   | `List *\) *)
+(* (\* 				   | `String ] *\) *)
+(* let f : Yojson.Basic.json -> unit = fun a -> *)
+(*   match a with *)
+(*   | `Bool b -> *)
+(* 	 Printf.eprintf "bool %b\n%!" b *)
+(*   | _ -> () *)
 
-let v = f (`Null)
-(* let v = f (`Bool true) *)
+(* let v = f (`Null) *)
+(* (\* let v = f (`Bool true) *\) *)
 
 
 
@@ -31,47 +31,41 @@ let v = f (`Null)
 (* type json = [ `Assoc of (string * json) list *)
 (* 			| `String of string ] *)
 (* 			| `List of json list *)
+
 (* 			| `Bool of bool *)
 (* 			| `Float of float *)
 (* 			| `Int of int *)
 (* 			| `Null *)
 
-type funtype = Fun of string | NoFun
+(* ************************************************************************** *)
+(* Yojson Semantic Checker *)
 
-type handler =
-  | StaticAssoc of (string, (funtype * handler)) Hashtbl.t * bool
-  (* htable[string].funtype takes a (string * json) *)
-  (* htable[string].handler applied on each assoc's rhs *)
+type 'a status = Fail of string | Success of 'a
+type 'a func = 'a -> string -> 'a status
 
-  | DynamicAssoc of funtype * funtype * handler
-  (* funtype#1 takes a (string * json) list *)
-  (* funtype#2 takes repeated (string * json) *)
-  (* handler applied on each assoc's elements *)
+type 'a handler = AssocStatic of bool * bool * (string, 'a handler) Hashtbl.t
+				| AssocDynamic of bool * int * 'a func * 'a handler
+				| List of int * 'a handler
+				| String of 'a func
 
-  | List of funtype * funtype * handler
-  (* funtype#1 takes a json list *)
-  (* funtype#2 takes repeated json *)
-  (* handler applied on each list's elements *)
+let assoc_static ~uniq ~compl fields =
+  AssocStatic (uniq, compl, fields)
 
-  | String of funtype
-  (* funtype takes a string *)
+let assoc_dynamic ~uniq ~min ~f entries =
+  AssocDynamic (uniq, min, f, entries)
 
-  | NoHandle
+let list ~min entries =
+  List (min, entries)
 
+(* ************************************************************************** *)
+(* TmpProgramData *)
 
-
-
-
-(* ~| StaticAssoc constructor *)
-let (~|) : ('a * 'b) array -> bool -> handler = fun a b ->
-  let ht = Hashtbl.create @@ Array.length a in
-  Array.iter (fun (k, v) -> Hashtbl.add ht k v) a;
-  StaticAssoc (ht, b)
-
-(* ~~ Hashtbl entry constructor *)
-let (~~) : 'a -> 'b -> 'c -> 'a * ('b * 'c) = fun n f c ->
-  n, (f, c)
-
+(* type transition_data = { *)
+(* 	read		: string option; *)
+(* 	to_state	: string option; *)
+(* 	write		: string option; *)
+(* 	action		: string option; *)
+(*   } *)
 
 type parsing_data = {
 	name		: string option;
@@ -82,34 +76,52 @@ type parsing_data = {
 	states		: string list option;
 	finals		: string list option;
 
-	(* transitions	: *)
+	(* transitions	: transition_data; *)
   }
 
+(* ************************************************************************** *)
+(* Program Creator *)
+
+let placeholder (db: int) str =
+  Fail "lol"
+
+(* ~| Hashtbl constructor from array *)
+let (~|) : ('a * 'b) array -> ('a, 'b) Hashtbl.t = fun a ->
+  let ht = Hashtbl.create @@ Array.length a in
+  Array.iter (fun (k, v) -> Hashtbl.add ht k v) a;
+  ht
+
+(* let save_blank_char database string = *)
+(*   if String.length string <> 1 then *)
+(* 	Fail "fail lol" *)
+(*   else ( *)
+(* 	let blank = string.(0) in *)
+(* 	if not (Hashtbl.mem database.alphabetHmap blank) then *)
+(* 	  Fail "invaild char" *)
+(* 	else *)
+(* 	  Success {database with blank} *)
+(*   ) *)
 
 let transition_handler =
-  ~| [|
-	  ~~ "read" NoFun @@ String (Fun "sv_trans_read")
-	; ~~ "to_state" NoFun @@ String (Fun "sv_trans_tostate")
-	; ~~ "write" NoFun @@ String (Fun "sv_trans_write")
-	; ~~ "action" NoFun @@ String (Fun "sv_trans_action")
-	|] true
-
-let transitions_handler =
-  DynamicAssoc ((Fun "ck_trans_count"), (Fun "sv_trans_name"),
-				List (NoFun, NoFun, transition_handler))
+  list ~min:0
+  @@ assoc_static ~uniq:true ~compl:true
+  @@ ~| [|
+		 "read", String placeholder
+	   ; "to_state", String placeholder
+	   ; "write", String placeholder
+	   ; "action", String placeholder
+	   |]
 
 let file_handler =
-  ~| [|
-	  ~~ "name" NoFun @@ String (Fun "sv_name")
-	; ~~ "blank" NoFun @@ String (Fun "sv_blank")
-	; ~~ "initial" NoFun @@ String (Fun "sv_initial")
+  assoc_static ~uniq:true ~compl:true
+  @@ ~| [|
+		 "name", String placeholder
+	   ; "alphabet" , list ~min:1 (String placeholder)
+	   ; "blank", String placeholder
 
-	; ~~ "transitions" NoFun @@ transitions_handler
-
-	; ~~ "alphabet" NoFun
-	  @@ List ((Fun "ck_letters_count"), NoFun, String (Fun "sv_letter"))
-	; ~~ "states" NoFun
-	  @@ List ((Fun "ck_states_count"), NoFun, String (Fun "sv_state"))
-	; ~~ "finals" NoFun
-	  @@ List ((Fun "ck_finals_count"), NoFun, String (Fun "sv_final"))
-	|] true
+	   ; "initial", String placeholder
+	   ; "states" , list ~min:1 (String placeholder)
+	   ; "finals", list ~min:1 (String placeholder)
+	   ; "transitions", assoc_dynamic ~uniq:true ~min:0 ~f:placeholder
+									  transition_handler
+	   |]
