@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 16:25:13 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/21 18:45:44 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/21 19:08:45 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -61,12 +61,10 @@ let list ~min entries =
 
 
 let (++) = (@@)
-let (/>) = (|>)
 
 let errormsg fname why json =
-  Yojson.Basic.pretty_to_string json
-  |> Printf.sprintf "%s failed because \"%s\" at \"%s\"" fname why
-
+  Printf.sprintf "%s failed because \"%s\" at \"%s\"" fname why
+  @@ Yojson.Basic.pretty_to_string json
 
 let errormsg2 fname why json json' =
   Printf.sprintf "%s failed because \"%s\" at \"%s\" in \"%s\"" fname why
@@ -142,7 +140,7 @@ and handle_list data l (min, entries) =
 and handle_string data str fn =
   (* Printf.eprintf "handle_string with %s \n%!" str; *)
   match fn data str with
-  | Fail why -> errormsg "handle_string" why @@ `String str |> failwith
+  | Fail why -> failwith @@ errormsg "handle_string" why ++ `String str
   | Success data' -> data'
 
 
@@ -172,12 +170,17 @@ let unfold data semantic json =
 (* 	action		: string option; *)
 (*   } *)
 
-type parsing_data = {
-	name		: string option;
-	(* blank		: string option; *)
-	(* initial		: string option; *)
+module CharSet = Set.Make(struct
+						   type t = char
+						   let compare = Pervasives.compare
+						 end)
 
-	(* alphabet	: string list option; *)
+type parsing_data = {
+	name		: string; (* presence guaranteed int semantic *)
+	blank		: char; (* presence guaranteed int semantic *)
+	initial		: string; (* presence guaranteed int semantic *)
+
+	alphabet	: CharSet.t option;
 	(* states		: string list option; *)
 	(* finals		: string list option; *)
 
@@ -197,16 +200,27 @@ let (~|) : ('a * 'b) array -> ('a, 'b) Hashtbl.t = fun a ->
   Array.iter (fun (k, v) -> Hashtbl.add ht k v) a;
   ht
 
-(* let save_blank_char database string = *)
-(*   if String.length string <> 1 then *)
-(* 	Fail "fail lol" *)
-(*   else ( *)
-(* 	let blank = string.(0) in *)
-(* 	if not (Hashtbl.mem database.alphabetHmap blank) then *)
-(* 	  Fail "invaild char" *)
-(* 	else *)
-(* 	  Success {database with blank} *)
-(*   ) *)
+let sv_letter ({alphabet} as db) str =
+  if String.length str <> 1 then
+	Fail "String.length str <> 1"
+  else (
+	let c = String.get str 0 in
+	match alphabet with
+	| None -> Success {db with alphabet = Some (CharSet.add c @@ CharSet.empty)}
+	| Some set when CharSet.mem c set -> Fail "Duplicate in alphabet"
+	| Some set -> Success {db with alphabet = Some (CharSet.add c set)}
+  )
+
+let sv_blank ({alphabet} as db) str =
+  if String.length str <> 1 then
+	Fail "String.length str <> 1"
+  else (
+	let c = String.get str 0 in
+	match alphabet with
+	| None -> Fail "alphabet not defined"
+	| Some set when not (CharSet.mem c set) -> Fail "Not present in alphabet"
+	| _ -> Success {db with blank = c}
+  )
 
 let transition_semantic =
   list ~min:0
@@ -222,8 +236,8 @@ let file_semantic =
   assoc_static ~uniq:true ~compl:true
   @@ ~| [|
 		 "name", String placeholder
-	   ; "alphabet" , list ~min:1 (String placeholder)
-	   ; "blank", String placeholder
+	   ; "alphabet" , list ~min:1 (String sv_letter)
+	   ; "blank", String sv_blank
 
 	   ; "initial", String placeholder
 	   ; "states" , list ~min:1 (String placeholder)
@@ -238,7 +252,7 @@ let file_semantic =
 
 let () =
   let j = Yojson.Basic.from_file "unary_sub.json" in
-  let data = {name = None} in
+  let data = {name = ""; blank = '0'; initial = ""; alphabet = None} in
   let data = unfold data file_semantic j in
   (* Yojson.Basic.pretty_to_channel ~std:false stdout j; *)
   ()
