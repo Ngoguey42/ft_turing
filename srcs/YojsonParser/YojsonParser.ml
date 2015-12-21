@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 16:25:13 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/21 19:08:45 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/21 19:24:41 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -38,6 +38,8 @@
 
 (* ************************************************************************** *)
 (* Yojson Semantic Matcher *)
+(* Unfolds side by side an ('a handler) and a (Yojson.Basic.json)
+ *)
 
 type 'a status = Fail of string | Success of 'a
 
@@ -174,15 +176,22 @@ module CharSet = Set.Make(struct
 						   type t = char
 						   let compare = Pervasives.compare
 						 end)
+module StringSet = Set.Make(struct
+							 type t = string
+							 let compare = Pervasives.compare
+						   end)
 
+(* Presence of all field guaranteed by semantic *)
 type parsing_data = {
-	name		: string; (* presence guaranteed int semantic *)
-	blank		: char; (* presence guaranteed int semantic *)
-	initial		: string; (* presence guaranteed int semantic *)
+	name		: string;
+	blank		: char;
+	initial		: string;
+	finals		: StringSet.t;
 
+	(* alphabet is an option for a better error handling later *)
 	alphabet	: CharSet.t option;
-	(* states		: string list option; *)
-	(* finals		: string list option; *)
+	(* states is an option for a better error handling later *)
+	states		: StringSet.t option;
 
 	(* transitions	: transition_data; *)
   }
@@ -200,7 +209,10 @@ let (~|) : ('a * 'b) array -> ('a, 'b) Hashtbl.t = fun a ->
   Array.iter (fun (k, v) -> Hashtbl.add ht k v) a;
   ht
 
-let sv_letter ({alphabet} as db) str =
+let save_name db name =
+  Success {db with name}
+
+let save_letter ({alphabet} as db) str =
   if String.length str <> 1 then
 	Fail "String.length str <> 1"
   else (
@@ -211,7 +223,7 @@ let sv_letter ({alphabet} as db) str =
 	| Some set -> Success {db with alphabet = Some (CharSet.add c set)}
   )
 
-let sv_blank ({alphabet} as db) str =
+let save_blank ({alphabet} as db) str =
   if String.length str <> 1 then
 	Fail "String.length str <> 1"
   else (
@@ -221,6 +233,25 @@ let sv_blank ({alphabet} as db) str =
 	| Some set when not (CharSet.mem c set) -> Fail "Not present in alphabet"
 	| _ -> Success {db with blank = c}
   )
+
+let save_state ({states} as db) str =
+  match states with
+  | None -> Success {db with states = Some (StringSet.add str @@ StringSet.empty)}
+  | Some set when StringSet.mem str set -> Fail "Duplicate in states"
+  | Some set -> Success {db with states = Some (StringSet.add str set)}
+
+let save_initial ({states} as db) str =
+  match states with
+  | None -> Fail "states not defined"
+  | Some set when not (StringSet.mem str set) -> Fail "Not present in states"
+  | _ -> Success {db with initial = str}
+
+let save_finals ({states; finals} as db) str =
+  match states with
+  | None -> Fail "states not defined"
+  | Some set when not (StringSet.mem str set) -> Fail "Not present in states"
+  | Some set when StringSet.mem str finals -> Fail "Duplicate in finals"
+  | _ -> Success {db with finals = StringSet.add str finals}
 
 let transition_semantic =
   list ~min:0
@@ -235,13 +266,13 @@ let transition_semantic =
 let file_semantic =
   assoc_static ~uniq:true ~compl:true
   @@ ~| [|
-		 "name", String placeholder
-	   ; "alphabet" , list ~min:1 (String sv_letter)
-	   ; "blank", String sv_blank
+		 "name", String save_name
+	   ; "alphabet" , list ~min:1 (String save_letter)
+	   ; "blank", String save_blank
 
-	   ; "initial", String placeholder
-	   ; "states" , list ~min:1 (String placeholder)
-	   ; "finals", list ~min:1 (String placeholder)
+	   ; "initial", String save_initial
+	   ; "states" , list ~min:1 (String save_state)
+	   ; "finals", list ~min:1 (String save_finals)
 	   ; "transitions", assoc_dynamic ~uniq:true ~min:0 ~f:placeholder
 									  transition_semantic
 	   |]
@@ -252,7 +283,9 @@ let file_semantic =
 
 let () =
   let j = Yojson.Basic.from_file "unary_sub.json" in
-  let data = {name = ""; blank = '0'; initial = ""; alphabet = None} in
+  let data = {name = ""; blank = '0'; initial = ""
+			  ; finals = StringSet.empty
+			  ; alphabet = None; states = None} in
   let data = unfold data file_semantic j in
   (* Yojson.Basic.pretty_to_channel ~std:false stdout j; *)
   ()
