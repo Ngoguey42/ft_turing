@@ -6,35 +6,9 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 16:25:13 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/22 16:47:53 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/22 17:45:23 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
-
-
-
-(* (\* type jsonlololol = [ `Assoc *\) *)
-(* (\* 				   | `List *\) *)
-(* (\* 				   | `String ] *\) *)
-(* let f : Yojson.Basic.json -> unit = fun a -> *)
-(*   match a with *)
-(*   | `Bool b -> *)
-(* 	 Printf.eprintf "bool %b\n%!" b *)
-(*   | _ -> () *)
-
-(* let v = f (`Null) *)
-(* (\* let v = f (`Bool true) *\) *)
-
-
-
-
-(* type json = [ `Assoc of (string * json) list *)
-(* 			| `String of string ] *)
-(* 			| `List of json list *)
-
-(* 			| `Bool of bool *)
-(* 			| `Float of float *)
-(* 			| `Int of int *)
-(* 			| `Null *)
 
 (* ************************************************************************** *)
 (* YojsonTreeMatcher *)
@@ -43,12 +17,15 @@
 
 type 'a status = Fail of string | Success of 'a
 
-type 'a func = 'a -> string -> 'a status
+type ('a, 'b) func = 'a -> 'b -> 'a status
 
 type 'a node = AssocKnown of bool * bool * (string, 'a node) Hashtbl.t
-			 | AssocUnknown of bool * int * 'a func * 'a node
+			 | AssocUnknown of bool * int * ('a, string) func * 'a node
 			 | List of int * 'a node
-			 | String of 'a func
+			 | String of ('a, string) func
+			 | Int of ('a, int) func
+			 | Float of ('a, float) func
+			 | Null of ('a, unit) func
 
 let assoc_known ~uniq ~compl fields =
   AssocKnown (uniq, compl, fields)
@@ -83,7 +60,6 @@ let error2 fname why json json' =
 
 
 let rec handle_assoc_known data l (uniq, compl, fields) =
-  (* Printf.eprintf "handle_assoc_known\n%!"; *)
   let llen =  List.length l in
   let uniqlen = List.length @@ List.sort_uniq Pervasives.compare l in (* TODO: Check exactitude lol *)
 
@@ -99,13 +75,11 @@ let rec handle_assoc_known data l (uniq, compl, fields) =
 
   else monoid_fold_left (fun data' (str, json') ->
 		   let sem' = Hashtbl.find fields str in
-		   (* Printf.eprintf "handle_assoc_known loop with %s\n%!" str; *)
 		   aux data' sem' json'
 		 ) data l
 
 
 and handle_assoc_unknown data l (uniq, min, fn, entries) =
-  (* Printf.eprintf "handle_assoc_unknown\n%!"; *)
   let llen =  List.length l in
 
   if uniq && List.length @@ List.sort_uniq Pervasives.compare l <> llen then
@@ -119,7 +93,6 @@ and handle_assoc_unknown data l (uniq, min, fn, entries) =
 	++ `Assoc l
 
   else monoid_fold_left (fun data' (str, json') ->
-		   (* Printf.eprintf "handle_assoc_unknown loop with %s\n%!" str; *)
 		   match fn data' str with
 		   | Fail why -> error2 "handle_assoc_unknown" why
 						 ++ `String str
@@ -129,22 +102,34 @@ and handle_assoc_unknown data l (uniq, min, fn, entries) =
 
 
 and handle_list data l (min, entries) =
-  (* Printf.eprintf "handle_list\n%!"; *)
   if List.length l < min then
 	error "handle_string"
 	++ Printf.sprintf "list length to low (%d < %d)" (List.length l) min
 	++ `List l
 
   else monoid_fold_left (fun data' (json') ->
-		   (* Printf.eprintf "handle_list loop\n%!"; *)
 		   aux data' entries json'
 		 ) data l
 
 
 and handle_string data str fn =
-  (* Printf.eprintf "handle_string with %s \n%!" str; *)
   match fn data str with
   | Fail why -> error "handle_string" why ++ `String str
+  | Success data' -> Success data'
+
+and handle_int data i fn =
+  match fn data i with
+  | Fail why -> error "handle_string" why ++ `Int i
+  | Success data' -> Success data'
+
+and handle_float data fl fn =
+  match fn data fl with
+  | Fail why -> error "handle_string" why ++ `Float fl
+  | Success data' -> Success data'
+
+and handle_null data fn =
+  match fn data () with
+  | Fail why -> error "handle_string" why ++ `Null
   | Success data' -> Success data'
 
 
@@ -154,10 +139,16 @@ and aux data sem json =
   | AssocUnknown (b,i,f,h),		`Assoc l -> handle_assoc_unknown data l (b,i,f,h)
   | List (i,a),					`List l -> handle_list data l (i,a)
   | String fn, 					`String s -> handle_string data s fn
+  | Int fn, 					`Int i -> handle_int data i fn
+  | Float fn, 					`Float i -> handle_float data i fn
+  | Null fn, 					`Null -> handle_null data fn
 
   | AssocKnown _, _ | AssocUnknown _, _ -> Fail "Unmatching assoc"
   | List _, _ -> Fail "Unmatching list"
   | String _, _ -> Fail "Unmatching string"
+  | Int _, _ -> Fail "Unmatching int"
+  | Float _, _ -> Fail "Unmatching float"
+  | Null _, _ -> Fail "Unmatching null"
 
 
 let unfold data semantic json =
@@ -234,10 +225,6 @@ let print : parsing_data -> unit = fun db ->
 (* ************************************************************************** *)
 (* ProgramCreator *)
 
-let placeholder (db: parsing_data) str =
-  (* Fail "lol" *)
-  Success db
-
 let save_name db name =
   Success {db with name}
 
@@ -249,10 +236,6 @@ let save_letter ({alphabet} as db) str =
 	match alphabet with
 	| None -> Success {db with alphabet = Some (CharSet.add c @@ CharSet.empty)}
 	| Some set when CharSet.mem c set -> Fail "Duplicate in alphabet"
-
-
-	(* | Some set -> Hashtbl.add db.alphabet c; *)
-	(* 			  Success db *)
 	| Some set -> Success {db with alphabet = Some (CharSet.add c set)}
   )
 
@@ -309,12 +292,53 @@ let save_trans_read ({trans_tmp; alphabet} as db) str =
 	| Some set when not (CharSet.mem c set) -> Fail "Not present in alphabet"
 	| _ -> let count, dat = trans_tmp in
 		   let dat = {dat with read = c} in
-		   Printf.eprintf "bordel count %d\n%!" count;
 		   if count = 3 then
 			 save_transition db dat
 		   else
 			 Success {db with trans_tmp = (count + 1, dat)}
   )
+
+let save_trans_write ({trans_tmp; alphabet} as db) str =
+  if String.length str <> 1 then
+	Fail "String.length str <> 1"
+  else (
+	let c = String.get str 0 in
+	match alphabet with
+	| None -> Fail "alphabet not defined"
+	| Some set when not (CharSet.mem c set) -> Fail "Not present in alphabet"
+	| _ -> let count, dat = trans_tmp in
+		   let dat = {dat with write = c} in
+		   if count = 3 then
+			 save_transition db dat
+		   else
+			 Success {db with trans_tmp = (count + 1, dat)}
+  )
+
+let save_trans_to_state ({trans_tmp; states} as db) str =
+  match states with
+  | None -> Fail "state not defined"
+  | Some set when not (StringSet.mem str set) -> Fail "Not present in state"
+  | _ -> let count, dat = trans_tmp in
+		 let dat = {dat with to_state = str} in
+		 if count = 3 then
+		   save_transition db dat
+		 else
+		   Success {db with trans_tmp = (count + 1, dat)}
+
+let save_trans_action ({trans_tmp; states} as db) str =
+  let action = match str with
+	| "LEFT" -> Some Left
+	| "RIGHT" -> Some Right
+	| _ -> None
+  in
+  match action with
+  | Some action ->  let count, dat = trans_tmp in
+					let dat = {dat with action} in
+					if count = 3 then
+					  save_transition db dat
+					else
+					  Success {db with trans_tmp = (count + 1, dat)}
+  | None -> Fail "Undefined action"
 
 
 (* ~| Hashtbl constructor from array *)
@@ -328,9 +352,9 @@ let transition_semantic =
   @@ assoc_known ~uniq:true ~compl:true
   @@ ~| [|
 		 "read", String save_trans_read
-	   ; "to_state", String placeholder
-	   ; "write", String placeholder
-	   ; "action", String placeholder
+	   ; "to_state", String save_trans_to_state
+	   ; "write", String save_trans_write
+	   ; "action", String save_trans_action
 	   |]
 
 let file_semantic =
