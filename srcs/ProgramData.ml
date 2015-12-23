@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 16:28:30 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/23 18:05:03 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -61,20 +61,20 @@ let _transitions_to_string transarr states =
 						| Right -> "Right"
 					  in
 					  (i + 1,
-					   Printf.sprintf "%s\t[%c]=(wr'%c', act:%s, to:%d(%s))\n"
+					   Printf.sprintf "%s\t\t[%c]=(wr:'%c', act:%s, to:%d(%s))\n"
 									  str (char_of_int i) wr actstr nexti next
 					  )
 				   | _ -> (i + 1, str)
 				 ) (0, "") transarr
   in
   match str, transarr.(0) with
-  | "", Final -> "\tFinal\n"
+  | "", Final -> "\t\tFinal\n"
   | "", _ -> assert false
   | _, _ -> str
 
 let _states_to_string states =
   let _, str = Array.fold_left (fun (i, str) (state, transarr) ->
-				   let str = Printf.sprintf "%s[%d]=%s\n%s"
+				   let str = Printf.sprintf "%s\t[%d]=%s\n%s"
 											str i state
 							 ++ _transitions_to_string transarr states
 				   in
@@ -85,7 +85,8 @@ let _states_to_string states =
 
 
 let print db =
-  Printf.eprintf "n:'%s' c:'%c' i:'%d' \nalpha:[%s] \nstates:\n%s\n%!"
+  Printf.eprintf "Program \"%s\" Blank is '%c' Initial is (%d)\n\
+				  Alphabet [%s] \nStates:%s\n%!"
 				 db.name db.blank db.initial
 				 (_alphabet_to_string db.alphabet)
 				 (_states_to_string db.states)

@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 14:04:14 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 14:27:16 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/23 18:13:14 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -128,13 +128,13 @@ and _handle_null data fn =
 
 and _aux data sem json =
   match sem, json with
-  | AssocKnown tup,	`Assoc l -> _handle_assoc_known data l tup
-  | AssocUnknown tup,	`Assoc l -> _handle_assoc_unknown data l tup
-  | List tup,			`List l -> _handle_list data l tup
-  | String fn, 		`String s -> _handle_string data s fn
-  | Int fn, 			`Int i -> _handle_int data i fn
-  | Float fn, 		`Float fl -> _handle_float data fl fn
-  | Null fn, 			`Null -> _handle_null data fn
+  | AssocKnown tup, `Assoc l -> _handle_assoc_known data l tup
+  | AssocUnknown tup, `Assoc l -> _handle_assoc_unknown data l tup
+  | List tup, `List l -> _handle_list data l tup
+  | String fn, `String s -> _handle_string data s fn
+  | Int fn, `Int i -> _handle_int data i fn
+  | Float fn, `Float fl -> _handle_float data fl fn
+  | Null fn, `Null -> _handle_null data fn
 
   | AssocKnown _, _ -> Fail "Unmatched assocKnown"
   | AssocUnknown _, _ -> Fail "Unmatched assocUnknown"
