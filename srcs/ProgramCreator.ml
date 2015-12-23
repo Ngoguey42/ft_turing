@@ -48,10 +48,11 @@ let _save_finals ({states; finals} as db) str =
   | _ -> Success {db with finals = StringSet.add str finals}
 
 
-let _save_trans_state ({states} as db) str =
+let _save_trans_state ({states; finals} as db) str =
   match states with
   | None -> Fail "states not defined"
   | Some set when not (StringSet.mem str set) -> Fail "Not present in states"
+  | Some set when StringSet.mem str finals -> Fail "Final with transition"
   | _ -> Success {db with trans_state = str}
 
 let _save_transition ({trans_tmp = (_, record); transitions; trans_state}

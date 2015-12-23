@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 14:51:43 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/23 15:32:01 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -44,6 +44,15 @@ type t = {
   }
 
 
+
+let print db =
+  Printf.eprintf "n:'%s' c:'%c' i:'%d' \nalpha:%s \nstates:%s\n%s\n%!"
+				 db.name db.blank db.initial
+				 "" "" ""
+  (* ++ _alphabet_to_string db.alphabet *)
+  (* ++ _states_to_string db.states *)
+  (* ++ _transitions_to_string db.transitions *)
+
 let _make_alphabet {ProgramDataTmp.alphabet} =
   let alphabet = match alphabet with None -> assert false | Some a -> a in
   let _, alpha =
@@ -53,31 +62,65 @@ let _make_alphabet {ProgramDataTmp.alphabet} =
   in
   alpha
 
-(* let _make_states {ProgramDataTmp.finals *)
-(* 				 ; ProgramDataTmp.transitions *)
-(* 				 ; ProgramDataTmp.states} = *)
+let _array_index pred a =
+  let rec aux i =
+	if pred a.(i)
+	then i
+	else if i >= Array.length a
+	then assert false
+	else aux (i + 1)
+  in
+  aux 0
+
+let _make_states {ProgramDataTmp.finals
+				 ; ProgramDataTmp.transitions
+				 ; ProgramDataTmp.states} =
+  let states = match states with None -> assert false | Some s -> s in
+  let st = Array.make (ProgramDataTmp.StringSet.cardinal states) ("", [||]) in
+  let _, st =
+	ProgramDataTmp.StringSet.fold
+	  (fun elt (i, a) ->
+		let transarr = match ProgramDataTmp.StringSet.mem elt finals with
+		  | true -> Array.make 256 Final
+		  | false -> Array.make 256 Undefined
+		in
+		a.(i) <- (elt, transarr);
+		(i + 1, a)
+	  )
+	  states (0, st)
+  in
+  Array.iteri (fun i (elt, transarr) ->
+	  let trans_map = ProgramDataTmp.TransitionMap.filter
+						(fun (elt', _) _ -> elt = elt') transitions
+	  in
+	  ProgramDataTmp.TransitionMap.iter
+		(fun _ {ProgramDataTmp.read; ProgramDataTmp.to_state
+				; ProgramDataTmp.write; ProgramDataTmp.action} ->
+		  transarr.(int_of_char read) <-
+			Normal (write, action, _array_index
+									 (fun (st, _) -> st = to_state) st)
+		 ;
+		   ()
+		) trans_map;
+	  st.(i) <- (elt, transarr);
+	) st;
+
+  st
 
 
 let create : ProgramDataTmp.parsing_data -> t = fun ({
-	  ProgramDataTmp.name
-	; ProgramDataTmp.blank
-		(* ; ProgramDataTmp. *)
-	} as tmp) ->
+														ProgramDataTmp.name
+													  ; ProgramDataTmp.blank
+													  ; ProgramDataTmp.initial
+														  (* ; ProgramDataTmp. *)
+													  } as tmp) ->
+  let states = _make_states tmp in
   {
 	name;
 	alphabet = _make_alphabet tmp;
 	blank;
-	(* states = _make_states tmp; *)
-	states = [|
-			   (*   ("todo", [|Final|]) *)
-			   (* ; ("todo", [|Final|]) *)
-			   (* ; ("todo", [| *)
-			   (* 	  Normal ('c', Left, 42) *)
-			   (* 	; Normal ('c', Left, 42) *)
-			   (* 	; Final *)
-			   (* 	|]) *)
-			 |];
-	initial = 42;
+	states;
+	initial = _array_index (fun (st, _) -> st = initial) states;
   }
 
 let transition : t -> int -> char ->
