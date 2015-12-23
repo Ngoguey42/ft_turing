@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 15:32:01 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/23 16:28:30 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -43,15 +43,56 @@ type t = {
 	initial		: state_index;
   }
 
+let (++) = (@@)
+let _alphabet_to_string al =
+  let _, str = Array.fold_left (fun (i, str) c ->
+				   let str = Printf.sprintf "%s[%d]='%c'; " str i c in
+				   (i + 1, str)
+				 ) (0, "") al in
+  str
+
+let _transitions_to_string transarr states =
+  let _, str = Array.fold_left (fun (i, str) trans ->
+				   match trans with
+				   | Normal (wr, act, nexti) ->
+					  let next, _ = states.(nexti) in
+					  let actstr = match act with
+						| Left -> "Left "
+						| Right -> "Right"
+					  in
+					  (i + 1,
+					   Printf.sprintf "%s\t[%c]=(wr'%c', act:%s, to:%d(%s))\n"
+									  str (char_of_int i) wr actstr nexti next
+					  )
+				   | _ -> (i + 1, str)
+				 ) (0, "") transarr
+  in
+  match str, transarr.(0) with
+  | "", Final -> "\tFinal\n"
+  | "", _ -> assert false
+  | _, _ -> str
+
+let _states_to_string states =
+  let _, str = Array.fold_left (fun (i, str) (state, transarr) ->
+				   let str = Printf.sprintf "%s[%d]=%s\n%s"
+											str i state
+							 ++ _transitions_to_string transarr states
+				   in
+				   (i + 1, str)
+				 ) (0, "") states
+  in
+  str
 
 
 let print db =
-  Printf.eprintf "n:'%s' c:'%c' i:'%d' \nalpha:%s \nstates:%s\n%s\n%!"
+  Printf.eprintf "n:'%s' c:'%c' i:'%d' \nalpha:[%s] \nstates:\n%s\n%!"
 				 db.name db.blank db.initial
-				 "" "" ""
-  (* ++ _alphabet_to_string db.alphabet *)
-  (* ++ _states_to_string db.states *)
-  (* ++ _transitions_to_string db.transitions *)
+				 (_alphabet_to_string db.alphabet)
+				 (_states_to_string db.states)
+
+(* ++ _alphabet_to_string db.alphabet *)
+(* ++ _states_to_string db.states *)
+(* ++ _transitions_to_string db.transitions *)
 
 let _make_alphabet {ProgramDataTmp.alphabet} =
   let alphabet = match alphabet with None -> assert false | Some a -> a in
