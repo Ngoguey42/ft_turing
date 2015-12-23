@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 13:58:38 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/19 13:13:29 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/23 17:43:22 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -97,6 +97,7 @@ module Make =
 
 
 	let update : State.t -> unit = fun curState ->
+	  Printf.eprintf "salut\n%!";
 	  Core.Dequeue.enqueue_back _dq { claimed = true; state = curState };
 	  let backi = Core.Dequeue.back_index_exn _dq in
 

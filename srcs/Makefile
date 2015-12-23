@@ -6,20 +6,25 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2015/12/23 15:37:11 by ngoguey          ###   ########.fr        #
+#    Updated: 2015/12/23 17:41:16 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_turing
+
 SRCS = Action.ml MonadicTry.ml YojsonTreeMatcher.ml
-SRCS += ProgramDataTmp.ml ProgramData.ml ProgramCreator.ml
-SRCS += Main.ml
-INTS = MonadicTry.mli Action.mli ProgramDataTmp.mli YojsonTreeMatcher.mli
-INTS += ProgramCreator.mli
+INTS = Action.mli MonadicTry.mli YojsonTreeMatcher.mli
+
+SRCS += ProgramDataTmp.ml YojsonTree.ml ProgramData.ml
+INTS += ProgramDataTmp.mli YojsonTree.mli
+
+SRCS += Tape.ml LoopGuard.ml Main.ml
+
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
-CAMLDEP = ocamldep
-LIBS = -thread -package core,yojson
+# CAMLDEP = ocamldep
+FLAGS = -thread -package core,yojson
+LD_FLAGS = -g -linkpkg
 
 all: $(NAME)
 
@@ -34,22 +39,22 @@ OPTOBJS = $(SRCS:.ml=.cmx)
 CMI = $(INTS:.mli=.cmi)
 
 $(NAME).byt: $(CMI) $(OBJS)
-	ocamlfind ocamlc -g -linkpkg $(LIBS) -o $(NAME).byt $(OBJS)
+	ocamlfind ocamlc $(LD_FLAGS) $(FLAGS) -o $(NAME).byt $(OBJS)
 
 $(NAME).opt: $(CMI) $(OPTOBJS)
-	ocamlfind ocamlopt -g -linkpkg $(LIBS) -o $(NAME).opt $(OPTOBJS)
+	ocamlfind ocamlopt $(LD_FLAGS) $(FLAGS) -o $(NAME).opt $(OPTOBJS)
 
 .SUFFIXES:
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .ml.cmo:
-	ocamlfind ocamlc $(LIBS) -I . -c $<
+	ocamlfind ocamlc $(FLAGS) -I . -c $<
 
 .mli.cmi:
-	ocamlfind ocamlc $(LIBS) $< -o $@
+	ocamlfind ocamlc $(FLAGS) $< -o $@
 
 .ml.cmx:
-	ocamlfind ocamlopt $(LIBS) -I . -c $<
+	ocamlfind ocamlopt $(FLAGS) -I . -c $<
 
 clean:
 	rm -f *.cm[iox] *.o

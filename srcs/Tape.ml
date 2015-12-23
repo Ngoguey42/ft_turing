@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/15 14:00:02 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/20 14:34:01 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/23 17:26:02 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -17,6 +17,8 @@
  * 1 index relative to the initial position of the head.
  *)
 
+include Action
+
 type t = {
 	left	: char Stack.t;
 	head	: char;
@@ -25,13 +27,10 @@ type t = {
 	i		: int;
   }
 
-type action = Left | Right
-
-
 (* of_string ************************ *)
 
 let rec _string_to_stack stack str i =
-  if i > 1 then (
+  if i > 0 then (
 	Stack.push (String.get str i) stack;
 	_string_to_stack stack str (i - 1)
   )
@@ -76,3 +75,16 @@ let index {i = i} =
 
 let head {head = h} =
   h
+
+(* print **************************** *)
+
+let print {left; head; right; i} =
+  let str = ref "" in
+  Stack.iter (fun c ->
+	  str := Printf.sprintf "%c%s" c !str
+	) left;
+  str := Printf.sprintf "%s\027[31m%c\027[0m" !str head;
+  Stack.iter (fun c ->
+	  str := Printf.sprintf "%s%c" !str c
+	) right;
+  Printf.printf "%s\n%!" !str
