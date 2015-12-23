@@ -6,13 +6,14 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2015/12/23 15:01:15 by fbuoro           ###   ########.fr        #
+#    Updated: 2015/12/23 15:37:11 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_turing
-SRCS = ProgramData/ProgramData.ml Tape/Tape.ml YojsonParser/YojsonParser.ml
-SRCS += LoopGuardV2/LoopGuard.ml
+SRCS = Action.ml MonadicTry.ml YojsonTreeMatcher.ml
+SRCS += ProgramDataTmp.ml ProgramData.ml ProgramCreator.ml
+SRCS += Main.ml
 INTS = MonadicTry.mli Action.mli ProgramDataTmp.mli YojsonTreeMatcher.mli
 INTS += ProgramCreator.mli
 CAMLC = ocamlc
