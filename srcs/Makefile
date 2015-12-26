@@ -6,7 +6,7 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2015/12/26 14:18:57 by ngoguey          ###   ########.fr        #
+#    Updated: 2015/12/26 14:46:14 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ INTS = Action.mli MonadicTry.mli YojsonTreeMatcher.mli
 SRCS += ProgramDataTmp.ml YojsonTree.ml ProgramData.ml
 INTS += ProgramDataTmp.mli YojsonTree.mli
 
-SRCS += Tape.ml LoopGuard.ml Arguments.ml Main.ml
+SRCS += Tape.ml LoopGuard.ml Convert.ml Arguments.ml Main.ml
 
 CAMLC = ocamlc
 CAMLOPT = ocamlopt

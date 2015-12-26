@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 18:05:03 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/26 14:50:56 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -150,12 +150,9 @@ let _make_states {ProgramDataTmp.finals
   st
 
 
-let create : ProgramDataTmp.parsing_data -> t = fun ({
-														ProgramDataTmp.name
-													  ; ProgramDataTmp.blank
-													  ; ProgramDataTmp.initial
-														  (* ; ProgramDataTmp. *)
-													  } as tmp) ->
+let _create : ProgramDataTmp.parsing_data -> t =
+  fun ({ProgramDataTmp.name; ProgramDataTmp.blank; ProgramDataTmp.initial
+	   } as tmp) ->
   let states = _make_states tmp in
   {
 	name;
@@ -164,6 +161,16 @@ let create : ProgramDataTmp.parsing_data -> t = fun ({
 	states;
 	initial = _array_index (fun (st, _) -> st = initial) states;
   }
+
+let of_jsonfile jsonfile =
+  let j = Yojson.Basic.from_file jsonfile in
+  let data = match YojsonTreeMatcher.unfold
+					 ProgramDataTmp.default YojsonTree.file_semantic j with
+	| MonadicTry.Fail why -> Printf.eprintf "%s\n%!" why;
+							 failwith "unfold fail"
+	| MonadicTry.Success data' -> data' in
+
+  _create data
 
 let transition : t -> int -> char ->
 				 transition = fun {states} state_index char ->
