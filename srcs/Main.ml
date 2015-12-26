@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 18:00:35 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/26 14:39:08 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -49,7 +49,9 @@ let rec db_of_filename filename =
   db
 
 let () =
-  let db = db_of_filename Sys.argv.(1) in
-  let tape = Tape.of_string Sys.argv.(2) db.ProgramData.blank in
-  ignore(loop db tape db.ProgramData.initial);
-  ()
+  match Arguments.read () with
+  | Arguments.Exec (jsonfile, input) ->
+	 let db = db_of_filename jsonfile in
+	 let tape = Tape.of_string input db.ProgramData.blank in
+	 ignore(loop db tape db.ProgramData.initial);
+  | Arguments.Convert jsonfile -> ()
