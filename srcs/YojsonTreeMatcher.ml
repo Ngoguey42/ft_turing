@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 14:04:14 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 18:13:14 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2015/12/26 20:15:58 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -53,29 +53,28 @@ let _error2 fname why json json' =
 
 
 let rec _handle_assoc_known data l (uniq, compl, fields) =
-  let llen =  List.length l in
-  let uniqlen = List.length @@ List.sort_uniq Pervasives.compare l in (* TODO: Check exactitude lol *)
-
-  if uniq && uniqlen <> llen then
-	_error "_handle_assoc_known"
-	++ Printf.sprintf "duplicates not allowed by parameter"
-	++ `Assoc l
-
-  else if compl && Hashtbl.length fields <> uniqlen then
-	_error "_handle_assoc_known"
-	++ Printf.sprintf "missing field not allowed by parameter"
-	++ `Assoc l
-
-  else _monoid_fold_left (fun data' (str, json') ->
-		   let sem' = Hashtbl.find fields str in
-		   _aux data' sem' json'
-		 ) data l
+  (* TODO: Debug those cases *)
+  match uniq, compl with
+  | true, false when Core.Core_list.contains_dup l ->
+	 _error "_handle_assoc_known"
+	 ++ Printf.sprintf "duplicates not allowed by parameter"
+	 ++ `Assoc l
+  | _, true when List.length l <> Hashtbl.length fields
+				 || not (List.for_all (fun (s, _) -> Hashtbl.mem fields s) l) ->
+	 _error "_handle_assoc_known"
+	 ++ Printf.sprintf "missing field not allowed by parameter"
+	 ++ `Assoc l
+  | _, _ ->
+	 _monoid_fold_left (fun data' (str, json') ->
+		 let sem' = Hashtbl.find fields str in
+		 _aux data' sem' json'
+	   ) data l
 
 
 and _handle_assoc_unknown data l (uniq, min, fn, entries) =
-  let llen =  List.length l in
+  let llen = List.length l in
 
-  if uniq && List.length @@ List.sort_uniq Pervasives.compare l <> llen then
+  if uniq && Core.Core_list.contains_dup l then
 	_error "_handle_assoc_unknown"
 	++ Printf.sprintf "duplicates not allowed by parameter"
 	++ `Assoc l
