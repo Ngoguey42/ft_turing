@@ -5,26 +5,26 @@
 ;                                                     +:+ +:+         +:+      ;
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
-;    Created: 2015/12/27 18:45:08 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 18:45:12 by ngoguey          ###   ########.fr        ;
+;    Created: 2015/12/27 18:46:46 by ngoguey           #+#    #+#              ;
+;    Updated: 2015/12/27 18:46:47 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
-; letter ::= A ... Z | a ... z | _ | 0 ... 9
-; ident ::= ( letter ) { letter }
+letter ::= A ... Z | a ... z | _ | 0 ... 9
+ident ::= ( letter ) { letter }
 
-; 	;;header
-; name ::= \name ident
-; alphabet ::= \alphabet \[ { regular-char }+ \]
-; blank ::= \blank \[ regular-char \]
+	;;header
+name ::= \name ident
+alphabet ::= \alphabet \[ { regular-char }+ \]
+blank ::= \blank \[ regular-char \]
 
-; 	;;instructions
+	;;instructions
 
-; label ::= ident \:
+label ::= ident \:
 
-; finalstate ::= \FINAL ident
+finalstate ::= \FINAL ident
 
-; statename := { letter | \{} }+
+statename := { letter | \{} }+
 charset := \[ { regular-char | \ANY | \{} }+ \]
 instruction := \ni | \rep | \jmp statename | \ni{} )
 action := \L | \R
