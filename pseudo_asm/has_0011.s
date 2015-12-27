@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 17:09:09 by ngoguey          ###   ########.fr        ;
+;    Updated: 2015/12/27 17:30:54 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -20,7 +20,6 @@
 empty:
 	nothing					[1]		rep				R
 	''						[0]		ni				R
-	''						[.]		jmp print_n		L
 	''						[.]		jmp print_n		L
 
 has_0:

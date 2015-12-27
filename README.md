@@ -1,5 +1,6 @@
 https://complexityzoo.uwaterloo.ca/Petting_Zoo
 https://www.youtube.com/watch?v=7dpFeXV_hqs
+https://www.youtube.com/user/hhp3/playlists
 
 ocamlopt.opt `ocamlfind query core`/core.cmxa -cclib "-L `ocamlfind query core`"  *.ml
 ```
