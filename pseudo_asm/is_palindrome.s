@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 12:43:53 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 12:59:37 by ngoguey          ###   ########.fr        ;
+;    Updated: 2015/12/27 13:37:29 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -15,7 +15,7 @@
 	blank[.]
 
 leftmost_char:
-	save_char				[ANY]	ni						R	(.)
+	save_char				[ANY]	ni{fork}				R	(.)
 	''						[.]		goto success			R
 	reach_end_{}			[ANY]	rep						R
 	''						[.]		ni						L
