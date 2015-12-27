@@ -6,12 +6,12 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 15:16:25 by ngoguey          ###   ########.fr        ;
+;    Updated: 2015/12/27 15:23:21 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
 ; looks for the substring 0011 in the input, drops y/n at the end
-; deduced from Youtube "hpp3", "Theory of Computation", "3/65", "5m00"
+; deduced from Youtube hpp3 "Theory of Computation" "3/65" @3m20
 
 	name"has_0011"
 	alphabet[01.]
@@ -37,10 +37,10 @@ has_0:
 
 print_y:
 	forward1y				[ANY]	ni				R
-	puty					[ANY]	ni				R	(y)
+	puty					[.]		ni				R	(y)
 	FINAL_YES
 
 print_n:
 	forward1n				[ANY]	ni				R
-	putn					[ANY]	ni				R	(n)
+	putn					[.]		ni				R	(n)
 	FINAL_NO
