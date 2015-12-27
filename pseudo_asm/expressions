@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 18:46:46 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 18:48:07 by ngoguey          ###   ########.fr        ;
+;    Updated: 2015/12/27 18:49:37 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -25,7 +25,7 @@ label ::= ident \:
 finalstate ::= \FINAL ident
 
 statename := { letter | \{} }+
-charset := \[ { regular-char+ | \ANY | \{} } \]
+charset := \[ regular-char+ | \ANY | \{} \]
 instruction := \ni | \rep | \jmp statename | \ni{}
 action := \L | \R
 write := \( regular-char | \{} \)
