@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 15:23:21 by ngoguey          ###   ########.fr        ;
+;    Updated: 2015/12/27 17:09:09 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -20,20 +20,21 @@
 empty:
 	nothing					[1]		rep				R
 	''						[0]		ni				R
-	''						[.]		goto print_n	L
+	''						[.]		jmp print_n		L
+	''						[.]		jmp print_n		L
 
 has_0:
 	has_0					[0]		ni				R
-	''						[1]		goto empty		R
-	''						[.]		goto print_n	L
+	''						[1]		jmp empty		R
+	''						[.]		jmp print_n		L
 	has_00					[0]		rep				R
 	''						[1]		ni				R
-	''						[.]		goto print_n	L
+	''						[.]		jmp print_n		L
 	has_001					[1]		ni				R
-	''						[0]		goto has_0		R
-	''						[.]		goto print_n	L
+	''						[0]		jmp has_0		R
+	''						[.]		jmp print_n		L
 	has_0011				[ANY]	rep				R
-	''						[.]		goto print_y	L
+	''						[.]		jmp print_y		L
 
 print_y:
 	forward1y				[ANY]	ni				R

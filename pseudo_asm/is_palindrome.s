@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 12:43:53 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 13:37:29 by ngoguey          ###   ########.fr        ;
+;    Updated: 2015/12/27 17:08:45 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -16,13 +16,13 @@
 
 leftmost_char:
 	save_char				[ANY]	ni{fork}				R	(.)
-	''						[.]		goto success			R
+	''						[.]		jmp success				R
 	reach_end_{}			[ANY]	rep						R
 	''						[.]		ni						L
-	compare_chars_{}		[ANY]	goto fail				R
+	compare_chars_{}		[ANY]	jmp fail				R
 	''						[{}]	ni						L	(.)
 	reach_begin				[ANY]	rep						L
-	''						[.]		goto leftmost_char		R
+	''						[.]		jmp leftmost_char		R
 
 fail:
 	write_n					[ANY]	ni						R	(n)

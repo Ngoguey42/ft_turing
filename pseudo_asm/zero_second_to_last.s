@@ -1,36 +1,37 @@
 ;******************************************************************************;
 ;                                                                              ;
 ;                                                         :::      ::::::::    ;
-;    binary_divisable_by3.s                             :+:      :+:    :+:    ;
+;    zero_second_to_last.s                              :+:      :+:    :+:    ;
 ;                                                     +:+ +:+         +:+      ;
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
-;    Created: 2015/12/27 15:52:54 by ngoguey           #+#    #+#              ;
-;    Updated: 2015/12/27 17:08:06 by ngoguey          ###   ########.fr        ;
+;    Created: 2015/12/27 17:03:51 by ngoguey           #+#    #+#              ;
+;    Updated: 2015/12/27 17:07:53 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
-; is this binary number divisable by 3, drops y/n at the end
-; deduced from Youtube hpp3 "Theory of Computation" "3/65" @22m15
+; is penultimate digit a 0, drops y/n at the end
+; deduced from Youtube hpp3 "Theory of Computation" "6/65" @2m30
 
-	name"binary_divisable_by3"
+	name"zero_second_to_last"
 	alphabet[01.]
 	blank[.]
 
-form_3x:
-	form_3x				[0]		rep						R
-	''					[1]		jmp form_3x_p1			R
-	''					[.]		jmp print_y				L
-
-form_3x_p1:
-	form_3x_p1			[0]		jmp form_3x_p2			R
-	''					[1]		jmp form_3x				R
-	''					[.]		jmp print_n				L
-
-form_3x_p2:
-	form_3x_p2			[0]		jmp form_3x_p1			R
+got_none:
+	got_none			[.]		jmp print_n				R
 	''					[1]		rep						R
-	''					[.]		jmp print_n				L
+	''					[0]		ni						R
+
+got_zero:
+	got_zero			[.]		jmp print_n				R
+	''					[0]		rep						R
+	''					[1]		ni						R
+
+got_zero_one:
+	got_zero_one		[.]		jmp print_y				R
+	''					[1]		jmp got_none			R
+	''					[0]		jmp got_zero			R
+
 
 print_y:
 	forward1y			[ANY]	ni						R
