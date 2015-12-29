@@ -125,6 +125,7 @@ let _make_states {ProgramDataTmp.finals
 		let transarr = match ProgramDataTmp.StringSet.mem elt finals with
 		  | true -> Array.make 256 Final
 		  | false -> Array.make 256 Undefined
+		  (* TODO: Should we append a REJECT state instead of the Undefined option here ? *)
 		in
 		a.(i) <- (elt, transarr);
 		(i + 1, a)
