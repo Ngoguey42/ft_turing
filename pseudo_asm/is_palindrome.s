@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 12:43:53 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/04 17:53:50 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/04 19:51:47 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -26,6 +26,14 @@
 ; ...cba.L.-a-b+c+b+aR
 ; ..bcba.L.-a+b+c+b+aR
 ; .abcba.L.+a+b+c+b+aR
+; .abcba.L.-a+b+c+b+aR
+; .abcba.L.-a+b+c+b-aR
+; .abcba.L.-a-b+c+b-aR
+; .abcba.L.-a-b+c-b-aR
+; .abcba.
+; .abcbay
+
+
 
 ; subroutine main
 main:
@@ -37,9 +45,28 @@ ItoB: ;works on non-empty input
 	__		[.]		(R)		E	call bufcharflag_endl
 	__		[L]				L	ni
 	__		[.]				L	ni
-	__		[.]				?	ni
+	__		[.]				R	jmp BtoI_init		;exit condition
 	|		[ANY]			E	call input_beginl
-	__		[ANY]			E	jmp ItoB
+	__		[ANY]			E	jmp ItoB			;loop condition
+
+BtoI_init:
+	__		[.]				R	call bufcharflag_beginr
+
+BtoI:
+	__		[-]		(+)		R	ni
+	__		[ANY]			L	call+ BtoI_carry
+	__		[ANY]			E	call input_endr
+	__		[.]				R	call BtoI_reachnext
+	__		[-]				E	jmp BtoI			;loop condition
+	|		[L]				E	ni					;exit condition
+
+
+	__		[L]				E	call bufcharflag_nextr
+
+Check:
+	__		[+]		(-)		R	ni
+	__		[ANY]			E	call+ Check_carry
+
 
 ; subroutine 1
 init_buffer:
@@ -53,7 +80,6 @@ init_buffer:
 	__		[.]				L	call input_beginl
 	__		[ANY]			E	ret
 
-
 ; subroutine 2
 ItoB_carry:
 	__		[.]				R	ni
@@ -63,27 +89,53 @@ ItoB_carry:
 	__		[R]		(-)		R	ni
 	__		[.]		(SPEC)	R	ret
 
+; subroutine 3
+BtoI_carry:
+	__		[+]				E	call bufcharflag_endl
+	__		[L]				L	ni
+	__		[.]				L	ni
+	__		[.]		(SPEC)	E	ret-
+	|		[ANY]			E	call input_endl
+	__		[.]		(SPEC)	E	ret-
+
+; subroutine 4
+BtoI_reachnext:
+	__		[L]				E	call bufcharflag_firstplusr
+	__		[+]				L	ni
+	__		[ANY]			L	ret
+
+; subroutine 5
+Check_carry:
+	__
 
 ; subroutines general
 bufcharflag_endl: ;from any bufchar_flag
-	__		[L]		ret							E
-	|		[R+-]	ni							L
-	_		[ANY]	jmp bufcharflag_endl		L
+	__		[L]		E	ret
+	|		[R+-]	L	ni
+	_		[ANY]	L	jmp bufcharflag_endl
 
 bufcharflag_endr: ;from any bufchar_flag
-	__		[R]		ret							E
-	|		[L+-]	ni							R
-	_		[ANY]	jmp bufcharflag_endr		R
+	__		[R]		E	ret
+	|		[L+-]	R	ni
+	_		[ANY]	R	jmp bufcharflag_endr
 
+bufcharflag_firstplusr: ; from any bufchar_flag
+	__		[+]		E	ret
+	|		[-L]	R	ni
+	__		[ANY]	R	jmp bufcharflag_firstplusr
+
+bufcharflag_nextr: ;from any bufchar_flag but R
+	__		[L+-]	R	ni
+	__		[ANY]	R	ret
 
 input_beginl: ;from non-empty input
-	__		[ANY]	rep							L
-	|		[.]		ret							R
+	__		[ANY]	L	rep
+	|		[.]		R	ret
 
 input_endl: ;from non-empty input
-	__		[ANY]	rep							L
-	|		[.]		ret							E
+	__		[ANY]	L	rep
+	|		[.]		E	ret
 
 input_endr: ;from non-empty input
-	__		[ANY]	rep							R
-	|		[.]		ret							E
+	__		[ANY]	R	rep
+	|		[.]		E	ret
