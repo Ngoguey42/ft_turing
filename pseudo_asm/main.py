@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/05 17:39:07 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/05 18:12:23 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,7 +38,7 @@ state (
 callstack (sgroup, sid, specifier)
 """
 class Read:
-	def __init__(self, tup):
+	def __init__(self, tup, setlabels):
 		if tup[0] == 'ANY' or tup[0] == 'SPEC':
 			self.reads = [tup[0]]
 		else:
@@ -46,6 +46,9 @@ class Read:
 		self.write = tup[1]
 		self.action = tup[2]
 		self.nexts = tuple(re.split('\s+', tup[3]))
+		assert(len(self.nexts) <= 2)
+		if len(self.nexts) == 2 and not self.nexts[1] in setlabels:
+			raise Exception("missing label %s" %(self.nexts[1]))
 
 	def __str__(self):
 		return "%s (%s) %s %s" %(self.reads, str(self.write),
@@ -68,8 +71,10 @@ class State:
 	def buildinternal(self, setlabels):
 		assert(len(self.rawreads) > 0)
 		rset = set()
+		nset = set()
 		rcount = 0
 		for rawread in self.rawreads:
+			nset.add(rawread[3])
 			if rawread[0] == 'ANY':
 				rcount += 1
 				rset.add('ANY')
@@ -79,10 +84,11 @@ class State:
 			else:
 				rcount += len(rawread[0])
 				rset = rset | set(map(lambda x:x, rawread[0]))
-		self.reads = map(Read, self.rawreads)
-		assert(rcount == len(rset)) #reads uniqueness
-
-		# del self.rawreads
+		assert(rcount == len(rset))	#reads uniqueness
+		if 'halt' in nset:
+			assert(len(nset) == 1)	#only halts when halt present
+		self.reads = map(lambda x:Read(x, setlabels), self.rawreads)
+		del self.rawreads
 
 
 class Prog:
@@ -100,7 +106,7 @@ class Prog:
 		assert(tk[0] == 'alphabet')
 		s = set(tk[1])
 		assert(len(tk[1]) == len(s))
-		self.alphabet = s;
+		self.alphabet = frozenset(s);
 
 	def save_blank(self, tk):
 		assert(tk[0] == 'blank')
@@ -142,7 +148,7 @@ class Prog:
 		assert(len(ls) > 0)
 		for s in ls:
 			s.buildinternal(sl)
-		self.setlabels = sl
+		self.setlabels = frozenset(sl)
 		self.liststates = ls
 
 
