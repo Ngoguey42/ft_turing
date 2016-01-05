@@ -6,14 +6,15 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/05 18:36:06 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/05 19:20:34 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 from tokenize_arg1 import get_tokens
+from resolve import resolve
 import re
-"""
 
+"""
 state (
 	self.label : string
 	self.sid : int (1+)
@@ -35,8 +36,10 @@ state (
 			call IDENTIFIER			goto first of label
 		   	call+ IDENTIFIER		goto first of label
 )
-callstack (sgroup, sid, specifier)
+
+(call(name, has_specifier)) stack
 """
+
 class Read:
 	def __init__(self, tup, setlabels):
 		if tup[0] == 'ANY' or tup[0] == 'SPEC':
@@ -67,7 +70,8 @@ class State:
 		self.used = None
 
 	def __str__(self):
-		return "%s(s%d) %s %s" %(self.label, self.sid, self.char_reads, map(str, self.reads))
+		return "%s(s%d) %s %s" %(self.label, self.sid, self.char_reads
+								 , map(str, self.reads))
 
 	def addrawread(self, rawread):
 		self.rawreads.append(rawread)
@@ -167,4 +171,5 @@ if __name__ == "__main__":
 	print p.setlabels
 	for st in p.liststates:
 		print str(st)
+	resolve(p)
 		# print st.label, st.sid, st.rawreads
