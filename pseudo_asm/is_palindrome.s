@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 12:43:53 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/04 19:51:47 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/05 14:32:07 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -105,19 +105,19 @@ BtoI_reachnext:
 	__		[ANY]			L	ret
 
 ; subroutine 5
-Check_carry:
-	__
+; Check_carry:
+; 	__
 
 ; subroutines general
 bufcharflag_endl: ;from any bufchar_flag
 	__		[L]		E	ret
 	|		[R+-]	L	ni
-	_		[ANY]	L	jmp bufcharflag_endl
+	__		[ANY]	L	jmp bufcharflag_endl
 
 bufcharflag_endr: ;from any bufchar_flag
 	__		[R]		E	ret
 	|		[L+-]	R	ni
-	_		[ANY]	R	jmp bufcharflag_endr
+	__		[ANY]	R	jmp bufcharflag_endr
 
 bufcharflag_firstplusr: ; from any bufchar_flag
 	__		[+]		E	ret

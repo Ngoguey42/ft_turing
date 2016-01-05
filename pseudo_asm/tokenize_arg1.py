@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 14:28:53 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/05 14:29:14 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/05 15:19:30 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,13 +23,13 @@ def line_empty(line):
 		return True
 
 read = "\[(.+)\]"
-write = "(?:\((.+)\))?"
+write = "(?:\((.+)\)\s+)?"
 action = "(R|E|L)"
-nexts = "(rep|ni|halt|jmp\s+\S+|call\s+\S+|call\+\s+\S+|ret|ret\+)"
+nexts = "(rep|ni|halt|jmp\s+\S+|call\s+\S+|call\+\s+\S+|ret|ret\-)"
 sp = "\s+"
 
-pattern1 = "^\s*__\s+" + read + sp + write + sp + action + sp + nexts + "\s*$"
-pattern2 = "^\s*\|\s+" + read + sp + write + sp + action + sp + nexts + "\s*$"
+pattern1 = "^\s*__\s+" + read + sp + write + action + sp + nexts + "\s*$"
+pattern2 = "^\s*\|\s+" + read + sp + write + action + sp + nexts + "\s*$"
 
 def parse_line(line):
 	name = re.match("^\s*name\"(.+)\"\s*$", line)
@@ -56,11 +56,7 @@ def parse_line(line):
 def get_tokens():
 	lines = open(argv[1], "r").read().split('\n')
 	lines = map(kill_comments, lines)
-	lines = [x for x in lines if not line_empty(x)] #tmp
-	print lines #tmp
 	lines = [parse_line(x) for x in lines if not line_empty(x)]
-	# print lines
 	for x in lines:
 		print x
-	# print parse_line("  name\"sst\" ")
-	# print line_empty("")
+	return lines
