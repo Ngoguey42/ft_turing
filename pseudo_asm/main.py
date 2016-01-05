@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/05 18:12:23 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/05 18:36:06 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,21 +54,25 @@ class Read:
 		return "%s (%s) %s %s" %(self.reads, str(self.write),
 								 self.action, self.nexts)
 
+	# def replace_ANY(self, alphabet, others)
+
 class State:
 	def __init__(self, label, sid):
 		self.label = label
 		self.sid = sid
 		self.rawreads = []
+		self.char_reads = None
 		self.reads = None
 		self.final = None
+		self.used = None
 
 	def __str__(self):
-		return "%s(s%d) %s" %(self.label, self.sid, map(str, self.reads))
+		return "%s(s%d) %s %s" %(self.label, self.sid, self.char_reads, map(str, self.reads))
 
 	def addrawread(self, rawread):
 		self.rawreads.append(rawread)
 
-	def buildinternal(self, setlabels):
+	def buildinternal(self, setlabels, alphabet):
 		assert(len(self.rawreads) > 0)
 		rset = set()
 		nset = set()
@@ -87,8 +91,10 @@ class State:
 		assert(rcount == len(rset))	#reads uniqueness
 		if 'halt' in nset:
 			assert(len(nset) == 1)	#only halts when halt present
+		self.char_reads = frozenset(rset)
 		self.reads = map(lambda x:Read(x, setlabels), self.rawreads)
 		del self.rawreads
+
 
 
 class Prog:
@@ -147,7 +153,7 @@ class Prog:
 		assert(len(sl) == len(ll))
 		assert(len(ls) > 0)
 		for s in ls:
-			s.buildinternal(sl)
+			s.buildinternal(sl, self.alphabet)
 		self.setlabels = frozenset(sl)
 		self.liststates = ls
 
