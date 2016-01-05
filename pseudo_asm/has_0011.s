@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/04 13:29:31 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/05 14:06:19 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -18,27 +18,25 @@
 	blank[.]
 
 empty:
-	__		[1]		rep					R
-	|		[0]		ni					R
-	|		[.]		jmp print_n			E
+	__		[1]				R	rep
+	|		[0]				R	ni
+	|		[.]				E	jmp print_n
 
 has_0:
-	__		[0]		ni					R
-	|		[1]		jmp empty			R
-	|		[.]		jmp print_n			E
-	__		[0]		rep					R
-	|		[1]		ni					R
-	|		[.]		jmp print_n			E
-	__		[1]		ni					R
-	|		[0]		jmp has_0			R
-	|		[.]		jmp print_n			E
-	__		[ANY]	rep					R
-	|		[.]		jmp print_y			E
+	__		[0]				R	ni
+	|		[1]				R	jmp empty
+	|		[.]				E	jmp print_n
+	__		[0]				R	rep
+	|		[1]				R	ni
+	|		[.]				E	jmp print_n
+	__		[1]				R	ni
+	|		[0]				R	jmp has_0
+	|		[.]				E	jmp print_n
+	__		[ANY]			R	rep
+	|		[.]				E	jmp print_y
 
 print_y:
-	s		[.]		ni					R	(y)
-	f YES
+	__		[.]		(y)		R	halt
 
 print_n:
-	s		[.]		ni					R	(n)
-	f NO
+	__		[.]		(n)		R	halt
