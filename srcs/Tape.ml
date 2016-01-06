@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/15 14:00:02 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 17:26:02 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/06 16:47:01 by fbuoro           ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -87,4 +87,4 @@ let print {left; head; right; i} =
   Stack.iter (fun c ->
 	  str := Printf.sprintf "%s%c" !str c
 	) right;
-  Printf.printf "%s\n%!" !str
+  Printf.printf "%s%!" !str

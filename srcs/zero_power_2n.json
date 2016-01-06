@@ -1,0 +1,40 @@
+{
+	"name"    : "0 pow 2n",
+	"alphabet": [ "0", ".", "y", "n" ],
+	"blank"   : ".",
+	"states"  : [ "start", "validate", "rewind", "flip", "flop", "no", "end" ],
+	"initial" : "start",
+	"finals"  : [ "end" ],
+	"transitions" : {
+		"start": [
+			{ "read" : ".", "to_state": "flip", "write": ".", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "validate", "write": "0", "action": "RIGHT"},
+			{ "read" : "y", "to_state": "no", "write": "y", "action": "RIGHT"},
+			{ "read" : "n", "to_state": "no", "write": "n", "action": "RIGHT"}
+		],
+		"validate": [
+			{ "read" : ".", "to_state": "rewind", "write": ".", "action": "LEFT"},
+			{ "read" : "0", "to_state": "validate", "write": "0", "action": "RIGHT"},
+			{ "read" : "y", "to_state": "no", "write": "y", "action": "RIGHT"},
+			{ "read" : "n", "to_state": "no", "write": "n", "action": "RIGHT"}
+		],
+		"no": [
+			{ "read" : ".", "to_state": "end", "write": "n", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "no", "write": "0", "action": "RIGHT"},
+			{ "read" : "y", "to_state": "no", "write": "y", "action": "RIGHT"},
+			{ "read" : "n", "to_state": "no", "write": "n", "action": "RIGHT"}
+		],
+		"rewind": [
+			{ "read" : "0", "to_state": "rewind", "write": "0", "action": "LEFT"},
+			{ "read" : ".", "to_state": "flip", "write": ".", "action": "RIGHT"}
+		],
+		"flip": [
+			{ "read" : ".", "to_state": "end", "write": "y", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "flop", "write": "0", "action": "RIGHT"}
+		],
+		"flop": [
+			{ "read" : ".", "to_state": "end", "write": "n", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "flip", "write": "0", "action": "RIGHT"}
+		]
+	}
+}

@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/06 14:36:20 by fbuoro           ###   ########.fr       *)
+(*   Updated: 2016/01/06 16:48:08 by fbuoro           ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -24,6 +24,7 @@ module LoopGuard =
 let rec loop db tape statei =
   let read = Tape.head tape in
   Tape.print tape;
+  Printf.printf "\t[%s]\n" @@ ProgramData.state_name db statei;
   LoopGuard.update (Tape.index tape, read, statei);
   match ProgramData.transition db statei read with
   | ProgramData.Undefined ->

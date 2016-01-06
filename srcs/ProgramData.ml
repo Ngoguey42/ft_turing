@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/26 14:50:56 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/06 16:44:23 by fbuoro           ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -177,3 +177,7 @@ let transition : t -> int -> char ->
 				 transition = fun {states} state_index char ->
   let _, transitions = states.(state_index) in
   transitions.(int_of_char char)
+
+let state_name : t -> int -> string = fun {states} state_index ->
+  let state, _  = states.(state_index) in
+  state
