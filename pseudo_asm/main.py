@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 13:05:45 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 13:24:55 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -61,40 +61,43 @@ class State:
 	def __init__(self, label, sid):
 		self.label = label
 		self.sid = sid
-		self.rawreads = []
-		self.char_reads = None
-		self.reads = None
+		self.set_readchars = None
+		self.lst_reads = None
 		self.final = None
-		self.used = None
+
+		self.rawreads = []
 
 	def __str__(self):
-		return "%s(s%d) %s %s" %(self.label, self.sid, self.char_reads
-								 , map(str, self.reads))
+		return "%s(s%d) %s %s" %(self.label, self.sid, self.set_readchars
+								 , map(str, self.lst_reads))
 
 	def addrawread(self, rawread):
 		self.rawreads.append(rawread)
 
 	def buildinternal(self, setlabels, alphabet):
-		assert(len(self.rawreads) > 0)
-		rset = set()
-		nset = set()
-		rcount = 0
+		assert(len(self.rawreads) > 0) #useless assert
+		set_readchars = set()
+		set_nexts = set()
+		count_reads = 0
 		for rawread in self.rawreads:
-			nset.add(rawread[3])
+			set_nexts.add(rawread[3])
 			if rawread[0] == 'ANY':
-				rcount += 1
-				rset.add('ANY')
+				count_reads += 1
+				set_readchars.add('ANY')
 			elif rawread[0] == 'SPEC':
-				rcount += 1
-				rset.add('SPEC')
+				count_reads += 1
+				set_readchars.add('SPEC')
 			else:
-				rcount += len(rawread[0])
-				rset = rset | set(map(lambda x:x, rawread[0]))
-		assert(rcount == len(rset))	#reads uniqueness
-		if 'halt' in nset:
-			assert(len(nset) == 1)	#only halts when halt present
-		self.char_reads = frozenset(rset)
-		self.reads = map(lambda x:Read(x, setlabels), self.rawreads)
+				count_reads += len(rawread[0])
+				set_readchars |= set(map(lambda x:x, rawread[0]))
+		assert(count_reads == len(set_readchars))	#reads uniqueness
+		if 'halt' in set_nexts:
+			self.final = True
+			assert(len(set_nexts) == 1)	#only halts when halt present
+		else:
+			self.final = False
+		self.set_readchars = frozenset(set_readchars)
+		self.lst_reads = map(lambda x:Read(x, setlabels), self.rawreads)
 		del self.rawreads
 
 
