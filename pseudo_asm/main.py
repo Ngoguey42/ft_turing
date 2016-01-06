@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 13:24:55 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 16:34:24 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -58,9 +58,10 @@ class Read:
 								 self.action, self.nexts)
 
 class State:
-	def __init__(self, label, sid):
+	def __init__(self, label, sid, gid):
 		self.label = label
 		self.sid = sid
+		self.gid = gid
 		self.set_readchars = None
 		self.lst_reads = None
 		self.final = None
@@ -112,6 +113,8 @@ class Prog:
 		self.set_lb = None
 		self.lst_st = []
 		self.dic_st = dict()
+		self.dic_st_transi = dict()
+		self.set_resolved_states = set()
 
 		self.stid = -1
 		self.cur_lb = None
@@ -142,6 +145,7 @@ class Prog:
 
 
 	def generate_states(self, tks):
+		gid = 0
 		for tk in tks:
 			if tk[0] == 'label':
 				self.cur_lb = tk[1]
@@ -150,7 +154,8 @@ class Prog:
 			elif tk[0] == 'statestrt':
 				assert(self.cur_lb != None)
 				self.stid += 1
-				self.cur_st = State(self.cur_lb, self.stid)
+				self.cur_st = State(self.cur_lb, self.stid, gid)
+				gid += 1
 				self.cur_st.addrawread(tk[1])
 				self.dic_st[(self.cur_lb, self.stid)] = self.cur_st
 				self.lst_st.append(self.cur_st)
@@ -166,6 +171,46 @@ class Prog:
 		for s in self.lst_st:
 			s.buildinternal(self.set_lb, self.alphabet)
 
+	def tojson(self):
+		string = "{\n"
+		string += '\t"name"\t\t: "%s",\n' %(self.name)
+
+		string += '\t"alphabet"\t: [ '
+		for c in self.alphabet:
+			string += '"%s", ' %(c)
+		string = string[:-2]
+		string += '],\n'
+
+		string += '\t"blank"\t\t: "%s",\n' %(self.blank)
+
+		string += '\t"states"\t: [ '
+		for s in self.set_resolved_states:
+			string += '"%s", ' %(s)
+		string = string[:-2]
+		string += '],\n'
+
+		string += '\t"initial"\t: "%s(s%d)",\n' %(self.lst_st[0].label, self.lst_st[0].sid)
+
+		string += '\t"finals"\t: [ "HALT" ],\n'
+		string += '\n'
+		string += '\t"transitions"\t: {\n'
+
+		for k, v in self.dic_st_transi.iteritems():
+			string += '\t\t"%s": [\n' %(k)
+			for tr in v:
+				fmt = '\t\t\t{ "read" : "%s", "to_state": "%s", "write": "%s", "action": "%s"},\n'
+				string += fmt %(tr[0], tr[3], tr[1], tr[2])
+				# %(tr[0], tr[1], tr[2], tr[3])
+			string = string[:-2]
+			string += '\n\t\t],\n'
+
+		string = string[:-2]
+		string += '\n\t}\n'
+		string += "}\n"
+		with open("lol.json", "w") as stream:
+			stream.write(string)
+		print string
+
 
 if __name__ == "__main__":
 	tk = get_tokens()
@@ -177,3 +222,4 @@ if __name__ == "__main__":
 	for st in p.lst_st:
 		print str(st)
 	resolve(p)
+	p.tojson()

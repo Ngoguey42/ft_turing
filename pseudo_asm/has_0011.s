@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/05 17:57:09 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/06 16:34:52 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -14,7 +14,7 @@
 ; deduced from Youtube hpp3 "Theory of Computation" "3/65" @3m20
 
 	name"has_0011"
-	alphabet[01.]
+	alphabet[01.ny]
 	blank[.]
 
 empty:
