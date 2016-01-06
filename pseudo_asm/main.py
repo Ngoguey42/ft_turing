@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 16:24:35 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 16:34:24 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -178,11 +178,15 @@ class Prog:
 		string += '\t"alphabet"\t: [ '
 		for c in self.alphabet:
 			string += '"%s", ' %(c)
+		string = string[:-2]
 		string += '],\n'
+
+		string += '\t"blank"\t\t: "%s",\n' %(self.blank)
 
 		string += '\t"states"\t: [ '
 		for s in self.set_resolved_states:
 			string += '"%s", ' %(s)
+		string = string[:-2]
 		string += '],\n'
 
 		string += '\t"initial"\t: "%s(s%d)",\n' %(self.lst_st[0].label, self.lst_st[0].sid)
@@ -197,10 +201,14 @@ class Prog:
 				fmt = '\t\t\t{ "read" : "%s", "to_state": "%s", "write": "%s", "action": "%s"},\n'
 				string += fmt %(tr[0], tr[3], tr[1], tr[2])
 				# %(tr[0], tr[1], tr[2], tr[3])
-			string += '\t\t]\n'
+			string = string[:-2]
+			string += '\n\t\t],\n'
 
-		string += '\t}\n'
+		string = string[:-2]
+		string += '\n\t}\n'
 		string += "}\n"
+		with open("lol.json", "w") as stream:
+			stream.write(string)
 		print string
 
 
