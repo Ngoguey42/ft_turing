@@ -6,13 +6,13 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 16:55:39 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 19:13:51 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 def call_to_string(call):
 	if call[2] != None:
-		return "%s(s%d)<%s>" %(call[0], call[1], call[3])
+		return " <%s> %s(s%d)" %(call[2], call[0], call[1])
 	else:
 		return "%s(s%d)" %(call[0], call[1])
 
@@ -39,56 +39,83 @@ def compute_read_chars(lst_chars_read, set_alphabet, set_state_read, spec):
 	else:
 		return lst_chars_read
 
-def compute_next_call(prog, top_st, callstack, read):
+def compute_next_call(prog, top_st, callstack, read, rchar):
 	if read.nexts[0] == 'rep':
 		return callstack[-1]
 	elif read.nexts[0] == 'ni':
 		if len(prog.lst_st) <= top_st.gid + 1:
 			raise Exception('NextInstruction to end of file')
 		next_st = prog.lst_st[top_st.gid + 1]
-		return (next_st.label, next_st.sid, None)
+		return (next_st.label, next_st.sid, callstack[-1][2])
 	elif read.nexts[0] == 'jmp':
 		next_st = prog.dic_st[(read.nexts[1], 1)]
-		return (next_st.label, next_st.sid, None)
+		return (next_st.label, next_st.sid, callstack[-1][2])
 	elif read.nexts[0] == 'halt':
 		return None
+	elif read.nexts[0] == 'call+':
+		next_st = prog.dic_st[(read.nexts[1], 1)]
+		return (next_st.label, next_st.sid, rchar)
+	elif read.nexts[0] == 'ret-':
+		print 'lol!ret-!'
+		calling_st = prog.dic_st[(callstack[-2][0], callstack[-2][1])]
+		next_st = prog.lst_st[calling_st.gid + 1]
+		return (next_st.label, next_st.sid, callstack[-2][2])
+		# next_st = prog.lst_st[top_st.gid + 1]
 	# elif read.nexts[0] == '':
 
 
 def rec(prog, callstack, spec):
 	top_st = prog.dic_st[(callstack[-1][0], callstack[-1][1])]
-	top_spec = callstack[-1][2]
+	# top_spec = callstack[-1][2]
 	# call_str = call_to_string(callstack[-1])
 	callstack_str = callstack_to_string(callstack)
 	transi = []
 
-	if callstack_str in prog.set_resolved_states:
+ 	if callstack_str in prog.set_resolved_states:
 		return
 	prog.set_resolved_states.add(callstack_str)
-	print '\n', 'DOING:', callstack_str
+	print '\n', 'DOING:', callstack_str, "SPEC:", spec
 	# print prog.set_resolved_states
 	for read in top_st.lst_reads:
 		read_chars = compute_read_chars(
 			read.reads, prog.alphabet, top_st.set_readchars, spec)
-		next_call = compute_next_call(prog, top_st, callstack, read)
-		action = {'L': 'LEFT', 'R': 'RIGHT'}[read.action if read.action != 'E' else 'L']
-		next_call_str = call_to_string(next_call) if next_call != None else "HALT"
-		if read.action == 'E':
-			prog.set_required_pre.add(next_call_str)
-			next_call_str += 'Adjust'
-		print "callstack:", callstack_str, "reads:", read_chars, "next_call:", next_call
+		is_epsilon = read.action == 'E'
+		action = {'L': 'LEFT', 'R': 'RIGHT'}['L' if is_epsilon else read.action]
+		suffix = 'Adjust' if is_epsilon else ''
 		for c in read_chars:
 			write = read.write if read.write != None else c
-			print c, "->", write
-			transi.append((c, write, action, next_call_str))
-		tmp_callstack = callstack
-		if next_call == None: #tmp
-			continue  #tmp
-		tmp_callstack[-1] = next_call
-		rec(prog, tmp_callstack, spec)
+			next_call = compute_next_call(prog, top_st, callstack, read, c)
+			next_call_str = call_to_string(next_call) if next_call != None else "HALT"
+			print "callstack:%s reads:%s (%s -> %s) next_call: %s" %(callstack_str, read_chars,
+																	c, write, next_call_str)
+			tmp_callstack = list(callstack)
+			if read.nexts[0] == 'halt':
+				transi.append((c, write, action, next_call_str + suffix))
+				continue
+			elif read.nexts[0] == 'call+':
+				if spec != None:
+					raise Exception('Multiple specialization not allowed')
+				tmp_callstack.append(next_call)
+				rec(prog, tmp_callstack, next_call[2])
+			elif read.nexts[0] == 'ret-':
+				del tmp_callstack[-1]
+				tmp_callstack[-1] = next_call
+				rec(prog, tmp_callstack, None)
+			else:
+				tmp_callstack[-1] = next_call
+				rec(prog, tmp_callstack, spec)
+			tmp_callstack_str = callstack_to_string(tmp_callstack)
+			transi.append((c, write, action, tmp_callstack_str + suffix))
+			if is_epsilon:
+				prog.set_required_pre.add(tmp_callstack_str)
+		# if read.nexts[0] == 'halt':
+		# 	continue
+		# tmp_callstack = callstack
+		# tmp_callstack[-1] = next_call
+		# rec(prog, tmp_callstack, spec)
 
 	prog.dic_st_transi[callstack_str] = transi
-
+	return
 
 
 

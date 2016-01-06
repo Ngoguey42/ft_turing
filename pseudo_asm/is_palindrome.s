@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 12:43:53 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/05 18:11:50 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/06 17:40:40 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -86,7 +86,7 @@ ItoB_carry:
 	|		[ANY]			E	call input_endr
 	__		[.]				R	call bufcharflag_endr
 	__		[R]		(-)		R	ni
-	__		[.]		(SPEC)	R	ret
+	__		[.]		(SPEC)	R	ret-
 
 ; subroutine 3
 BtoI_carry:

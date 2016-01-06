@@ -1,39 +1,33 @@
 ;******************************************************************************;
 ;                                                                              ;
 ;                                                         :::      ::::::::    ;
-;    has_0011.s                                         :+:      :+:    :+:    ;
+;    is_palindrome2.s                                   :+:      :+:    :+:    ;
 ;                                                     +:+ +:+         +:+      ;
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
-;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/06 17:50:32 by ngoguey          ###   ########.fr        ;
+;    Created: 2016/01/06 17:52:34 by ngoguey           #+#    #+#              ;
+;    Updated: 2016/01/06 19:16:44 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
-; looks for the substring 0011 in the input, drops y/n at the end
-; deduced from Youtube hpp3 "Theory of Computation" "3/65" @3m20
-
-	name"has_0011"
-	alphabet[01.ny]
+	name"is_palindrome2"
+	alphabet[.ynQWERTYUIOP]
 	blank[.]
 
-empty:
-	__		[1]				R	rep
-	|		[0]				R	ni
-	|		[.]				E	jmp print_n
+main:
+	__		[.]				E	jmp print_y
+	|		[ANY]	(.)		R	call+ carry_right
+	__		[.]				L	ni
+	|		[ANY]			R	jmp print_n
+	__		[.]				R	jmp main
+	|		[ANY]			L	rep
 
-has_0:
-	__		[0]				R	ni
-	|		[1]				R	jmp empty
-	|		[.]				E	jmp print_n
-	__		[0]				R	rep
-	|		[1]				R	ni
-	|		[.]				E	jmp print_n
-	__		[1]				R	ni
-	|		[0]				R	jmp has_0
-	|		[.]				E	jmp print_n
-	__		[ANY]			R	rep
-	|		[.]				E	jmp print_y
+carry_right:
+	__		[.]				L	ni
+	|		[ANY]			R	rep
+	__		[.]				E	jmp print_y ;last of an odd number of chars
+	|		[SPEC]	(.)		E	ret-
+	|		[ANY]			E	ret-
 
 print_y:
 	__		[.]		(y)		R	halt
