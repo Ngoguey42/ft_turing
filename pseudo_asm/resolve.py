@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 16:05:40 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 16:55:39 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -71,16 +71,16 @@ def rec(prog, callstack, spec):
 		read_chars = compute_read_chars(
 			read.reads, prog.alphabet, top_st.set_readchars, spec)
 		next_call = compute_next_call(prog, top_st, callstack, read)
-		next_call_str = None #tmp
-		if next_call != None: #tmp
-			next_call_str = call_to_string(next_call)  #tmp
-		else:
-			next_call_str = "HALT"
+		action = {'L': 'LEFT', 'R': 'RIGHT'}[read.action if read.action != 'E' else 'L']
+		next_call_str = call_to_string(next_call) if next_call != None else "HALT"
+		if read.action == 'E':
+			prog.set_required_pre.add(next_call_str)
+			next_call_str += 'Adjust'
 		print "callstack:", callstack_str, "reads:", read_chars, "next_call:", next_call
 		for c in read_chars:
 			write = read.write if read.write != None else c
 			print c, "->", write
-			transi.append((c, write, read.action, next_call_str))
+			transi.append((c, write, action, next_call_str))
 		tmp_callstack = callstack
 		if next_call == None: #tmp
 			continue  #tmp

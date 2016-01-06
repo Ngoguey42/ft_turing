@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 16:34:24 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 16:58:57 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -115,6 +115,7 @@ class Prog:
 		self.dic_st = dict()
 		self.dic_st_transi = dict()
 		self.set_resolved_states = set()
+		self.set_required_pre = set()
 
 		self.stid = -1
 		self.cur_lb = None
@@ -186,6 +187,8 @@ class Prog:
 		string += '\t"states"\t: [ '
 		for s in self.set_resolved_states:
 			string += '"%s", ' %(s)
+		for s in self.set_required_pre:
+			string += '"%sAdjust", ' %(s)
 		string = string[:-2]
 		string += '],\n'
 
@@ -200,9 +203,17 @@ class Prog:
 			for tr in v:
 				fmt = '\t\t\t{ "read" : "%s", "to_state": "%s", "write": "%s", "action": "%s"},\n'
 				string += fmt %(tr[0], tr[3], tr[1], tr[2])
-				# %(tr[0], tr[1], tr[2], tr[3])
 			string = string[:-2]
 			string += '\n\t\t],\n'
+
+		for k in self.set_required_pre:
+			string += '\t\t"%sAdjust": [\n' %(k)
+			for c in self.alphabet:
+				fmt = '\t\t\t{ "read" : "%s", "to_state": "%s", "write": "%s", "action": "%s"},\n'
+				string += fmt %(c, k, c, 'RIGHT')
+			string = string[:-2]
+			string += '\n\t\t],\n'
+
 
 		string = string[:-2]
 		string += '\n\t}\n'
