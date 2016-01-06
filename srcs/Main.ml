@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/26 18:32:06 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/06 14:36:20 by fbuoro           ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -23,13 +23,13 @@ module LoopGuard =
 
 let rec loop db tape statei =
   let read = Tape.head tape in
+  Tape.print tape;
   LoopGuard.update (Tape.index tape, read, statei);
   match ProgramData.transition db statei read with
   | ProgramData.Undefined ->
 	 failwith "Undefined char or transition"
   | ProgramData.Final -> ()
   | ProgramData.Normal (write, action, next) ->
-	 Tape.print tape;
 	 loop db (Tape.action tape write action) next
 
 let () =

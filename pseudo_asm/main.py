@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/05 19:20:34 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 13:24:55 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,56 +57,74 @@ class Read:
 		return "%s (%s) %s %s" %(self.reads, str(self.write),
 								 self.action, self.nexts)
 
-	# def replace_ANY(self, alphabet, others)
-
 class State:
 	def __init__(self, label, sid):
 		self.label = label
 		self.sid = sid
-		self.rawreads = []
-		self.char_reads = None
-		self.reads = None
+		self.set_readchars = None
+		self.lst_reads = None
 		self.final = None
-		self.used = None
+
+		self.rawreads = []
 
 	def __str__(self):
-		return "%s(s%d) %s %s" %(self.label, self.sid, self.char_reads
-								 , map(str, self.reads))
+		return "%s(s%d) %s %s" %(self.label, self.sid, self.set_readchars
+								 , map(str, self.lst_reads))
 
 	def addrawread(self, rawread):
 		self.rawreads.append(rawread)
 
 	def buildinternal(self, setlabels, alphabet):
-		assert(len(self.rawreads) > 0)
-		rset = set()
-		nset = set()
-		rcount = 0
+		assert(len(self.rawreads) > 0) #useless assert
+		set_readchars = set()
+		set_nexts = set()
+		count_reads = 0
 		for rawread in self.rawreads:
-			nset.add(rawread[3])
+			set_nexts.add(rawread[3])
 			if rawread[0] == 'ANY':
-				rcount += 1
-				rset.add('ANY')
+				count_reads += 1
+				set_readchars.add('ANY')
 			elif rawread[0] == 'SPEC':
-				rcount += 1
-				rset.add('SPEC')
+				count_reads += 1
+				set_readchars.add('SPEC')
 			else:
-				rcount += len(rawread[0])
-				rset = rset | set(map(lambda x:x, rawread[0]))
-		assert(rcount == len(rset))	#reads uniqueness
-		if 'halt' in nset:
-			assert(len(nset) == 1)	#only halts when halt present
-		self.char_reads = frozenset(rset)
-		self.reads = map(lambda x:Read(x, setlabels), self.rawreads)
+				count_reads += len(rawread[0])
+				set_readchars |= set(map(lambda x:x, rawread[0]))
+		assert(count_reads == len(set_readchars))	#reads uniqueness
+		if 'halt' in set_nexts:
+			self.final = True
+			assert(len(set_nexts) == 1)	#only halts when halt present
+		else:
+			self.final = False
+		self.set_readchars = frozenset(set_readchars)
+		self.lst_reads = map(lambda x:Read(x, setlabels), self.rawreads)
 		del self.rawreads
 
 
 
 class Prog:
 	def __init__(self, tokens):
+		self.name = None
+		self.alpha = None
+		self.blank = None
+
+		self.lst_lb = []
+		self.set_lb = None
+		self.lst_st = []
+		self.dic_st = dict()
+
+		self.stid = -1
+		self.cur_lb = None
+		self.cur_st = None
+
 		self.save_name(tokens.pop(0))
 		self.save_alpha(tokens.pop(0))
 		self.save_blank(tokens.pop(0))
 		self.generate_states(tokens)
+
+		del self.stid
+		del self.cur_lb
+		del self.cur_st
 
 	def save_name(self, tk):
 		assert(tk[0] == 'name')
@@ -122,44 +140,31 @@ class Prog:
 		assert(tk[0] == 'blank')
 		self.blank = tk[1]
 
+
 	def generate_states(self, tks):
-		ll = []
-		ls = []
-		sid = -1
-		curl = None
-		curs = None
 		for tk in tks:
 			if tk[0] == 'label':
-				curl = tk[1]		#label related
-				ll.append(curl)		#label related
-				sid = 0				#label related
-				if curs != None:	#curstate related
-					ls.append(curs)	#curstate related
-					curs = None
+				self.cur_lb = tk[1]
+				self.lst_lb.append(tk[1])
+				self.stid = 0
 			elif tk[0] == 'statestrt':
-				if curs != None:		#curstate related
-					ls.append(curs)		#curstate related
-					curs = None
-				assert(curl != None)	#label related
-				sid += 1				#label related
-				curs = State(curl, sid)
-				curs.addrawread(tk[1])
+				assert(self.cur_lb != None)
+				self.stid += 1
+				self.cur_st = State(self.cur_lb, self.stid)
+				self.cur_st.addrawread(tk[1])
+				self.dic_st[(self.cur_lb, self.stid)] = self.cur_st
+				self.lst_st.append(self.cur_st)
 			elif tk[0] == 'stateor':
-				assert(curs != None)
-				curs.addrawread(tk[1])
+				assert(self.cur_st != None)
+				self.cur_st.addrawread(tk[1])
 			else:
 				assert(false)
 
-		if curs != None:        #curstate related
-			ls.append(curs)     #curstate related
-			curs = None
-		sl = set(ll)
-		assert(len(sl) == len(ll))
-		assert(len(ls) > 0)
-		for s in ls:
-			s.buildinternal(sl, self.alphabet)
-		self.setlabels = frozenset(sl)
-		self.liststates = ls
+		self.set_lb = frozenset(self.lst_lb)
+		assert(len(self.set_lb) == len(self.lst_lb)) #no duplicates in labels
+		assert(len(self.lst_st) > 0) #minimum 1 state
+		for s in self.lst_st:
+			s.buildinternal(self.set_lb, self.alphabet)
 
 
 if __name__ == "__main__":
@@ -168,8 +173,7 @@ if __name__ == "__main__":
 	print p.name
 	print p.alphabet
 	print p.blank
-	print p.setlabels
-	for st in p.liststates:
+	print p.set_lb
+	for st in p.lst_st:
 		print str(st)
 	resolve(p)
-		# print st.label, st.sid, st.rawreads
