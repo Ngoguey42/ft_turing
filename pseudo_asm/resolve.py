@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 19:13:51 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/06 19:39:50 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,22 +60,17 @@ def compute_next_call(prog, top_st, callstack, read, rchar):
 		calling_st = prog.dic_st[(callstack[-2][0], callstack[-2][1])]
 		next_st = prog.lst_st[calling_st.gid + 1]
 		return (next_st.label, next_st.sid, callstack[-2][2])
-		# next_st = prog.lst_st[top_st.gid + 1]
 	# elif read.nexts[0] == '':
 
 
 def rec(prog, callstack, spec):
 	top_st = prog.dic_st[(callstack[-1][0], callstack[-1][1])]
-	# top_spec = callstack[-1][2]
-	# call_str = call_to_string(callstack[-1])
 	callstack_str = callstack_to_string(callstack)
 	transi = []
 
  	if callstack_str in prog.set_resolved_states:
 		return
 	prog.set_resolved_states.add(callstack_str)
-	print '\n', 'DOING:', callstack_str, "SPEC:", spec
-	# print prog.set_resolved_states
 	for read in top_st.lst_reads:
 		read_chars = compute_read_chars(
 			read.reads, prog.alphabet, top_st.set_readchars, spec)
@@ -85,34 +80,32 @@ def rec(prog, callstack, spec):
 		for c in read_chars:
 			write = read.write if read.write != None else c
 			next_call = compute_next_call(prog, top_st, callstack, read, c)
-			next_call_str = call_to_string(next_call) if next_call != None else "HALT"
-			print "callstack:%s reads:%s (%s -> %s) next_call: %s" %(callstack_str, read_chars,
-																	c, write, next_call_str)
 			tmp_callstack = list(callstack)
+			tmp_spec = -1
 			if read.nexts[0] == 'halt':
-				transi.append((c, write, action, next_call_str + suffix))
+				if is_epsilon:
+					raise Exception('Epsilon action before halt not allowed')
+				transi.append((c, write, action, 'HALT'))
 				continue
 			elif read.nexts[0] == 'call+':
 				if spec != None:
 					raise Exception('Multiple specialization not allowed')
 				tmp_callstack.append(next_call)
-				rec(prog, tmp_callstack, next_call[2])
+				tmp_spec = next_call[2]
 			elif read.nexts[0] == 'ret-':
+				if spec == None:
+					raise Exception('ret- without specialization not allowed')
 				del tmp_callstack[-1]
 				tmp_callstack[-1] = next_call
-				rec(prog, tmp_callstack, None)
+				tmp_spec = None
 			else:
 				tmp_callstack[-1] = next_call
-				rec(prog, tmp_callstack, spec)
+				tmp_spec = spec
 			tmp_callstack_str = callstack_to_string(tmp_callstack)
 			transi.append((c, write, action, tmp_callstack_str + suffix))
 			if is_epsilon:
 				prog.set_required_pre.add(tmp_callstack_str)
-		# if read.nexts[0] == 'halt':
-		# 	continue
-		# tmp_callstack = callstack
-		# tmp_callstack[-1] = next_call
-		# rec(prog, tmp_callstack, spec)
+			rec(prog, tmp_callstack, tmp_spec)
 
 	prog.dic_st_transi[callstack_str] = transi
 	return

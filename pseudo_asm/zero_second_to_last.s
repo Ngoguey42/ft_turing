@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 17:03:51 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/04 13:43:42 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/06 19:47:43 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -14,29 +14,27 @@
 ; deduced from Youtube hpp3 "Theory of Computation" "6/65" @2m30
 
 	name"zero_second_to_last"
-	alphabet[01.]
+	alphabet[01.ny]
 	blank[.]
 
 got_none:
-	__		[.]		jmp print_n				E
-	|		[1]		rep						R
-	|		[0]		ni						R
+	__		[.]			E	jmp print_n
+	|		[1]			R	rep
+	|		[0]			R	ni
 
 got_zero:
-	__		[.]		jmp print_n				E
-	|		[0]		rep						R
-	|		[1]		ni						R
+	__		[.]			E	jmp print_n
+	|		[0]			R	rep
+	|		[1]			R	ni
 
 got_zero_one:
-	__		[.]		jmp print_y				E
-	|		[1]		jmp got_none			R
-	|		[0]		jmp got_zero			R
+	__		[.]			E	jmp print_y
+	|		[1]			R	jmp got_none
+	|		[0]			R	jmp got_zero
 
 
 print_y:
-	__		[.]		ni						R	(y)
-	f YES
+	__		[.]		(y)	R	halt
 
 print_n:
-	__		[.]		ni						R	(n)
-	f NO
+	__		[.]		(n)	R	halt

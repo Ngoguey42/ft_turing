@@ -6,12 +6,15 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/06 17:52:34 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/06 19:16:44 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/06 19:43:19 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
+; checks if the input is a palindrome or not, drops y/n at the end
+; all chars accepted in input, rapes the original input
+
 	name"is_palindrome2"
-	alphabet[.ynQWERTYUIOP]
+	alphabet[.ynABC]
 	blank[.]
 
 main:
