@@ -1,0 +1,61 @@
+{
+	"name"    : "palindrome",
+	"alphabet": [ ".", "a", "b", "c", "y", "n"],
+	"blank"   : ".",
+	"states"  : [ "start", "a-End", "b-End", "c-End", "a-Pair", "b-Pair", "c-Pair", "toStart", "no", "halt" ],
+	"initial" : "start",
+	"finals"  : [ "halt" ],
+	"transitions" : {
+		"start": [
+			{ "read" : ".", "to_state": "halt", "write": "y", "action": "RIGHT"},
+			{ "read" : "a", "to_state": "a-End", "write": ".", "action": "RIGHT"},
+			{ "read" : "b", "to_state": "b-End", "write": ".", "action": "RIGHT"},
+			{ "read" : "c", "to_state": "c-End", "write": ".", "action": "RIGHT"}
+		],
+		"toStart": [
+			{ "read" : ".", "to_state": "start", "write": ".", "action": "RIGHT"},
+			{ "read" : "a", "to_state": "toStart", "write": "a", "action": "LEFT"},
+			{ "read" : "b", "to_state": "toStart", "write": "b", "action": "LEFT"},
+			{ "read" : "c", "to_state": "toStart", "write": "c", "action": "LEFT"}
+		],
+		"no": [
+			{ "read" : ".", "to_state": "halt", "write": "n", "action": "RIGHT"}
+		],
+		"a-End": [
+			{ "read" : ".", "to_state": "a-Pair", "write": ".", "action": "LEFT"},
+			{ "read" : "a", "to_state": "a-End", "write": "a", "action": "RIGHT"},
+			{ "read" : "b", "to_state": "a-End", "write": "b", "action": "RIGHT"},
+			{ "read" : "c", "to_state": "a-End", "write": "c", "action": "RIGHT"}
+		],
+		"a-Pair": [
+			{ "read" : ".", "to_state": "halt", "write": "y", "action": "RIGHT"},
+			{ "read" : "a", "to_state": "toStart", "write": ".", "action": "LEFT"},
+			{ "read" : "b", "to_state": "no", "write": "b", "action": "RIGHT"},
+			{ "read" : "c", "to_state": "no", "write": "c", "action": "RIGHT"}
+		],
+		"b-End": [
+			{ "read" : ".", "to_state": "b-Pair", "write": ".", "action": "LEFT"},
+			{ "read" : "a", "to_state": "b-End", "write": "a", "action": "RIGHT"},
+			{ "read" : "b", "to_state": "b-End", "write": "b", "action": "RIGHT"},
+			{ "read" : "c", "to_state": "b-End", "write": "c", "action": "RIGHT"}
+		],
+		"b-Pair": [
+			{ "read" : ".", "to_state": "halt", "write": "y", "action": "RIGHT"},
+			{ "read" : "a", "to_state": "no", "write": "a", "action": "RIGHT"},
+			{ "read" : "b", "to_state": "toStart", "write": ".", "action": "LEFT"},
+			{ "read" : "c", "to_state": "no", "write": "c", "action": "RIGHT"}
+		],
+		"c-End": [
+			{ "read" : ".", "to_state": "c-Pair", "write": ".", "action": "LEFT"},
+			{ "read" : "a", "to_state": "c-End", "write": "a", "action": "RIGHT"},
+			{ "read" : "b", "to_state": "c-End", "write": "b", "action": "RIGHT"},
+			{ "read" : "c", "to_state": "c-End", "write": "c", "action": "RIGHT"}
+		],
+		"c-Pair": [
+			{ "read" : ".", "to_state": "halt", "write": "y", "action": "RIGHT"},
+			{ "read" : "a", "to_state": "no", "write": "a", "action": "RIGHT"},
+			{ "read" : "b", "to_state": "no", "write": "b", "action": "RIGHT"},
+			{ "read" : "c", "to_state": "toStart", "write": ".", "action": "LEFT"}
+		]
+	}
+}
