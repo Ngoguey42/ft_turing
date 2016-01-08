@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 16:58:57 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/08 13:19:43 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -220,7 +220,7 @@ class Prog:
 		string += "}\n"
 		with open("lol.json", "w") as stream:
 			stream.write(string)
-		print string
+		# print string
 
 
 if __name__ == "__main__":

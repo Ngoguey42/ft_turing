@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/06 19:39:50 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/08 13:20:37 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -78,7 +78,16 @@ def rec(prog, callstack, spec):
 		action = {'L': 'LEFT', 'R': 'RIGHT'}['L' if is_epsilon else read.action]
 		suffix = 'Adjust' if is_epsilon else ''
 		for c in read_chars:
-			write = read.write if read.write != None else c
+
+			def get_write():
+				if read.write == None:
+					return c
+				elif read.write == 'SPEC':
+					assert(spec != None) # no spec when writing spec
+					return spec
+				else:
+					return read.write
+			write = get_write()
 			next_call = compute_next_call(prog, top_st, callstack, read, c)
 			tmp_callstack = list(callstack)
 			tmp_spec = -1

@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/06 16:48:08 by fbuoro           ###   ########.fr       *)
+(*   Updated: 2016/01/08 14:04:13 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -21,17 +21,22 @@ module LoopGuard =
 						 i c st;
 	  end)
 
-let rec loop db tape statei =
+let (++) = (@@)
+
+let rec loop db tape statei i =
   let read = Tape.head tape in
+  let tapei = Tape.index tape in
   Tape.print tape;
-  Printf.printf "\t[%s]\n" @@ ProgramData.state_name db statei;
-  LoopGuard.update (Tape.index tape, read, statei);
+  Printf.printf "\t(i%d)[%s]#%d\n" tapei
+  ++ ProgramData.state_name db statei
+  ++ i;
+  LoopGuard.update (tapei, read, statei);
   match ProgramData.transition db statei read with
   | ProgramData.Undefined ->
 	 failwith "Undefined char or transition"
   | ProgramData.Final -> ()
   | ProgramData.Normal (write, action, next) ->
-	 loop db (Tape.action tape write action) next
+	 loop db (Tape.action tape write action) next (i + 1)
 
 let () =
   match Arguments.read () with
@@ -39,5 +44,5 @@ let () =
 	 let db = ProgramData.of_jsonfile jsonfile in
 	 ProgramData.print db;
 	 let tape = Tape.of_string input db.ProgramData.blank in
-	 loop db tape db.ProgramData.initial
+	 loop db tape db.ProgramData.initial 1
   | Arguments.Convert jsonfile -> Convert.output jsonfile
