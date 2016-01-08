@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/08 13:20:37 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/08 17:26:12 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,11 +56,16 @@ def compute_next_call(prog, top_st, callstack, read, rchar):
 		next_st = prog.dic_st[(read.nexts[1], 1)]
 		return (next_st.label, next_st.sid, rchar)
 	elif read.nexts[0] == 'ret-':
-		print 'lol!ret-!'
 		calling_st = prog.dic_st[(callstack[-2][0], callstack[-2][1])]
 		next_st = prog.lst_st[calling_st.gid + 1]
 		return (next_st.label, next_st.sid, callstack[-2][2])
-	# elif read.nexts[0] == '':
+	elif read.nexts[0] == 'call':
+		next_st = prog.dic_st[(read.nexts[1], 1)]
+		return (next_st.label, next_st.sid, callstack[-1][2])
+	elif read.nexts[0] == 'ret':
+		calling_st = prog.dic_st[(callstack[-2][0], callstack[-2][1])]
+		next_st = prog.lst_st[calling_st.gid + 1]
+		return (next_st.label, next_st.sid, callstack[-1][2])
 
 
 def rec(prog, callstack, spec):
@@ -107,6 +112,13 @@ def rec(prog, callstack, spec):
 				del tmp_callstack[-1]
 				tmp_callstack[-1] = next_call
 				tmp_spec = None
+			elif read.nexts[0] == 'call':
+				tmp_callstack.append(next_call)
+				tmp_spec = spec
+			elif read.nexts[0] == 'ret':
+				del tmp_callstack[-1]
+				tmp_callstack[-1] = next_call
+				tmp_spec = spec
 			else:
 				tmp_callstack[-1] = next_call
 				tmp_spec = spec

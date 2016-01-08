@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/08 12:09:38 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/08 14:08:38 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/08 17:21:44 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -38,7 +38,7 @@
 	blank[.]
 
 main:
-	__		[.]				R	jmp success
+	__		[.]				R	halt
 	|		[ANY]			R	ni
 	__		[ANY]			R	rep
 	|		[.]				L	ni
@@ -46,8 +46,8 @@ main:
 scanleft_for_double_char:
 	__		[ANY]			L	ni
 scanleft_for_double_char2:
-	; __		[ANY]			L	call dump_tape$$
-	__		[.]				R	jmp success
+	__		[ANY]			L	call dummy
+	__		[.]				R	halt
 	|		[ANY]			R	ni
 	__		[ANY]			R	jmp reach_last
 
@@ -70,8 +70,5 @@ carry_1right:
 	__		[.]		(SPEC)	L	ret-
 
 
-; dump_tape$$:
-; 	__		[ANY]			R	ret
-
-success:
-	__		[ANY]			L	halt
+dummy:
+	__		[ANY]			R	ret

@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/08 13:19:43 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/08 14:22:53 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -64,7 +64,7 @@ class State:
 		self.gid = gid
 		self.set_readchars = None
 		self.lst_reads = None
-		self.final = None
+		# self.final = None
 
 		self.rawreads = []
 
@@ -92,11 +92,6 @@ class State:
 				count_reads += len(rawread[0])
 				set_readchars |= set(map(lambda x:x, rawread[0]))
 		assert(count_reads == len(set_readchars))	#reads uniqueness
-		if 'halt' in set_nexts:
-			self.final = True
-			assert(len(set_nexts) == 1)	#only halts when halt present
-		else:
-			self.final = False
 		self.set_readchars = frozenset(set_readchars)
 		self.lst_reads = map(lambda x:Read(x, setlabels), self.rawreads)
 		del self.rawreads
