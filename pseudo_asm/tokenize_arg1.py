@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 14:28:53 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/05 18:01:18 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/10 14:02:57 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,7 +54,9 @@ def parse_line(line):
 
 
 def get_tokens():#exported
-	lines = open(argv[1], "r").read().split('\n')
+	lines = None
+	with open(argv[1], "r") as stream:
+		lines = stream.read().split('\n')
 	lines = map(kill_comments, lines)
 	lines = [parse_line(x) for x in lines if not line_empty(x)]
 	# for x in lines:
