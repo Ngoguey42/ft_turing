@@ -6,25 +6,32 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/10 19:57:27 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/10 20:15:39 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/10 20:26:44 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
+
+; ./ft_turing truc.json "110101110000010011011yyAyyAyy"
+; copied from http://www.cba.mit.edu/events/03.11.ASE/docs/Minsky.pdf
 
 	name"minsky_utm.s"
 	alphabet[y01A]
 	blank[0]
 
-q2:
-	__		[y]		(0)		L	jmp q1
-	|		[0]		(y)		R	rep
-	|		[1]		(A)		R	rep
-	|		[A]		(y)		R	jmp q6
+reach_y:
+	__		[ANY]			R	rep
+	|		[y]				E	jmp q2
 
 q1:
 	__		[y]		(0)		L	rep
 	|		[0]		(0)		L	rep
 	|		[1]		(1)		L	jmp q2
 	|		[A]		(1)		L	rep
+
+q2:
+	__		[y]		(0)		L	jmp q1
+	|		[0]		(y)		R	rep
+	|		[1]		(A)		R	rep
+	|		[A]		(y)		R	jmp q6
 
 q3:
 	__		[y]		(y)		L	rep
