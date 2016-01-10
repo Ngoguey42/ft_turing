@@ -10,9 +10,8 @@ Compiler class:
 Misc:
 - https://complexityzoo.uwaterloo.ca/Petting_Zoo
 - http://www.wolframscience.com/nksonline/toc.html
+- http://www.cba.mit.edu/events/03.11.ASE/docs/Minsky.pdf
 
-
-ocamlopt.opt `ocamlfind query core`/core.cmxa -cclib "-L `ocamlfind query core`"  *.ml
 ```
 oktf is an alias for
 rr ;

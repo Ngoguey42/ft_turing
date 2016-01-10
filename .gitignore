@@ -1,4 +1,8 @@
+ft_turing
 *.o
+*.byt
+*.pyc
+*.opt
 *.cmo
 *.cmi
 *.cmx
