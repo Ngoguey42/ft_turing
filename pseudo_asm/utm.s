@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/11 16:03:30 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/11 18:24:19 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -50,10 +50,55 @@
 	blank[.]
 
 main:
-	; __		[ANY]			L		call state_nextl
-	; __		[ANY]			L		call state_nextr
-	__		[ANY]			L		call state_searchl_u
+	__		[ANY]			E		call prepare_states
 	__		[ANY]			L		halt
+
+
+
+prepare_states:
+	__		[+]				E		call prepare_state
+	|		[=]				E		ret
+	__		[+=]			E		jmp prepare_states
+
+prepare_state:
+	__		[+]				R		ni
+prepare_state~:
+	__		[-]				E		call prepare_trans
+	|		[=]				R		jmp prepare_state~~
+	__		[-=]			E		jmp prepare_state~
+prepare_state~~:
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[01]			R		ni
+	__		[uyn]			R		ret
+
+prepare_trans:
+	__		[-]				R		ni ; (trans lbegin)
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[01]			R		ni
+	__		[ANY]			R		ni
+	__		[0]				R		jmp prepare_trans~
+	|		[1]				L		ni; write blank to write
+	__		[ANY]	(.)		R		ni; write blank to write
+	__		[1]				R		ni; write blank to write
+prepare_trans~:
+	__		[ANY]			R		ni
+	__		[0]				R		jmp prepare_trans~~
+	|		[1]				L		ni; write blank to read
+	__		[ANY]	(.)		R		ni; write blank to read
+	__		[1]				R		ni; write blank to read
+prepare_trans~~:
+	__		[uyn]			R		ret
+
+
+
+
+
+
+
+
+
 
 ; STATES/TRANSITIONS RIGHT MOVES
 trans_nextl:

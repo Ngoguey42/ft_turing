@@ -1,0 +1,46 @@
+{
+	"name"		: "zero_second_to_last",
+	"alphabet"	: [ "1", "0", ".", "y", "n"],
+	"blank"		: ".",
+	"states"	: [ "print_n(s1)", "got_none(s1)", "HALT", "got_zero_one(s1)", "got_zero(s1)", "print_y(s1)", "print_n(s1)Adjust", "print_y(s1)Adjust"],
+	"initial"	: "got_none(s1)",
+	"finals"	: [ "HALT" ],
+
+	"transitions"	: {
+		"print_n(s1)": [
+			{ "read" : ".", "to_state": "HALT", "write": "n", "action": "RIGHT"}
+		],
+		"got_zero(s1)": [
+			{ "read" : ".", "to_state": "print_n(s1)Adjust", "write": ".", "action": "LEFT"},
+			{ "read" : "0", "to_state": "got_zero(s1)", "write": "0", "action": "RIGHT"},
+			{ "read" : "1", "to_state": "got_zero_one(s1)", "write": "1", "action": "RIGHT"}
+		],
+		"got_zero_one(s1)": [
+			{ "read" : ".", "to_state": "print_y(s1)Adjust", "write": ".", "action": "LEFT"},
+			{ "read" : "1", "to_state": "got_none(s1)", "write": "1", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "got_zero(s1)", "write": "0", "action": "RIGHT"}
+		],
+		"got_none(s1)": [
+			{ "read" : ".", "to_state": "print_n(s1)Adjust", "write": ".", "action": "LEFT"},
+			{ "read" : "1", "to_state": "got_none(s1)", "write": "1", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "got_zero(s1)", "write": "0", "action": "RIGHT"}
+		],
+		"print_y(s1)": [
+			{ "read" : ".", "to_state": "HALT", "write": "y", "action": "RIGHT"}
+		],
+		"print_n(s1)Adjust": [
+			{ "read" : "1", "to_state": "print_n(s1)", "write": "1", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "print_n(s1)", "write": "0", "action": "RIGHT"},
+			{ "read" : ".", "to_state": "print_n(s1)", "write": ".", "action": "RIGHT"},
+			{ "read" : "y", "to_state": "print_n(s1)", "write": "y", "action": "RIGHT"},
+			{ "read" : "n", "to_state": "print_n(s1)", "write": "n", "action": "RIGHT"}
+		],
+		"print_y(s1)Adjust": [
+			{ "read" : "1", "to_state": "print_y(s1)", "write": "1", "action": "RIGHT"},
+			{ "read" : "0", "to_state": "print_y(s1)", "write": "0", "action": "RIGHT"},
+			{ "read" : ".", "to_state": "print_y(s1)", "write": ".", "action": "RIGHT"},
+			{ "read" : "y", "to_state": "print_y(s1)", "write": "y", "action": "RIGHT"},
+			{ "read" : "n", "to_state": "print_y(s1)", "write": "n", "action": "RIGHT"}
+		]
+	}
+}
