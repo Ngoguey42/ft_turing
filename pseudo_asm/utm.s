@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/11 15:43:15 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/11 16:03:30 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -50,8 +50,9 @@
 	blank[.]
 
 main:
-	__		[ANY]			L		call state_nextl
-	__		[ANY]			L		call state_nextr
+	; __		[ANY]			L		call state_nextl
+	; __		[ANY]			L		call state_nextr
+	__		[ANY]			L		call state_searchl_u
 	__		[ANY]			L		halt
 
 ; STATES/TRANSITIONS RIGHT MOVES
@@ -80,6 +81,12 @@ state_nextl:
 	__		[01ab]			L		rep
 	|		[=]				L		call lskip_any_trans
 	__		[+]				L		ret ;leaves head in a similar configuration
+
+state_searchl_u: ; undefined if not found
+	__		[u]				E		ret ; (state rbegin)
+	|		[yn]			E		call state_nextl ; (state rbegin)
+	__		[ANY]			E		jmp state_searchl_u
+
 
 ; STATES/TRANSITIONS LEFT MOVES
 trans_nextr:
