@@ -6,11 +6,11 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/12 14:10:14 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/12 18:14:35 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
-; CFG for my UTM's tape
+; CFG for the tape at any moment
 
 ; S ::= States Registers Tape
 
@@ -50,17 +50,87 @@
 	alphabet[uyn+-=01ab.LR]
 	blank[.]
 
-main:
+main: ; Step 0
 	__		[ANY]			E		call prepare_states ; validate(hard) (and prepare)states
 	__		[=]				R		call reg_endr ; validate(soft) registers
 	__		[L]				E		call tape_endr ; validate(soft) tape
-	__		[R]				E		call tape_endl ; back to endl
+	__		[R]				E		call tape_endl ; back to tape_endl
+	__		[L]				L		call reg_endl ; back to reg_endl
+
+
+
+main_find_state: ; Step 1
+	__		[=]				L		call state_searchl_firstu
+	__		[u]				L		ni
+	__		[01]			L		ni
+	__		[=]				L		ni
+	__		[ab]			L		rep
+	|		[0]		(a)		R		call+ carry_to_breg
+	|		[1]		(b)		R		call+ carry_to_breg
+	|		[=]				R		jmp main_breg1_fully_loaded
+	__		[ab]			L		rep
+	|		[=]				E		jmp main_find_state
+main_breg1_fully_loaded:
+	__		[a]		(0)		R		rep
+	|		[b]		(1)		R		rep
+	|		[=]				R		ni
+	__		[01]			R		ni
+	__		[u]				R		call rskip_any_state
+	__		[=]				R		ni
+	__		[ab]	(0)		R		rep
+	|		[01]			R		rep
+	|		[=]				L		ni
+	;label
+	__		[ab]			L		rep
+	|		[0]		(a)		R		call+ compare_to_breg
+	|		[1]		(b)		R		call+ compare_to_breg
+	|		[=]				R		halt ; global equality, comparison over
+	__		[=ab]			R		halt ; do not match
+	|		[01]			R		halt ; match
+	; __		[ANY]			R		halt
+
+main_is_final: ; Step
+	__		[ANY]			L		halt ;tmp
+
+main_find_trans: ; Step
+
+main_write: ; Step
+
+main_action: ; Step
+
+main_headchar_to_reg: ; Step
+
+main_changestate: ; Step
+
+
+
+
+main_success_subprogram_halt:
+	__		[ANY]			L		halt
+main_error_no_transition:
 	__		[ANY]			L		halt
 
-master_loop_after_action:
 
+; MAIN 1 - FIND STATE PHASE
+carry_to_breg:
+	__		[ab]			R		rep
+	|		[=]				R		ni
+	__		[01]			R		ni
+	__		[u]				R		call rskip_any_state
+	__		[=]				R		ni
+	__		[ab]			R		rep
+	|		[01=]			L		ni
+	__		[ab]	(SPEC)	L		ret-
 
+compare_to_breg:
+	__		[ab]			R		rep
+	|		[=]				R		ni
+	__		[01]			R		rep
+	|		[ab=]			L		ni
+	__		[SPEC]			E		ret- ; if char match, ret without moving
+	|		[01]			R		ret- ; if char do not match, ret from char to the right
 
+; MAIN 0 - INIT PHASE
 prepare_states:
 	__		[+]				E		call prepare_state ; Loop on each states
 	|		[=]				E		ret                ; Loop on each states End
@@ -121,7 +191,7 @@ trans_nextl:
 lskip_any_trans:
 	__		[+]				E		ret ; (transs lend) (state lbegin)
 	|		[uyn]			E		call trans_nextl ; (trans rbegin)
-	__		[ANY]			E		jmp lskip_any_trans
+	__		[uyn+]			E		jmp lskip_any_trans
 
 state_nextl:
 	__		[uyn]			L		ni ; (state rbegin)
@@ -132,10 +202,10 @@ state_nextl:
 	|		[=]				L		call lskip_any_trans
 	__		[+]				L		ret ;leaves head in a similar configuration
 
-state_searchl_u: ; undefined if not found
+state_searchl_firstu: ; undefined if not found
 	__		[u]				E		ret ; (state rbegin)
 	|		[yn]			E		call state_nextl ; (state rbegin)
-	__		[ANY]			E		jmp state_searchl_u
+	__		[ANY]			E		jmp state_searchl_firstu
 
 
 ; STATES/TRANSITIONS LEFT MOVES
@@ -154,7 +224,7 @@ trans_nextr:
 rskip_any_trans:
 	__		[=]				E		ret ; (transs rend)
 	|		[-]				E		call trans_nextr ; (trans lbegin)
-	__		[ANY]			E		jmp rskip_any_trans
+	__		[=-]			E		jmp rskip_any_trans
 
 state_nextr:
 	__		[+]				R		call rskip_any_trans ;(transs lend) (state lbegin)
@@ -165,6 +235,10 @@ state_nextr:
 	__		[01]			R		ni
 	__		[uyn]			R		ret;leaves head in a similar configuration
 
+rskip_any_state:
+	__		[=]				E		ret ;
+	|		[+]				E		call state_nextr ;
+	__		[=+]			E		jmp rskip_any_state
 
 ; REGISTERS MOVES
 reg_endr:
@@ -174,6 +248,14 @@ reg_endr:
 	|		[=]				R		ni
 	__		[ANY]			R		ni
 	__		[ANY]			R		ret
+reg_endl:
+	__		[ANY]			L		ni
+	__		[ANY]			L		ni
+	__		[=]				L		ni
+	__		[01ab]			L		rep
+	|		[=]				L		ni
+	__		[01ab]			L		rep
+	|		[=]				E		ret ; (regs endl)
 
 ; TAPE MOVES
 tape_endr:

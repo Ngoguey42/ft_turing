@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/26 14:46:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/12 13:11:58 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/12 17:07:45 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -66,7 +66,7 @@ let _states_to_input {ProgramData.states; ProgramData.initial} =
 let _buffer_to_input {ProgramData.states; ProgramData.initial} =
   let flen = log (float @@ Array.length states) /. (log 2.) in (* TODO: check this line *)
   let len = truncate @@ ceil flen in
-  let breg = String.make len '0' in
+  let breg = String.make len 'a' in
   let istatebin = _val_to_binary initial in
   let istatepad = String.make (len - String.length istatebin) '0' in
   Printf.sprintf "%s=%s=%c%c"
