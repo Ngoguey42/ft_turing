@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 17:00:21 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 17:00:21 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/12 18:26:58 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -72,7 +72,7 @@ let _save_transition ({trans_tmp = (_, record); transitions; trans_state}
   let tr = TransitionMap.add (trans_state, trans.read) trans transitions in
   Success {db with trans_tmp = (0, record); transitions = tr }
 
-let _save_trans_read ({trans_tmp; alphabet} as db) str =
+let _save_trans_read ({trans_tmp; trans_state; alphabet; transitions} as db) str =
   if String.length str <> 1 then
 	Fail "String.length str <> 1"
   else (
@@ -80,6 +80,8 @@ let _save_trans_read ({trans_tmp; alphabet} as db) str =
 	match alphabet with
 	| None -> Fail "alphabet not defined"
 	| Some set when not (CharSet.mem c set) -> Fail "Not present in alphabet"
+	| _ when TransitionMap.mem (trans_state, c) transitions ->
+	   Fail "Read char already defined for this state"
 	| _ -> let count, dat = trans_tmp in
 		   let dat = {dat with read = c} in
 		   if count = 3 then

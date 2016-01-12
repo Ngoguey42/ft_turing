@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/12 18:14:35 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/12 18:42:22 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -61,6 +61,7 @@ main: ; Step 0
 
 main_find_state: ; Step 1
 	__		[=]				L		call state_searchl_firstu
+	|		[n]				E		call state_searchl_firstu
 	__		[u]				L		ni
 	__		[01]			L		ni
 	__		[=]				L		ni
@@ -80,14 +81,31 @@ main_breg1_fully_loaded:
 	__		[ab]	(0)		R		rep
 	|		[01]			R		rep
 	|		[=]				L		ni
-	;label
+main_breg_compare_char:
 	__		[ab]			L		rep
 	|		[0]		(a)		R		call+ compare_to_breg
 	|		[1]		(b)		R		call+ compare_to_breg
 	|		[=]				R		halt ; global equality, comparison over
-	__		[=ab]			R		halt ; do not match
-	|		[01]			R		halt ; match
-	; __		[ANY]			R		halt
+	__		[=ab]			E		jmp main_breg_char_no_match
+	|		[01]			E		jmp main_breg_char_match ; match
+
+main_breg_char_match:
+	__		[0]		(a)		L		ni
+	|		[1]		(b)		L		ni
+	__		[01]			L		rep
+	|		[=]				L		jmp main_breg_compare_char
+main_breg_char_no_match:
+	__		[a]		(0)		R		rep
+	|		[b]		(1)		R		rep
+	|		[=]				L		ni
+	__		[01]			L		rep
+	|		[=]				L		ni
+	__		[01ab]	(a)		L		rep
+	; |		[=]				R		halt ; tmp
+	|		[=]				L		call state_searchl_firstu
+	__		[u]		(n)		E		jmp main_find_state
+
+
 
 main_is_final: ; Step
 	__		[ANY]			L		halt ;tmp
@@ -128,7 +146,7 @@ compare_to_breg:
 	__		[01]			R		rep
 	|		[ab=]			L		ni
 	__		[SPEC]			E		ret- ; if char match, ret without moving
-	|		[01]			R		ret- ; if char do not match, ret from char to the right
+	|		[ANY]			R		ret- ; if char do not match, ret from char to the right
 
 ; MAIN 0 - INIT PHASE
 prepare_states:
