@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/12 13:57:09 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/12 14:10:14 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -54,6 +54,7 @@ main:
 	__		[ANY]			E		call prepare_states ; validate(hard) (and prepare)states
 	__		[=]				R		call reg_endr ; validate(soft) registers
 	__		[L]				E		call tape_endr ; validate(soft) tape
+	__		[R]				E		call tape_endl ; back to endl
 	__		[ANY]			L		halt
 
 master_loop_after_action:
@@ -179,3 +180,8 @@ tape_endr:
 	__		[L+-=]			R		ni
 	|		[R]				E		ret
 	__		[ANY]			R		jmp tape_endr
+
+tape_endl:
+	__		[R+-=]			L		ni
+	|		[L]				E		ret
+	__		[ANY]			L		jmp tape_endl
