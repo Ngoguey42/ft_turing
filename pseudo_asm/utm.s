@@ -50,7 +50,8 @@
 	alphabet[uyn+-=01ab.LR]
 	blank[.]
 
-main: ; Step 0
+; STEP 0 - MAIN
+main_validations:
 	__		[ANY]			E		call prepare_states ; validate(hard) (and prepare)states
 	__		[=]				R		call reg_endr ; validate(soft) registers
 	__		[L]				E		call tape_endr ; validate(soft) tape
@@ -58,8 +59,8 @@ main: ; Step 0
 	__		[L]				L		call reg_endl ; back to reg_endl
 
 
-
-main_find_state: ; Step 1
+; STEP 1 - MAIN
+main_find_state: ; state loop beginning, db->breg loop beginning
 	__		[=]				L		call state_searchl_firstu
 	|		[n]				E		call state_searchl_firstu
 	__		[u]				L		ni
@@ -81,13 +82,13 @@ main_breg1_fully_loaded:
 	__		[ab]	(0)		R		rep
 	|		[01]			R		rep
 	|		[=]				L		ni
-main_breg_compare_char:
+main_breg_compare_char: ; breg char loop beginning
 	__		[ab]			L		rep
 	|		[0]		(a)		R		call+ compare_to_breg
 	|		[1]		(b)		R		call+ compare_to_breg
 	|		[=]				R		halt ; global equality, comparison over
-	__		[=ab]			E		jmp main_breg_char_no_match
-	|		[01]			E		jmp main_breg_char_match ; match
+	__		[=ab]			E		jmp main_breg_char_no_match ; char no match
+	|		[01]			E		jmp main_breg_char_match ; char match
 
 main_breg_char_match:
 	__		[0]		(a)		L		ni
@@ -101,35 +102,42 @@ main_breg_char_no_match:
 	__		[01]			L		rep
 	|		[=]				L		ni
 	__		[01ab]	(a)		L		rep
-	; |		[=]				R		halt ; tmp
 	|		[=]				L		call state_searchl_firstu
 	__		[u]		(n)		E		jmp main_find_state
 
 
-
-main_is_final: ; Step
+; STEP 2? - MAIN
+main_check_final: spread
 	__		[ANY]			L		halt ;tmp
 
-main_find_trans: ; Step
+; STEP - MAIN
+main_find_trans:
 
-main_write: ; Step
+; STEP - MAIN
+main_write:
 
-main_action: ; Step
+; STEP - MAIN
+main_action:
 
-main_headchar_to_reg: ; Step
+; STEP - MAIN
+main_headchar_to_reg:
 
-main_changestate: ; Step
+; STEP - MAIN
+main_changestate:
 
 
 
 
+; HALT 1
 main_success_subprogram_halt:
 	__		[ANY]			L		halt
+	
+; HALT 2
 main_error_no_transition:
 	__		[ANY]			L		halt
 
 
-; MAIN 1 - FIND STATE PHASE
+; STEP 1 - FIND STATE PHASE
 carry_to_breg:
 	__		[ab]			R		rep
 	|		[=]				R		ni
@@ -148,7 +156,8 @@ compare_to_breg:
 	__		[SPEC]			E		ret- ; if char match, ret without moving
 	|		[ANY]			R		ret- ; if char do not match, ret from char to the right
 
-; MAIN 0 - INIT PHASE
+
+; STEP 0 - INIT PHASE
 prepare_states:
 	__		[+]				E		call prepare_state ; Loop on each states
 	|		[=]				E		ret                ; Loop on each states End
@@ -193,7 +202,7 @@ prepare_trans~~:
 
 
 
-; STATES/TRANSITIONS RIGHT MOVES
+; STATES/TRANSITIONS LEFT MOVES
 trans_nextl:
 	__		[uyn]			L		ni ; (trans rbegin)
 	|		[+]				E		ret; (transs lend) (state lbegin)
@@ -226,7 +235,7 @@ state_searchl_firstu: ; undefined if not found
 	__		[ANY]			E		jmp state_searchl_firstu
 
 
-; STATES/TRANSITIONS LEFT MOVES
+; STATES/TRANSITIONS RIGHT MOVES
 trans_nextr:
 	__		[-]				R		ni ; (trans lbegin)
 	|		[=]				E		ret; (transs rend)
