@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/11 18:24:19 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/12 12:21:43 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -56,21 +56,20 @@ main:
 
 
 prepare_states:
-	__		[+]				E		call prepare_state
-	|		[=]				E		ret
-	__		[+=]			E		jmp prepare_states
-
+	__		[+]				E		call prepare_state ; Loop on each states
+	|		[=]				E		ret                ; Loop on each states End
+	__		[+=]			E		pi                 ; Loop on each states
 prepare_state:
 	__		[+]				R		ni
+	__		[-]				E		call prepare_trans ; Loop on each trans
+	|		[=]				R		jmp prepare_state~ ; Loop on each trans End
+	__		[-=]			E		pi                 ; Loop on each trans
 prepare_state~:
-	__		[-]				E		call prepare_trans
-	|		[=]				R		jmp prepare_state~~
-	__		[-=]			E		jmp prepare_state~
-prepare_state~~:
 	__		[01ab]			R		rep
 	|		[=]				R		ni
 	__		[01]			R		ni
 	__		[uyn]			R		ret
+
 
 prepare_trans:
 	__		[-]				R		ni ; (trans lbegin)

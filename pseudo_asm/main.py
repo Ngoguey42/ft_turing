@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/08 14:22:53 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/12 12:16:05 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,6 +29,7 @@ state (
 		next (
 			rep						goto self
 			ni						goto next
+			pi						goto prev
 			halt					not a transition
 			ret						goto next of parent
 			ret-					goto next of parent

@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/08 17:26:12 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/12 12:17:14 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,6 +46,11 @@ def compute_next_call(prog, top_st, callstack, read, rchar):
 		if len(prog.lst_st) <= top_st.gid + 1:
 			raise Exception('NextInstruction to end of file')
 		next_st = prog.lst_st[top_st.gid + 1]
+		return (next_st.label, next_st.sid, callstack[-1][2])
+	elif read.nexts[0] == 'pi':
+		if top_st.gid == 0:
+			raise Exception('PrevInstruction to begin of file')
+		next_st = prog.lst_st[top_st.gid - 1]
 		return (next_st.label, next_st.sid, callstack[-1][2])
 	elif read.nexts[0] == 'jmp':
 		next_st = prog.dic_st[(read.nexts[1], 1)]

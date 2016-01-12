@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 14:28:53 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/10 14:02:57 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/12 12:16:20 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ def line_empty(line):
 read = "\[(.+)\]"
 write = "(?:\((.+)\)\s+)?"
 action = "(R|E|L)"
-nexts = "(rep|ni|halt|jmp\s+\S+|call\s+\S+|call\+\s+\S+|ret|ret\-)"
+nexts = "(rep|ni|pi|halt|jmp\s+\S+|call\s+\S+|call\+\s+\S+|ret|ret\-)"
 sp = "\s+"
 
 pattern1 = "^\s*__\s+" + read + sp + write + action + sp + nexts + "\s*$"

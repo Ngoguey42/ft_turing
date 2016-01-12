@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/10 19:57:27 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/11 14:09:42 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/12 12:12:46 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -14,9 +14,9 @@
 ; read here http://www.cba.mit.edu/events/03.11.ASE/docs/Minsky.pdf
 
 ; 110101 1100000100 110 11 yyAyyAyy  (1894 steps in this .s)
-; 1: a1 -> a2		=== P1 = 11 0				(y)
+; 1: a3 -> halt		=== P3 = 11 01 01			(yyyy)
 ; 2: a2 -> a2a3		=== P2 = 11 0000 01 00		(yy)
-; 3: a3 -> halt		=== P3 = 11 01 01			(yyyy)
+; 3: a1 -> a2		=== P1 = 11 0				(y)
 ; 4: spacer (11)
 ; 5: input a2 a2 a2 -> yyAyyAyy
 
