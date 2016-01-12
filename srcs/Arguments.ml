@@ -6,12 +6,12 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/26 14:15:45 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/26 14:41:54 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/12 13:00:49 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
 type modes = Exec of string * string
-		   | Convert of string
+		   | Convert of string * string
 
 let _placeholderstr str =
   Printf.eprintf "placeholder \"%s\"\n%!" str;
@@ -41,6 +41,6 @@ let read () =
   Arg.parse speclist anon_fun usage_msg;
   match !convert_ptr, anon_str.(0), anon_str.(1) with
   | false, Some jsonfile, Some input -> Exec (jsonfile, input)
-  | true, Some jsonfile, None -> Convert jsonfile
+  | true, Some jsonfile, Some input -> Convert (jsonfile, input)
   | _, _, _ -> Arg.usage speclist usage_msg;
 			   exit 1

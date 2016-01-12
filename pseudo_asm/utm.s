@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/12 12:21:43 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/12 13:57:09 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -24,7 +24,7 @@
 ; BinaryNumber ::= BinaryDigit BinaryNumber | BinaryDigit					;Not empty
 ; BinaryNumberSubs ::= BinaryDigitSubs BinaryNumberSubs | BinaryDigitSubs	;Not empty
 ; Flags1 = u | y | n
-; Flags2 = + | -
+; Flags2 = + | - | =
 
 ; StateId ::= BinaryNumberSubs
 ; Action ::= BinaryDigit
@@ -42,16 +42,21 @@
 
 ; Registers ::=		= BinaryRegs = AlphabetChar AlphabetChar
 
-; TapeChars ::= EPSILON | Flags2 AlphabetChar TapeChars  		;Can be empty
-; Tape ::= = TapeChars
+; TapeCharsLoop ::= EPSILON | Flags2 AlphabetChar TapeCharsLoop
+; TapeChars ::= Flags2 AlphabetChar TapeCharsLoop		; Not empty
+; Tape ::= = L 0 TapeChars R
 
 	name"utm.s"
-	alphabet[uyn+-=01ab.]
+	alphabet[uyn+-=01ab.LR]
 	blank[.]
 
 main:
-	__		[ANY]			E		call prepare_states
+	__		[ANY]			E		call prepare_states ; validate(hard) (and prepare)states
+	__		[=]				R		call reg_endr ; validate(soft) registers
+	__		[L]				E		call tape_endr ; validate(soft) tape
 	__		[ANY]			L		halt
+
+master_loop_after_action:
 
 
 
@@ -59,6 +64,7 @@ prepare_states:
 	__		[+]				E		call prepare_state ; Loop on each states
 	|		[=]				E		ret                ; Loop on each states End
 	__		[+=]			E		pi                 ; Loop on each states
+
 prepare_state:
 	__		[+]				R		ni
 	__		[-]				E		call prepare_trans ; Loop on each trans
@@ -69,7 +75,6 @@ prepare_state~:
 	|		[=]				R		ni
 	__		[01]			R		ni
 	__		[uyn]			R		ret
-
 
 prepare_trans:
 	__		[-]				R		ni ; (trans lbegin)
@@ -158,3 +163,19 @@ state_nextr:
 	|		[=]				R		ni
 	__		[01]			R		ni
 	__		[uyn]			R		ret;leaves head in a similar configuration
+
+
+; REGISTERS MOVES
+reg_endr:
+	__		[01ab]			R		rep ; (regs beginl)
+	|		[=]				R		ni
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[ANY]			R		ni
+	__		[ANY]			R		ret
+
+; TAPE MOVES
+tape_endr:
+	__		[L+-=]			R		ni
+	|		[R]				E		ret
+	__		[ANY]			R		jmp tape_endr

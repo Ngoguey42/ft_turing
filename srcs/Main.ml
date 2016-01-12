@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/08 14:04:13 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/12 13:01:31 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -45,4 +45,4 @@ let () =
 	 ProgramData.print db;
 	 let tape = Tape.of_string input db.ProgramData.blank in
 	 loop db tape db.ProgramData.initial 1
-  | Arguments.Convert jsonfile -> Convert.output jsonfile
+  | Arguments.Convert (jsonfile, input) -> Convert.output jsonfile input

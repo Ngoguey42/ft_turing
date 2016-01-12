@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/26 14:46:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/11 18:06:02 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/12 13:11:58 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -75,9 +75,22 @@ let _buffer_to_input {ProgramData.states; ProgramData.initial} =
   ++ '0'
   ++ '0'
 
-let output jsonfile =
+let _input_to_input orig =
+  match String.length orig with
+  | 0 -> "=."
+  | len -> String.init
+		   ++ len * 2
+		   ++ fun i ->
+			  match i, i mod 2 with
+			  | 0, _ -> '='
+			  | _, 0 -> '-'
+			  | _, _ -> String.get orig @@ i / 2
+
+
+let output jsonfile input =
   let db = ProgramData.of_jsonfile jsonfile in
   i'm_lazy_right_now := db.ProgramData.blank;
-  Printf.printf "%s=%s="
+  Printf.printf "%s=%sL0%sR"
   ++ _states_to_input db
   ++ _buffer_to_input db
+  ++ _input_to_input input
