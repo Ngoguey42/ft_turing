@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/12 18:42:22 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/18 12:03:51 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -107,7 +107,7 @@ main_breg_char_no_match:
 
 
 ; STEP 2? - MAIN
-main_check_final: spread
+main_check_final:
 	__		[ANY]			L		halt ;tmp
 
 ; STEP - MAIN
@@ -131,7 +131,7 @@ main_changestate:
 ; HALT 1
 main_success_subprogram_halt:
 	__		[ANY]			L		halt
-	
+
 ; HALT 2
 main_error_no_transition:
 	__		[ANY]			L		halt

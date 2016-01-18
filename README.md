@@ -23,3 +23,5 @@ time ./a.out &&
 rm a.out &&
 ocl
 ```
+
+![encoding](./img/utm_encoding.png)<BR>
