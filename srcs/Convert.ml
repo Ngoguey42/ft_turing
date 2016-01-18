@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/26 14:46:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/12 17:07:45 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/18 14:58:16 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -63,7 +63,7 @@ let _states_to_input {ProgramData.states; ProgramData.initial} =
   let statestr, _ = Array.fold_left _state_to_input ("", 0) states in
   statestr
 
-let _buffer_to_input {ProgramData.states; ProgramData.initial} =
+let _buffer_to_input {ProgramData.states; ProgramData.initial} input =
   let flen = log (float @@ Array.length states) /. (log 2.) in (* TODO: check this line *)
   let len = truncate @@ ceil flen in
   let breg = String.make len 'a' in
@@ -73,7 +73,7 @@ let _buffer_to_input {ProgramData.states; ProgramData.initial} =
   ++ breg
   ++ (istatepad ^ istatebin)
   ++ '0'
-  ++ '0'
+  ++ match String.length input with 0 -> '.' | _ -> String.get input 0
 
 let _input_to_input orig =
   match String.length orig with
@@ -92,5 +92,5 @@ let output jsonfile input =
   i'm_lazy_right_now := db.ProgramData.blank;
   Printf.printf "%s=%sL0%sR"
   ++ _states_to_input db
-  ++ _buffer_to_input db
+  ++ _buffer_to_input db input
   ++ _input_to_input input

@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/18 12:03:51 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/18 16:29:12 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -86,9 +86,9 @@ main_breg_compare_char: ; breg char loop beginning
 	__		[ab]			L		rep
 	|		[0]		(a)		R		call+ compare_to_breg
 	|		[1]		(b)		R		call+ compare_to_breg
-	|		[=]				R		halt ; global equality, comparison over
-	__		[=ab]			E		jmp main_breg_char_no_match ; char no match
-	|		[01]			E		jmp main_breg_char_match ; char match
+	|		[=]				R		jmp main_find_trans ; global equality, numbers match
+	__		[=ab]			E		jmp main_breg_char_no_match ; char no match, stop
+	|		[01]			E		jmp main_breg_char_match ; char match, check next
 
 main_breg_char_match:
 	__		[0]		(a)		L		ni
@@ -106,15 +106,24 @@ main_breg_char_no_match:
 	__		[u]		(n)		E		jmp main_find_state
 
 
-; STEP 2? - MAIN
-main_check_final:
-	__		[ANY]			L		halt ;tmp
-
-; STEP - MAIN
+; STEP 2 - MAIN
 main_find_trans:
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[ANY]			R		ni
+	__		[ANY]			E		call+ carry_readchar_to_statetrans
+	__		[n]		(y)		L		jmp main_write
 
-; STEP - MAIN
+; STEP 3 - MAIN
 main_write:
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[ANY]			R		call+ carry_writechar_to_head
+
+	__		[ANY]			L		halt ;tmp
 
 ; STEP - MAIN
 main_action:
@@ -128,13 +137,70 @@ main_changestate:
 
 
 
+
+
 ; HALT 1
-main_success_subprogram_halt:
+success_subprogram_halt:
 	__		[ANY]			L		halt
 
 ; HALT 2
-main_error_no_transition:
+error_no_transition:
 	__		[ANY]			L		halt
+
+; HALT .
+error_no_matchingstate:
+	__		[ANY]			L		halt
+
+
+
+; STEP 3 - CARRY WRITE CHAR TO TAPE HEAD
+
+carry_writechar_to_head:
+	__		[01]			R		ni
+	__		[ANY]			R		ni
+	__		[01]			R		ni
+	__		[y]				R		call rskip_any_trans
+	__		[=]				R		ni
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[0]				R		ni
+	__		[u]				R		call rskip_any_state
+	__		[=]				R		call reg_endr
+
+	__		[ANY]			L		halt ;tmp
+
+
+
+
+; STEP 2 - CARRY READ CHAR TO MATCHED STATE'S TRANSITIONS (AND CHECK FOR HALT)
+carry_readchar_to_statetrans:
+	__		[SPEC]			E		call reg_endl
+	__		[=]				L		call state_searchl_firstu
+	__		[u]				L		ni
+	__		[0]				L		ni
+	|		[1]				R		jmp success_subprogram_halt ;subprogram halt
+	__		[=]				L		ni
+	__		[01ab]			L		rep
+	|		[=]				L		call follow_transition_or_die
+	__		[01]			R		ret-
+
+follow_transition_or_die:
+	__		[u]		(n)		L		ni
+	|		[+]				R		jmp error_no_transition ;subprogram failed
+	__		[01]			L		ni
+	__		[SPEC]			R		ret ;read found
+	|		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[=]				L		ni
+	__		[01ab]			L		rep
+	|		[-]				L		jmp follow_transition_or_die
+
+
+
+
+
 
 
 ; STEP 1 - FIND STATE PHASE
@@ -232,6 +298,7 @@ state_nextl:
 state_searchl_firstu: ; undefined if not found
 	__		[u]				E		ret ; (state rbegin)
 	|		[yn]			E		call state_nextl ; (state rbegin)
+	|		[.]				E		jmp error_no_matchingstate
 	__		[ANY]			E		jmp state_searchl_firstu
 
 
