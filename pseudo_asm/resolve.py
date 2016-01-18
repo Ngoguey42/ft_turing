@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/12 12:17:14 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/18 18:31:28 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -80,6 +80,7 @@ def rec(prog, callstack, spec):
 
  	if callstack_str in prog.set_resolved_states:
 		return
+	# print "rec call with callstack:(%s) spec:(%s)" %(callstack_str, spec)
 	prog.set_resolved_states.add(callstack_str)
 	for read in top_st.lst_reads:
 		read_chars = compute_read_chars(

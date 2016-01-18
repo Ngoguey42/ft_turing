@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/18 18:26:55 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/18 18:58:10 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -187,6 +187,15 @@ main_changestate:
 	__		[ANY]			L		ni
 	__		[01]			L		ni
 	__		[=]				L		call cpy_nextstate_to_reg
+	__		[-]				E		jmp main_cleanup
+
+; STEP 7 - MAIN
+main_cleanup:
+	__		[-]				E		call cleanup_transitions
+	__		[01]			R		rep
+	|		[=]				R		ni
+	__		[01]			R		call cleanup_states
+
 
 	__		[ANY]			L		halt ;tmp
 
@@ -204,12 +213,53 @@ error_no_matchingstate:
 
 
 
-; STEP 6 - COPY NEXT STATE TO REG AND CLEANUP DB
+
+; STEP 7 - CLEANUP
+cleanup_states:
+	__		[un]	(u)		R		call state_nextr
+	__		[+]				L		jmp cleanup_states
+	|		[=]				L		ni
+	__		[un]	(u)		R		ret
+
+
+
+
+cleanup_transitions:
+	__		[-]				R		ni
+	|		[=]				R		ret
+	__		[a]		(0)		R		rep
+	|		[b]		(1)		R		rep
+	|		[01]			R		rep
+	|		[=]				R		ni
+	__		[01]			R		ni
+	__		[ANY]			R		ni
+	__		[01]			R		ni
+	__		[ANY]			R		ni
+	__		[01]			R		ni
+	__		[yn]	(u)		R		jmp cleanup_transitions
+
+; STEP 6 - COPY NEXT STATE TO REG
 cpy_nextstate_to_reg:
 	__		[ab]			L		rep
 	|		[0]		(a)		R		call+ carry_nextstatechar_to_reg
 	|		[1]		(b)		R		call+ carry_nextstatechar_to_reg
-
+	|		[-]				E		ret
+	__		[a]				L		rep
+	|		[=]				L		ni
+	__		[a]				L		rep
+	|		[=]				L		call state_searchl_firstu
+	__		[u]				L		ni
+	__		[0]				L		ni
+	__		[=]				L		ni
+	__		[01ab]			L		rep
+	|		[=]				L		call trans_searchl_firsty
+	__		[y]				L		ni
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[=]				L		jmp cpy_nextstate_to_reg
 
 carry_nextstatechar_to_reg:
 	__		[ab]			R		rep
@@ -230,8 +280,7 @@ carry_nextstatechar_to_reg:
 	|		[=]				R		ni
 	__		[a]				R		rep
 	|		[01=]			L		ni
-	; __		[a]		(SPEC)	L		ret-
-	; __		[a]		(SPEC)	L		ret-
+	__		[a]		(SPEC)	L		ret-
 	__		[ANY]			L		halt
 
 ; STEP 5 - CARRY HEADCHAR TO REG
