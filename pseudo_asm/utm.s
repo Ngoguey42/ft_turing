@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/18 19:02:41 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/18 19:15:22 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -47,7 +47,7 @@
 ; Tape ::= = L 0 TapeChars R
 
 	name"utm.s"
-	alphabet[uyn+-=01ab.LR]
+	alphabet[uyn+-=01ab.LRc]
 	blank[.]
 
 ; STEP 0 - MAIN
@@ -160,7 +160,7 @@ main_action_right:
 
 main_action_right_expand:
 	__		[.]				R		ni
-	__		[.]		(R)		R		jmp main_headchar_to_reg
+	__		[.]		(R)		L		jmp main_headchar_to_reg
 
 
 ; STEP 5 - MAIN
