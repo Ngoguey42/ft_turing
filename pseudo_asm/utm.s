@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/18 18:58:10 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/18 19:02:41 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -195,7 +195,17 @@ main_cleanup:
 	__		[01]			R		rep
 	|		[=]				R		ni
 	__		[01]			R		call cleanup_states
+	__		[=]				R		ni
+	__		[a]				R		rep
+	|		[=]				R		ni
+	__		[a]		(0)		R		rep
+	|		[01]			R		rep
+	|		[=]				L		ni
 
+	__		[01]			L		rep
+	|		[=]				L		ni
+	__		[a]				L		rep
+	|		[=]				E		jmp main_find_state
 
 	__		[ANY]			L		halt ;tmp
 
