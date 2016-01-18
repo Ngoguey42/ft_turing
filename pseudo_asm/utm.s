@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/18 16:54:56 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/18 18:26:55 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -139,18 +139,56 @@ main_action:
 	__		[ANY]			L		ni
 	__		[01]			L		ni
 	__		[ANY]			L		ni
-	__		[1]				R		call carry_head_action_right
-	|		[0]				R		halt ;call carry_head_action_left
-	__		[ANY]			L		halt ;tmp
+	__		[01]			R		call+ carry_head_action
+	__		[0]		(-)		L		jmp main_action_left
+	|		[1]		(+)		R		jmp main_action_right
 
 
+main_action_left:
+	__		[ANY]			L		ni
+	__		[+]		(=)		R		jmp main_headchar_to_reg
+	|		[L]		(=)		R		jmp main_action_left_expand
 
-; STEP - MAIN
+main_action_left_expand:
+	__		[ANY]			L		halt ;IMPLEMENT/DEBUG main_action_left_expand
+
+
+main_action_right:
+	__		[ANY]			R		ni
+	__		[-]		(=)		R		jmp main_headchar_to_reg
+	|		[R]		(=)		R		jmp main_action_right_expand
+
+main_action_right_expand:
+	__		[.]				R		ni
+	__		[.]		(R)		R		jmp main_headchar_to_reg
+
+
+; STEP 5 - MAIN
 main_headchar_to_reg:
+	__		[ANY]			L		call+ carry_headchar_to_reg
+	__		[ANY]			L		jmp main_changestate
 
-; STEP - MAIN
+; STEP 6 - MAIN
 main_changestate:
+	__		[=]				L		ni
+	__		[ab]	(a)		L		rep
+	|		[=]				L		ni
+	__		[ab]	(a)		L		rep
+	|		[=]				L		call state_searchl_firstu
+	__		[u]				L		ni
+	__		[0]				L		ni
+	__		[=]				L		ni
+	__		[01ab]			L		rep
+	|		[=]				L		call trans_searchl_firsty
+	__		[y]				L		ni
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[=]				L		call cpy_nextstate_to_reg
 
+	__		[ANY]			L		halt ;tmp
 
 ; HALT 1
 success_subprogram_halt:
@@ -160,14 +198,50 @@ success_subprogram_halt:
 error_no_transition:
 	__		[ANY]			L		halt
 
-; HALT .
+; HALT 3
 error_no_matchingstate:
 	__		[ANY]			L		halt
 
 
 
+; STEP 6 - COPY NEXT STATE TO REG AND CLEANUP DB
+cpy_nextstate_to_reg:
+	__		[ab]			L		rep
+	|		[0]		(a)		R		call+ carry_nextstatechar_to_reg
+	|		[1]		(b)		R		call+ carry_nextstatechar_to_reg
+
+
+carry_nextstatechar_to_reg:
+	__		[ab]			R		rep
+	|		[=]				R		ni
+	__		[01]			R		ni
+	__		[ANY]			R		ni
+	__		[01]			R		ni
+	__		[ANY]			R		ni
+	__		[01]			R		ni
+	__		[y]				R		call rskip_any_trans
+	__		[=]				R		ni
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[0]				R		ni
+	__		[u]				R		call rskip_any_state
+	__		[=]				R		ni
+	__		[a]				R		rep
+	|		[=]				R		ni
+	__		[a]				R		rep
+	|		[01=]			L		ni
+	; __		[a]		(SPEC)	L		ret-
+	; __		[a]		(SPEC)	L		ret-
+	__		[ANY]			L		halt
+
+; STEP 5 - CARRY HEADCHAR TO REG
+carry_headchar_to_reg:
+	__		[=]				E		call tape_endl
+	__		[L]				L		ni
+	__		[ANY] 	(SPEC)	L		ret-
+
 ; STEP 4 - MOVE HEAD
-carry_head_action_right:
+carry_head_action:
 	__		[ANY]			R		ni
 	__		[01]			R		ni
 	__		[ANY]			R		ni
@@ -180,8 +254,7 @@ carry_head_action_right:
 	__		[u]				R		call rskip_any_state
 	__		[=]				R		call reg_endr
 	__		[L]				E		call tape_searchr_head
-
-	__		[ANY]			L		halt ;tmp
+	__		[=]		(SPEC)	E		ret-
 
 ; STEP 3 - CARRY WRITE CHAR TO TAPE HEAD
 carry_writechar_to_head:
