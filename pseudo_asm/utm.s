@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/18 16:29:12 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/18 16:54:56 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -122,21 +122,34 @@ main_write:
 	__		[ANY]			L		ni
 	__		[01]			L		ni
 	__		[ANY]			R		call+ carry_writechar_to_head
+	__		[=]				E		jmp main_action
 
+; STEP 4 - MAIN
+main_action:
+	__		[=]				E		call tape_endl
+	__		[L]				L		call reg_endl
+	__		[=]				L		call state_searchl_firstu
+	__		[u]				L		ni
+	__		[0]				L		ni
+	__		[=]				L		ni
+	__		[01ab]			L		rep
+	|		[=]				L		call trans_searchl_firsty
+	__		[y]				L		ni
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[01]			L		ni
+	__		[ANY]			L		ni
+	__		[1]				R		call carry_head_action_right
+	|		[0]				R		halt ;call carry_head_action_left
 	__		[ANY]			L		halt ;tmp
 
-; STEP - MAIN
-main_action:
+
 
 ; STEP - MAIN
 main_headchar_to_reg:
 
 ; STEP - MAIN
 main_changestate:
-
-
-
-
 
 
 ; HALT 1
@@ -153,8 +166,24 @@ error_no_matchingstate:
 
 
 
-; STEP 3 - CARRY WRITE CHAR TO TAPE HEAD
+; STEP 4 - MOVE HEAD
+carry_head_action_right:
+	__		[ANY]			R		ni
+	__		[01]			R		ni
+	__		[ANY]			R		ni
+	__		[01]			R		ni
+	__		[y]				R		call rskip_any_trans
+	__		[=]				R		ni
+	__		[01ab]			R		rep
+	|		[=]				R		ni
+	__		[0]				R		ni
+	__		[u]				R		call rskip_any_state
+	__		[=]				R		call reg_endr
+	__		[L]				E		call tape_searchr_head
 
+	__		[ANY]			L		halt ;tmp
+
+; STEP 3 - CARRY WRITE CHAR TO TAPE HEAD
 carry_writechar_to_head:
 	__		[01]			R		ni
 	__		[ANY]			R		ni
@@ -166,11 +195,9 @@ carry_writechar_to_head:
 	__		[0]				R		ni
 	__		[u]				R		call rskip_any_state
 	__		[=]				R		call reg_endr
-
-	__		[ANY]			L		halt ;tmp
-
-
-
+	__		[L]				E		call tape_searchr_head
+	__		[=]				R		ni
+	__		[ANY]	(SPEC)	L		ret-
 
 ; STEP 2 - CARRY READ CHAR TO MATCHED STATE'S TRANSITIONS (AND CHECK FOR HALT)
 carry_readchar_to_statetrans:
@@ -286,6 +313,12 @@ lskip_any_trans:
 	|		[uyn]			E		call trans_nextl ; (trans rbegin)
 	__		[uyn+]			E		jmp lskip_any_trans
 
+trans_searchl_firsty:
+	__		[un]			E		call trans_nextl ; (trans rbegin)
+	|		[y]				E		ret
+	__		[uyn]			E		jmp trans_searchl_firsty
+
+
 state_nextl:
 	__		[uyn]			L		ni ; (state rbegin)
 	|		[.]				E		ret; (states lend)
@@ -356,6 +389,12 @@ tape_endr:
 	__		[L+-=]			R		ni
 	|		[R]				E		ret
 	__		[ANY]			R		jmp tape_endr
+
+tape_searchr_head:
+	__		[L+]			R		ni
+	|		[=]				E		ret
+	__		[ANY]			R		jmp tape_searchr_head
+
 
 tape_endl:
 	__		[R+-=]			L		ni
