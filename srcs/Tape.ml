@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/15 14:00:02 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/06 16:47:01 by fbuoro           ###   ########.fr       *)
+(*   Updated: 2016/01/19 12:17:23 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -79,12 +79,24 @@ let head {head = h} =
 (* print **************************** *)
 
 let print {left; head; right; i} =
-  let str = ref "" in
+  let left_stacklen = Stack.length left in
+  let len = left_stacklen + 5 + 1 + 4 + Stack.length right in
+  let str = Bytes.create len in
+  let i = ref 0 in
+
   Stack.iter (fun c ->
-	  str := Printf.sprintf "%c%s" c !str
-	) left;
-  str := Printf.sprintf "%s\027[31m%c\027[0m" !str head;
+  	  Bytes.set str (left_stacklen - !i - 1) c;
+	  incr i
+  	) left;
+  Bytes.blit_string "\027[31m" 0 str !i 5;
+  i := !i + 5;
+  Bytes.set str !i head;
+  i := !i + 1;
+  Bytes.blit_string "\027[0m" 0 str !i 4;
+  i := !i + 4;
   Stack.iter (fun c ->
-	  str := Printf.sprintf "%s%c" !str c
-	) right;
-  Printf.printf "%s%!" !str
+  	  Bytes.set str !i c;
+	  incr i
+  	) right;
+  print_bytes str;
+  ()

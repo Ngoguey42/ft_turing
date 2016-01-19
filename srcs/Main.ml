@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/18 19:28:40 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/19 12:21:05 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -23,32 +23,33 @@ module LoopGuard =
 
 let (++) = (@@)
 
-let rec loop db tape statei i =
+let dump (tape, tapei, db, statei, i) =
+  Tape.print tape;
+  Printf.printf "\t(i%d)[%s]#%d\n" tapei
+  ++ ProgramData.state_name db statei
+  ++ i
+
+let rec loop db tape statei i silent =
   let read = Tape.head tape in
   let tapei = Tape.index tape in
-  if (i mod 1 == 0) then (
-	Tape.print tape;
-	Printf.printf "\t(i%d)[%s]#%d\n" tapei
-	++ ProgramData.state_name db statei
-	++ i
-  );
+  if not silent
+  then dump (tape, tapei, db, statei, i);
   LoopGuard.update (tapei, read, statei);
   match ProgramData.transition db statei read with
   | ProgramData.Undefined ->
 	 failwith "Undefined char or transition"
-  | ProgramData.Final -> ()
+  | ProgramData.Final ->
+	 Printf.printf "\n%!";
+	 dump (tape, tapei, db, statei, i)
   | ProgramData.Normal (write, action, next) ->
-	 loop db (Tape.action tape write action) next (i + 1)
+	 loop db (Tape.action tape write action) next (i + 1) silent
 
 let () =
   match Arguments.read () with
-  | Arguments.Exec (jsonfile, input) ->
+  | Arguments.Exec (jsonfile, input, silent) ->
 	 let db = ProgramData.of_jsonfile jsonfile in
 	 ProgramData.print db;
 	 let tape = Tape.of_string input db.ProgramData.blank in
-	 loop db tape db.ProgramData.initial 1;
-
-	 Printf.printf "\n%!";
-	 Tape.print tape
-
+	 loop db tape db.ProgramData.initial 1 silent;
+	 ()
   | Arguments.Convert (jsonfile, input) -> Convert.output jsonfile input
