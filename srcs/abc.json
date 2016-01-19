@@ -1,0 +1,14 @@
+{
+	"name"		: "abc.s",
+	"alphabet"	: [ "a", "c", "b", "."],
+	"blank"		: ".",
+	"states"	: [ "HALT", "main(s1)"],
+	"initial"	: "main(s1)",
+	"finals"	: [ "HALT" ],
+
+	"transitions"	: {
+		"main(s1)": [
+			{ "read" : ".", "to_state": "HALT", "write": "c", "action": "RIGHT"}
+		]
+	}
+}

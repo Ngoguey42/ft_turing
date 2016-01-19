@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/08 12:09:38 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/08 17:21:44 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/19 14:48:16 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -42,9 +42,8 @@ main:
 	|		[ANY]			R	ni
 	__		[ANY]			R	rep
 	|		[.]				L	ni
-
-scanleft_for_double_char:
 	__		[ANY]			L	ni
+
 scanleft_for_double_char2:
 	__		[ANY]			L	call dummy
 	__		[.]				R	halt

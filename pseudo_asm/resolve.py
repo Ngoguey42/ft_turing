@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/18 18:31:28 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/19 14:46:49 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -145,5 +145,5 @@ def resolve(prog):
 	rec(prog, [(fst.label, fst.sid, None)], None)
 	assert('HALT' not in prog.set_resolved_states)
 	prog.set_resolved_states.add('HALT')
-	print "done:", prog.set_resolved_states
-	print prog.dic_st_transi
+	# print "done:", prog.set_resolved_states
+	# print prog.dic_st_transi

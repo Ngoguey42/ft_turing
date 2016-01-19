@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/18 19:15:22 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/19 15:38:18 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -47,7 +47,7 @@
 ; Tape ::= = L 0 TapeChars R
 
 	name"utm.s"
-	alphabet[uyn+-=01ab.LRc]
+	alphabet[uyn+-=01ab.LRcde]
 	blank[.]
 
 ; STEP 0 - MAIN
@@ -147,10 +147,29 @@ main_action:
 main_action_left:
 	__		[ANY]			L		ni
 	__		[+]		(=)		R		jmp main_headchar_to_reg
-	|		[L]		(=)		R		jmp main_action_left_expand
+	|		[L]				E		jmp main_action_left_expand
 
 main_action_left_expand:
-	__		[ANY]			L		halt ;IMPLEMENT/DEBUG main_action_left_expand
+	__		[L]				E		call tape_endr
+
+main_action_left_expand_loop:
+	__		[R-]			R		call+ main_action_left_expand_loop~
+	|		[L]				R		jmp main_action_left_expand_end
+	__		[ANY]			L		ni
+	__		[R-]			L		ni
+	__		[ANY]			R		call+ main_action_left_expand_loop~
+	__		[R-]			L		ni
+	__		[ANY]			L		jmp main_action_left_expand_loop
+
+
+main_action_left_expand_loop~:
+	__		[ANY]			R		ni
+	__		[ANY]	(SPEC)	L		ret-
+
+main_action_left_expand_end:
+	__		[0]				R		ni
+	__		[-]		(=)		R		ni
+	__		[0]		(.)		E		jmp main_headchar_to_reg
 
 
 main_action_right:
