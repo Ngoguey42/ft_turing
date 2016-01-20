@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 14:04:14 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/26 20:15:58 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/20 17:15:59 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -135,13 +135,20 @@ and _aux data sem json =
   | Float fn, `Float fl -> _handle_float data fl fn
   | Null fn, `Null -> _handle_null data fn
 
-  | AssocKnown _, _ -> Fail "Unmatched assocKnown"
-  | AssocUnknown _, _ -> Fail "Unmatched assocUnknown"
-  | List _, _ -> Fail "Unmatched list"
-  | String _, _ -> Fail "Unmatched string"
-  | Int _, _ -> Fail "Unmatched int"
-  | Float _, _ -> Fail "Unmatched float"
-  | Null _, _ -> Fail "Unmatched null"
+  | AssocKnown _, _ ->
+	 Fail ("Unmatched assocKnown\n" ^ Yojson.Basic.pretty_to_string json)
+  | AssocUnknown _, _ ->
+	 Fail ("Unmatched assocUnknown\n" ^ Yojson.Basic.pretty_to_string json)
+  | List _, _ ->
+	 Fail ("Unmatched list\n" ^ Yojson.Basic.pretty_to_string json)
+  | String _, _ ->
+	 Fail ("Unmatched string\n" ^ Yojson.Basic.pretty_to_string json)
+  | Int _, _ ->
+	 Fail ("Unmatched int\n" ^ Yojson.Basic.pretty_to_string json)
+  | Float _, _ ->
+	 Fail ("Unmatched float\n" ^ Yojson.Basic.pretty_to_string json)
+  | Null _, _ ->
+	 Fail ("Unmatched null\n" ^ Yojson.Basic.pretty_to_string json)
 
 let unfold data semantic json =
   _aux data semantic json

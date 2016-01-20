@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/19 16:38:38 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/20 17:16:23 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -34,7 +34,7 @@ let rec loop db tape statei i silent =
   let tapei = Tape.index tape in
   if not silent
   then dump (tape, tapei, db, statei, i);
-  (* LoopGuard.update (tapei, read, statei); *)
+  LoopGuard.update (tapei, read, statei);
   match ProgramData.transition db statei read with
   | ProgramData.Undefined ->
 	 failwith "Undefined char or transition"
@@ -45,21 +45,31 @@ let rec loop db tape statei i silent =
 	 loop db (Tape.action tape write action) next (i + 1) silent
 
 let catfile filename =
-  let chan = open_in filename in
-  let len = in_channel_length chan in
-  let str = really_input_string chan len in
-  close_in chan;
-  str
+  try
+	let chan = open_in filename in
+	let len = in_channel_length chan in
+	let str = really_input_string chan len in
+	close_in chan;
+	str
+  with | Sys_error msg -> failwith msg
 
 let () =
-  match Arguments.read () with
-  | Arguments.Exec (jsonfile, input, silent, fileinput) ->
-	 let input = match fileinput with false -> input | true -> catfile input in
-	 let db = ProgramData.of_jsonfile jsonfile in
-	 ProgramData.print db;
-	 let tape = Tape.of_string input db.ProgramData.blank in
-	 loop db tape db.ProgramData.initial 1 silent;
-	 ()
-  | Arguments.Convert (jsonfile, input, fileinput) ->
-	 let input = match fileinput with false -> input | true -> catfile input in
-	 Convert.output jsonfile input
+  try
+	match Arguments.read () with
+	| Arguments.Convert (jsonfile, input, fileinput) ->
+	   let input = match fileinput with false -> input | true -> catfile input in
+	   Convert.output jsonfile input
+	| Arguments.Exec (jsonfile, input, silent, fileinput) ->
+	   let input = match fileinput with false -> input | true -> catfile input in
+	   let db = ProgramData.of_jsonfile jsonfile in
+	   ProgramData.print db;
+	   let tape = Tape.of_string input db.ProgramData.blank in
+	   loop db tape db.ProgramData.initial 1 silent;
+	   ()
+  with
+  | Failure msg ->
+	 Printf.printf "%!";
+	 Printf.eprintf "Fail:\n%s\n%!" msg;
+  | _ ->
+	 Printf.printf "%!";
+	 Printf.eprintf "Unknown error\n%!";

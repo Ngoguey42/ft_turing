@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/06 16:44:23 by fbuoro           ###   ########.fr       *)
+(*   Updated: 2016/01/20 17:13:03 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -164,11 +164,12 @@ let _create : ProgramDataTmp.parsing_data -> t =
   }
 
 let of_jsonfile jsonfile =
-  let j = Yojson.Basic.from_file jsonfile in
+  let j = try Yojson.Basic.from_file jsonfile with
+		  | Yojson.Json_error msg -> failwith @@ jsonfile ^ ":\n" ^ msg
+  in
   let data = match YojsonTreeMatcher.unfold
 					 ProgramDataTmp.default YojsonTree.file_semantic j with
-	| MonadicTry.Fail why -> Printf.eprintf "%s\n%!" why;
-							 failwith "unfold fail"
+	| MonadicTry.Fail why -> failwith @@ "Json unfold failed :\n" ^ why
 	| MonadicTry.Success data' -> data' in
 
   _create data
