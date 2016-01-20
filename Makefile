@@ -6,23 +6,24 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2015/12/26 14:46:14 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/20 13:28:21 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_turing
 
-SRCS = Action.ml MonadicTry.ml YojsonTreeMatcher.ml
-INTS = Action.mli MonadicTry.mli YojsonTreeMatcher.mli
+SRCSFILES = Action.ml MonadicTry.ml YojsonTreeMatcher.ml
+INTSFILES = Action.mli MonadicTry.mli YojsonTreeMatcher.mli
 
-SRCS += ProgramDataTmp.ml YojsonTree.ml ProgramData.ml
-INTS += ProgramDataTmp.mli YojsonTree.mli
+SRCSFILES += ProgramDataTmp.ml YojsonTree.ml ProgramData.ml
+INTSFILES += ProgramDataTmp.mli YojsonTree.mli
 
-SRCS += Tape.ml LoopGuard.ml Convert.ml Arguments.ml Main.ml
+SRCSFILES += Tape.ml LoopGuard.ml Convert.ml Arguments.ml Main.ml
+
+SRCDIR = ./srcs
 
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
-# CAMLDEP = ocamldep
 FLAGS = -thread -package core,yojson
 LD_FLAGS = -g -linkpkg
 
@@ -33,6 +34,9 @@ $(NAME): opt byt
 
 opt: $(NAME).opt
 byt: $(NAME).byt
+
+SRCS = $(addprefix $(SRCDIR)/,$(SRCSFILES))
+INTS = $(addprefix $(SRCDIR)/,$(INTSFILES))
 
 OBJS = $(SRCS:.ml=.cmo)
 OPTOBJS = $(SRCS:.ml=.cmx)
@@ -48,17 +52,17 @@ $(NAME).opt: $(CMI) $(OPTOBJS)
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 
 .ml.cmo:
-	ocamlfind ocamlc $(FLAGS) -I . -c $<
+	ocamlfind ocamlc $(FLAGS) -I $(SRCDIR) -c $<
 
 .mli.cmi:
-	ocamlfind ocamlc $(FLAGS) $< -o $@
+	ocamlfind ocamlc $(FLAGS) -I $(SRCDIR) $< -o $@
 
 .ml.cmx:
-	ocamlfind ocamlopt $(FLAGS) -I . -c $<
+	ocamlfind ocamlopt $(FLAGS) -I $(SRCDIR) -c $<
 
 clean:
-	rm -f *.cm[iox] *.o
-	rm -f $(NAME).o
+	rm -f $(SRCDIR)/*.cm[iox] $(SRCDIR)/*.o
+	rm -f $(SRCDIR)/$(NAME).o
 
 fclean: clean
 	rm -f $(NAME)

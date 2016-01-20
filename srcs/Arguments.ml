@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/26 14:15:45 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/19 16:08:35 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/20 13:28:00 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -29,7 +29,7 @@ let read () =
 	| 1 -> anon_str.(1) <- Some str; incr anon_count
 	| _ -> raise @@ Arg.Bad "" in
 
-  let usage_msg = "usage: ft_turing [-c] [-h] jsonfile input" in
+  let usage_msg = "usage: ft_turing [-c] [-h] [-s] [-f] jsonfile input" in
   let speclist = [
 	  ("jsonfile", Arg.String _placeholderstr
 	   , "json description of the machine")
