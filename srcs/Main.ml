@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/20 17:16:23 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/25 15:36:07 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -54,6 +54,7 @@ let catfile filename =
   with | Sys_error msg -> failwith msg
 
 let () =
+  (* TODO: check input does not contain blank char *)
   try
 	match Arguments.read () with
 	| Arguments.Convert (jsonfile, input, fileinput) ->

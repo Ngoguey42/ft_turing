@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/25 14:28:31 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/25 16:44:37 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -166,7 +166,19 @@ class Prog:
 				assert(false)
 
 		self.set_lb = frozenset(self.lst_lb)
-		assert(len(self.set_lb) == len(self.lst_lb)) #no duplicates in labels
+
+		print self.set_lb, len(self.set_lb)
+		print self.lst_lb, len(self.lst_lb)
+
+		seen = set()
+		uniq = []
+		for x in self.lst_lb:
+			if x not in seen:
+				uniq.append(x)
+				seen.add(x)
+			else:
+				raise Exception(x + " duplicate label")
+		# assert(len(self.set_lb) == len(self.lst_lb)) #no duplicates in labels
 		assert(len(self.lst_st) > 0) #minimum 1 state
 		for s in self.lst_st:
 			s.buildinternal(self.set_lb, self.alphabet)
