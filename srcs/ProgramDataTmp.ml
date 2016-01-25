@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 14:03:44 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 14:23:44 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/25 18:30:45 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -79,8 +79,8 @@ let _transitions_to_string transitions =
 let (++) = (@@)
 
 let print : parsing_data -> unit = fun db ->
-  Printf.eprintf "n:'%s' c:'%c' i:'%s' f:[%s] \nalpha:%s \nstates:%s\n%s\n%!"
-				 db.name db.blank db.initial
+  Printf.printf "n:'%s' c:'%c' i:'%s' f:[%s] \nalpha:%s \nstates:%s\n%s\n%!"
+				db.name db.blank db.initial
   ++ _finals_to_string db.finals
   ++ _alphabet_to_string db.alphabet
   ++ _states_to_string db.states

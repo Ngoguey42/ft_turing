@@ -6,23 +6,39 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/25 17:43:52 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/25 17:53:17 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/25 18:43:39 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 import os
+import re
+import sys
 
-# test all strings with "valid input"
+#testing all strings with 0/1 in input
+alphabet = ['1', '0']
+max_depth = 8
+
+def rec(input_, depth):
+	cmd = """
+rm -rf tmpinput tmperr;
+../ft_turing -s 0n1n.json """ + '"' + input_ + '"' +  """ 2>tmperr | tail -n 1 1>tmpinput;
+cat tmperr tmpinput;
+[[ -s tmpinput ]] && (cat tmpinput | grep y 1>/dev/null)"""
+	ret = os.system(cmd)
+	sys.stdout.flush()
+	grps = re.match("^(0*)(1*)$", input_)
+	print "ret:", ret, 'input:"' + input_ + '"'
+	sys.stdout.flush()
+	if grps == None:
+		assert(ret != 0)
+	elif len(grps.group(1)) != len(grps.group(2)):
+		assert(ret != 0)
+	else:
+		assert(ret == 0)
+	if depth <= max_depth:
+		for letter in alphabet:
+			rec(input_ + letter, depth + 1)
 
 if __name__ == "__main__":
-	max_ = 15
-
-	for i0 in range(0, max_):
-		for i1 in range(0, max_):
-			input_ = ("0" * i0) + ("1" * i1)
-			cmd = "../ft_turing 0n1n.json \"" + input_ + "\" 2>/dev/null | tail -n 1 | grep y"
-			ret = os.system(cmd)
-			if i0 != i1:
-				assert(ret != 0)
-			else:
-				assert(ret == 0)
+	rec("", 1)
+	os.system("rm -rf tmpinput tmperr")

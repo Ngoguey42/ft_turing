@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/20 17:13:03 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/25 18:30:38 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -85,11 +85,11 @@ let _states_to_string states =
 
 
 let print db =
-  Printf.eprintf "Program \"%s\" Blank is '%c' Initial is (%d)\n\
-				  Alphabet [%s] \nStates:%s\n%!"
-				 db.name db.blank db.initial
-				 (_alphabet_to_string db.alphabet)
-				 (_states_to_string db.states)
+  Printf.printf "Program \"%s\" Blank is '%c' Initial is (%d)\n\
+				 Alphabet [%s] \nStates:%s\n%!"
+				db.name db.blank db.initial
+				(_alphabet_to_string db.alphabet)
+				(_states_to_string db.states)
 
 (* ++ _alphabet_to_string db.alphabet *)
 (* ++ _states_to_string db.states *)
