@@ -12,6 +12,12 @@ Misc:
 - http://www.wolframscience.com/nksonline/toc.html
 - http://www.cba.mit.edu/events/03.11.ASE/docs/Minsky.pdf
 
+
+```sh
+#Compile machines/*.s files to machines/*.json:
+python compiler/main.py machines/*.s
+```
+
 ```
 oktf is an alias for
 rr ;
