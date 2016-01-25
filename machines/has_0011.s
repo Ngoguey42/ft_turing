@@ -6,12 +6,12 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/06 17:50:32 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/25 17:41:31 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
 ; looks for the substring 0011 in the input, drops y/n at the end
-; deduced from Youtube hpp3 "Theory of Computation" "3/65" @3m20
+; deduced from Youtube hhp3 "Theory of Computation" "3/65" @3m20
 
 	name"has_0011"
 	alphabet[01.ny]

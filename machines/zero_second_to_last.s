@@ -6,12 +6,12 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 17:03:51 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/06 19:47:43 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/25 17:41:48 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
 ; is penultimate digit a 0, drops y/n at the end
-; deduced from Youtube hpp3 "Theory of Computation" "6/65" @2m30
+; deduced from Youtube hhp3 "Theory of Computation" "6/65" @2m30
 
 	name"zero_second_to_last"
 	alphabet[01.ny]

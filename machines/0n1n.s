@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/25 15:06:49 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/25 16:45:07 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/25 17:41:55 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -14,21 +14,19 @@
 	alphabet[10.ynzo]
 	blank[.]
 
+; O(Nlog(N)) algorithm
+; deduced from Youtube hhp3 "Theory of Computation" "59/65" @6m30
+
 ; valid input === input of form {0*1*.}
 
 checkinput:
 	__		[0]			R	rep
 	|		[1]			R	ni
-	|		[.]			L	jmp checkinput_rewind
+	|		[.]			L	jmp rewind_empty_1absent_0absent
 	|		[ANY]		R	jmp checkinput_invalid
 	__		[1]			R	rep
-	|		[.]			L	jmp checkinput_rewind
+	|		[.]			L	jmp rewind_empty_1absent_0absent
 	|		[ANY]		R	jmp checkinput_invalid
-
-checkinput_rewind:
-	__		[01]		L	rep
-	|		[.]			R	jmp cross_first_zero_occurrence
-
 
 cross_first_zero_occurrence: ; loop entry point
 	__		[z]			R	rep

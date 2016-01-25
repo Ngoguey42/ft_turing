@@ -6,12 +6,12 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:52:54 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/06 19:52:26 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/25 17:41:42 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
 ; is this binary number divisable by 3, drops y/n at the end
-; deduced from Youtube hpp3 "Theory of Computation" "3/65" @22m15
+; deduced from Youtube hhp3 "Theory of Computation" "3/65" @22m15
 
 	name"binary_divisable_by3"
 	alphabet[01.ny]
