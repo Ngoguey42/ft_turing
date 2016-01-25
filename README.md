@@ -18,7 +18,23 @@ Misc:
 python compiler/main.py machines/*.s
 ```
 
-```
+Turing Machines in ./machines
+- TM0: machines/unary_sub.json #given in subject.pdf as an example
+- TM1:
+- TM2: machines/palindrome.json #version1
+- TM2: machines/is_palindrome2.s #version2
+- TM3:
+- TM4: machines/zero_power_2n.json
+- TM5: machines/utm.s #universal turing machine
+
+More Turing Machines in ./machines
+- machines/binary_divisable_by3.json
+- machines/has_0011.json
+- machines/minsky_utm.s #1967's Minsky universal turing machine
+- machines/split_input.json #separate input with blank
+- machines/zero_second_to_last.json
+
+```sh
 oktf is an alias for
 rr ;
 ocamlfind ocamlcp *.ml -package yojson -package core -thread -linkpkg &&

@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/25 14:23:16 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/25 14:28:31 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -226,7 +226,7 @@ class Prog:
 if __name__ == "__main__":
 
 	for filepath in argv[1:]:
-		print "Converting file ", filepath
+		print "Compiling file:", filepath
 		if re.match(".*\.s$", filepath) == None:
 			raise Exception("Bad input file extension");
 		tk = get_tokens(filepath)
