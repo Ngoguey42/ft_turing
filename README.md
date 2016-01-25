@@ -18,10 +18,10 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 
 Turing Machines in ./machines
 - TM0: machines/unary_sub.json	#given in subject.pdf as an example
-- TM1:
+- TM1: machines/unary_add.s
 - TM2: machines/palindrome.json	#version1
 - TM2: machines/is_palindrome2.s	#version2
-- TM3:
+- TM3: machines/0n1n.s
 - TM4: machines/zero_power_2n.json
 - TM5: machines/utm.s	#universal turing machine
 
