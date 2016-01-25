@@ -6,12 +6,13 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 12:19:49 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/12 12:16:05 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/25 14:23:16 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 from tokenize_arg1 import get_tokens
 from resolve import resolve
+from sys import argv
 import re
 
 """
@@ -100,7 +101,9 @@ class State:
 
 
 class Prog:
-	def __init__(self, tokens):
+	def __init__(self, srcpath, tokens):
+		self.srcpath = srcpath
+		self.dstpath = srcpath[:-2] + ".json"
 		self.name = None
 		self.alpha = None
 		self.blank = None
@@ -214,19 +217,25 @@ class Prog:
 		string = string[:-2]
 		string += '\n\t}\n'
 		string += "}\n"
-		with open("lol.json", "w") as stream:
+		with open(self.dstpath, "w") as stream:
 			stream.write(string)
-		# print string
+		print "Created file:", self.dstpath
+		print
 
 
 if __name__ == "__main__":
-	tk = get_tokens()
-	p = Prog(tk)
-	print p.name
-	print p.alphabet
-	print p.blank
-	print p.set_lb
-	for st in p.lst_st:
-		print str(st)
-	resolve(p)
-	p.tojson()
+
+	for filepath in argv[1:]:
+		print "Converting file ", filepath
+		if re.match(".*\.s$", filepath) == None:
+			raise Exception("Bad input file extension");
+		tk = get_tokens(filepath)
+		p = Prog(filepath, tk)
+		print "p.name", p.name
+		print "p.alphabet", p.alphabet
+		print "p.blank", p.blank
+		# print p.set_lb
+		# for st in p.lst_st:
+		# 	print str(st)
+		resolve(p)
+		p.tojson()

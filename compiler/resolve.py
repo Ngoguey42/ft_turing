@@ -6,7 +6,7 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 19:13:48 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/19 14:46:49 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/25 14:20:45 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -140,7 +140,6 @@ def rec(prog, callstack, spec):
 
 
 def resolve(prog):
-	print
 	fst = prog.lst_st[0]
 	rec(prog, [(fst.label, fst.sid, None)], None)
 	assert('HALT' not in prog.set_resolved_states)

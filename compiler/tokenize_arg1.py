@@ -6,11 +6,10 @@
 #    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/01/05 14:28:53 by ngoguey           #+#    #+#              #
-#    Updated: 2016/01/12 12:16:20 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/25 14:11:55 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-from sys import argv
 import re
 
 def kill_comments(line):
@@ -53,9 +52,9 @@ def parse_line(line):
 	raise Exception('Bad line: ' + line)
 
 
-def get_tokens():#exported
+def get_tokens(filename):#exported
 	lines = None
-	with open(argv[1], "r") as stream:
+	with open(filename, "r") as stream:
 		lines = stream.read().split('\n')
 	lines = map(kill_comments, lines)
 	lines = [parse_line(x) for x in lines if not line_empty(x)]
