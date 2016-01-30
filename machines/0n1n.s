@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/25 15:06:49 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/25 17:41:55 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/30 13:49:44 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -17,89 +17,106 @@
 ; O(Nlog(N)) algorithm
 ; deduced from Youtube hhp3 "Theory of Computation" "59/65" @6m30
 
+; Step 1: -> Check input (goto fail OR goto Step 2)
+; Step 2: <- [01] parity check (goto success OR goto fail OR goto Step 3)
+; Step 3: -> Cross [01] odd occurrences (goto Step 2)
+
 ; valid input === input of form {0*1*.}
+
+; STEP 1
 
 checkinput:
 	__		[0]			R	rep
 	|		[1]			R	ni
-	|		[.]			L	jmp rewind_empty_1absent_0absent
+	|		[.]			L	jmp rewind_pointless_none
 	|		[ANY]		R	jmp checkinput_invalid
 	__		[1]			R	rep
-	|		[.]			L	jmp rewind_empty_1absent_0absent
+	|		[.]			L	jmp rewind_pointless_none
 	|		[ANY]		R	jmp checkinput_invalid
+
+
+; STEP 2
+
+; Rewind states:
+; 	Parity:
+; 		- pointless
+;		- odd
+;		- even
+;	Presences:
+;	 	- none
+;	 	- 1
+;		- 01
+;		- 0      FAIL-CASE
+
+rewind_pointless_none:
+	__		[1]			L	jmp rewind_odd_1
+	|		[oz]		L	rep
+	|		[0]			L	jmp rewind_pointless_0
+	|		[.]			R	jmp restore_success
+
+rewind_odd_1:
+	__		[1]			L	jmp rewind_even_1
+	|		[oz]		L	rep
+	|		[0]			L	jmp rewind_even_01
+	|		[.]			R	jmp restore_fail
+
+rewind_even_1:
+	__		[1]			L	jmp rewind_odd_1
+	|		[oz]		L	rep
+	|		[0]			L	jmp rewind_odd_01
+	|		[.]			R	jmp restore_fail
+
+rewind_even_01:
+	__		[0]			L	jmp rewind_odd_01
+	|		[oz]		L	rep
+	|		[.]			R	jmp cross_first_zero_occurrence
+
+rewind_odd_01:
+	__		[0]			L	jmp rewind_even_01
+	|		[oz]		L	rep
+	|		[.]			R	jmp restore_fail
+
+rewind_pointless_0: ; FAIL CASE
+	__		[0z]		L	rep
+	|		[.]			R	jmp restore_fail
+
+
+; STEP 3
+
+; Cross states:
+; 	Current zone:
+;		- zero
+;		- one
+;	Next action:
+;		- cross
+;		- nocross
 
 cross_first_zero_occurrence: ; loop entry point
 	__		[z]			R	rep
 	|		[0]	(z)		R	jmp nocross_first_zero_occurrence
 	|		[1]			E	jmp cross_first_one_occurrence
 	|		[o]			R	jmp cross_first_one_occurrence
-	|		[.]			L	jmp rewind_empty_1absent_0absent ; Might be a fail case
+	|		[.]			L	jmp rewind_pointless_none ; Might be a fail case
 
 nocross_first_zero_occurrence:
 	__		[z]			R	rep
 	|		[0]			R	jmp cross_first_zero_occurrence
 	|		[1]			E	jmp cross_first_one_occurrence
 	|		[o]			R	jmp cross_first_one_occurrence
-	|		[.]			L	jmp rewind_empty_1absent_0absent ; Fail case, anyway
+	|		[.]			L	jmp rewind_pointless_none ; Fail case, anyway
 
 cross_first_one_occurrence:
 	__		[o]			R	rep
 	|		[1]	(o)		R	jmp nocross_first_one_occurrence
-	|		[.]			L	jmp rewind_empty_1absent_0absent
+	|		[.]			L	jmp rewind_pointless_none
 
 nocross_first_one_occurrence:
 	__		[o]			R	rep
 	|		[1]			R	jmp cross_first_one_occurrence
-	|		[.]			L	jmp rewind_empty_1absent_0absent
+	|		[.]			L	jmp rewind_pointless_none
 
 
-
-; Rewind states:
-; 	Parity:
-; 		- empty
-;		- odd
-;		- even
-;	Presences:
-;	 	- 1absent_0absent
-;	 	- 1present_0absent
-;		- 1present_0present
-;		- 1absent_0present	FAIL-CASE
-;	 	-
-;	 	-
-
-rewind_empty_1absent_0absent: ;begin
-	__		[1]			L	jmp rewind_odd_1present_0absent
-	|		[oz]		L	rep
-	|		[0]			L	jmp rewind__1absent_0present
-	|		[.]			R	jmp restore_success
-
-rewind_odd_1present_0absent:
-	__		[1]			L	jmp rewind_even_1present_0absent
-	|		[oz]		L	rep
-	|		[0]			L	jmp rewind_even_1present_0present
-	|		[.]			R	jmp restore_fail
-
-rewind_even_1present_0absent:
-	__		[1]			L	jmp rewind_odd_1present_0absent
-	|		[oz]		L	rep
-	|		[0]			L	jmp rewind_odd_1present_0present
-	|		[.]			R	jmp restore_fail
-
-rewind_even_1present_0present:
-	__		[0]			L	jmp rewind_odd_1present_0present
-	|		[oz]		L	rep
-	|		[.]			R	jmp cross_first_zero_occurrence
-
-rewind_odd_1present_0present:
-	__		[0]			L	jmp rewind_even_1present_0present
-	|		[oz]		L	rep
-	|		[.]			R	jmp restore_fail
-
-rewind__1absent_0present: ;FAIL CASE
-	__		[0z]		L	rep
-	|		[.]			R	jmp restore_fail
-
-
+; halting states
 restore_success:
 	__		[z]	(0)		R	rep
 	|		[o]	(1)		R	rep
@@ -113,5 +130,5 @@ restore_fail:
 	|		[.]	(n)		R	halt
 
 checkinput_invalid:
-	__		[ANY]		R		rep
-	|		[.]	(n) 	R		halt
+	__		[ANY]		R	rep
+	|		[.]	(n) 	R	halt
