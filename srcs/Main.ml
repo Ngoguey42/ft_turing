@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/25 15:36:07 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/30 12:16:47 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -57,6 +57,8 @@ let () =
   (* TODO: check input does not contain blank char *)
   try
 	match Arguments.read () with
+	| Arguments.MakeO (jsonfile, silent) ->
+	   ()
 	| Arguments.Convert (jsonfile, input, fileinput) ->
 	   let input = match fileinput with false -> input | true -> catfile input in
 	   Convert.output jsonfile input
