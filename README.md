@@ -36,9 +36,6 @@ More Turing Machines in ./machines
 ```sh
 python compiler/main.py machines/*.s
 ```
-<BR>
-machines/utm.s encoding (universal turing machine):<BR>
-![encoding](./img/utm_encoding.png)<BR>
 
 <BR>Useful links:<BR>
 Small presentation:
@@ -61,3 +58,13 @@ Misc:
 - A maximum grade of 125 was reachable.
 - Second sessions are organised for failed projects.
 ```
+
+<BR>
+unary add:<BR>
+![example_add](./img/example_add.png)<BR>
+is input a palindrome:<BR>
+![example_palindrome](./img/example_palindrome.png)<BR>
+is input of form 0^2n:<BR>
+![example_0p2n](./img/example_zeropower2n.png)<BR>
+machines/utm.s encoding (universal turing machine):<BR>
+![encoding](./img/utm_encoding.png)<BR>
