@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2015/12/27 15:06:25 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/25 17:41:31 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/30 13:26:40 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -26,12 +26,15 @@ has_0:
 	__		[0]				R	ni
 	|		[1]				R	jmp empty
 	|		[.]				E	jmp print_n
+has_00: ; label unused
 	__		[0]				R	rep
 	|		[1]				R	ni
 	|		[.]				E	jmp print_n
+has_001: ; label unused
 	__		[1]				R	ni
 	|		[0]				R	jmp has_0
 	|		[.]				E	jmp print_n
+has_0011: ; label unused
 	__		[ANY]			R	rep
 	|		[.]				E	jmp print_y
 
