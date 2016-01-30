@@ -6,7 +6,7 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/11 14:16:30 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/01/19 15:38:18 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/01/30 14:08:23 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
@@ -47,7 +47,7 @@
 ; Tape ::= = L 0 TapeChars R
 
 	name"utm.s"
-	alphabet[uyn+-=01ab.LRcde]
+	alphabet[uyn+-=01ab.LRcdezo]
 	blank[.]
 
 ; STEP 0 - MAIN

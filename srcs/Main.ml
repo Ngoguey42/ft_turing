@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/30 12:16:47 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/30 14:10:23 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -37,6 +37,8 @@ let rec loop db tape statei i silent =
   LoopGuard.update (tapei, read, statei);
   match ProgramData.transition db statei read with
   | ProgramData.Undefined ->
+	 Printf.printf "\n%!";
+	 dump (tape, tapei, db, statei, i);
 	 failwith "Undefined char or transition"
   | ProgramData.Final ->
 	 Printf.printf "\n%!";
