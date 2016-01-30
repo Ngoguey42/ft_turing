@@ -22,13 +22,13 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 
 #####Our work (writing ocaml):
 - [X] Study of core/batteries-included libraries (used core/list, core/dequeue)
-- [X] [Small functional wrapper (YojsonTreeMatcher.ml)](https://github.com/Ngoguey42/ft_turing/blob/master/srcs/YojsonTreeMatcher.ml?ts=4) for yojson, that unfolds two recursive variants side by side with callbacks.
-- [X] [Loop detection (LoopGuard.ml)](https://github.com/Ngoguey42/ft_turing/blob/master/srcs/LoopGuard.ml?ts=4) when TM act as a LBA.
+- [X] [Small functional wrapper (YojsonTreeMatcher.ml)](srcs/YojsonTreeMatcher.ml?ts=4) for yojson, that unfolds two recursive variants side by side with callbacks.
+- [X] [Loop detection (LoopGuard.ml)](srcs/LoopGuard.ml?ts=4) when TM act as a LBA.
 - [X] ft_turing flag to convert json+input to TM5's input format
 
 #####Our work (writing turing machines):
 - [X] Conception of a pseudo-asm language to describe TMs, compilable to .json format ([compiler](./compiler/))
-- [X] Advanced [TM5 (utm.s)](https://github.com/Ngoguey42/ft_turing/blob/master/machines/utm.s?ts=4) able to run any other TM (including itself)
+- [X] Advanced [TM5 (utm.s)](machines/utm.s?ts=4) able to run any other TM (including itself)
 - [X] [TM3 (0n1n.s)](machines/0n1n.s?ts=4) running in O(Nlog(N)) and preserving input
 - [X] more TM (see below)
 <BR>
