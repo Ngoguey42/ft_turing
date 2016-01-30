@@ -6,7 +6,7 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2016/01/20 13:28:21 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/30 14:28:23 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,5 +68,22 @@ fclean: clean
 	rm -f $(NAME)
 	rm -f $(NAME).opt
 	rm -f $(NAME).byt
+
+install_libs: #with brew on macos
+	type opam
+		|| (brew install opam
+			&& opam init -n
+			&& (~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true)
+			&& eval `opam config env`
+			&& opam switch 4.02.3
+			&& (~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true)
+			&& eval `opam config env`
+		)
+	ls ~/.opam/4.02.3/lib/core
+		|| opam install -y core
+	ls ~/.opam/4.02.3/lib/yojson
+		|| opam install -y yojson
+	type ocamlfind
+		|| opam install -y ocamlfind
 
 re: fclean all
