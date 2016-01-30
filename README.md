@@ -8,15 +8,27 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 <BR>
 
 #####Goals:
-- [ ] lol
+- [X] Create a deterministic, single headed and single tape Turing machine(TM).
+- [X] Read a TM description from a json file.
+- [X] Code in OCaml or Haskell, any version, library or tools authorized.
+- [X] Write 5 turing machines in json form (see below)
+- [X] Write an universal turing machine(TM5) able to run TM1
 
 #####Recommended bonuses:
-- [ ] lol
+- [ ] Compute time complexity of a given TM
 
 #####Our work:
-- [ ] lol
+- [X] Study of core/batteries-included libraries (used core/list, core/dequeue)
+- [X] [Small functional wrapper](https://github.com/Ngoguey42/ft_turing/blob/master/srcs/YojsonTreeMatcher.ml?ts=4) for yojson, that unfolds two recursive variants side by side with ballbacks.
+- [X] Loop detection when TM act as a LBA [LoopGuard.ml](https://github.com/Ngoguey42/ft_turing/blob/master/srcs/LoopGuard.ml?ts=4)
+- [X] Advanced TM5 able to run any other TM (including itself) [utm.s](https://github.com/Ngoguey42/ft_turing/blob/master/machines/utm.s?ts=4)
+- [X] ft_turing flag to convert json+input to TM5's input format
+- [X] Conception of a pseudo-asm language, compilable to .json format ([compiler](./compiler/))
+- [X] (TM3)[https://github.com/Ngoguey42/ft_turing/blob/master/machines/0n1n.s?ts=4] runing in O(Nlog(N))
+- [X] lo
+- [X] lo
 
-Turing Machines in ./machines
+#####Turing Machines in ./machines:
 - TM0: machines/unary_sub.json	#given in subject.pdf as an example
 - TM1: machines/unary_add.s
 - TM2: machines/palindrome.json	#version1
@@ -25,14 +37,14 @@ Turing Machines in ./machines
 - TM4: machines/zero_power_2n.json
 - TM5: machines/utm.s	#universal turing machine
 
-More Turing Machines in ./machines
+#####More Turing Machines in ./machines:
 - machines/binary_divisable_by3.json
 - machines/has_0011.json
 - machines/minsky_utm.s	#1967 Minsky's universal turing machine
 - machines/split_input.json	#separate input with blanks
 - machines/zero_second_to_last.json
 
-<BR>compile machines/*.s files to machines/*.json:<BR>
+#####compile machines/*.s files to machines/*.json:
 ```sh
 python compiler/main.py machines/*.s
 ```
