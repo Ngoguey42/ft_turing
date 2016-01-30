@@ -29,25 +29,25 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 #####Our work (writing turing machines):
 - [X] Conception of a pseudo-asm language to describe TMs, compilable to .json format ([compiler](./compiler/))
 - [X] Advanced [TM5 (utm.s)](https://github.com/Ngoguey42/ft_turing/blob/master/machines/utm.s?ts=4) able to run any other TM (including itself)
-- [X] [TM3 (0n1n.s)](https://github.com/Ngoguey42/ft_turing/blob/master/machines/0n1n.s?ts=4) running in O(Nlog(N)) and preserving input
+- [X] [TM3 (0n1n.s)](machines/0n1n.s?ts=4) running in O(Nlog(N)) and preserving input
 - [X] more TM (see below)
 <BR>
 <BR>
 
 #####Turing Machines in ./machines:
-- TM0: machines/unary_sub.json	#given in subject.pdf as an example
+- TM0: machines/unary_sub.json  *given in subject.pdf as an example*
 - TM1: machines/unary_add.s
-- TM2: machines/palindrome.json	#version1
-- TM2: machines/is_palindrome2.s	#version2
+- TM2: machines/palindrome.json	 *version1*
+- TM2: machines/is_palindrome2.s  *version2*
 - TM3: machines/0n1n.s
 - TM4: machines/zero_power_2n.json
-- TM5: machines/utm.s	#universal turing machine
+- TM5: machines/utm.s *universal turing machine*
 
 #####More Turing Machines in ./machines:
 - machines/binary_divisable_by3.json
 - machines/has_0011.json
-- machines/minsky_utm.s	#1967 Minsky's universal turing machine
-- machines/split_input.json	#separate input with blanks
+- machines/minsky_utm.s	 *1967 Minsky's universal turing machine*
+- machines/split_input.s  *separate input with blanks in O(3n^2)*
 - machines/zero_second_to_last.json
 <BR>
 
