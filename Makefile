@@ -6,7 +6,7 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2016/01/30 14:32:40 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/01/30 16:45:52 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,10 @@ INTSFILES = Action.mli MonadicTry.mli YojsonTreeMatcher.mli
 SRCSFILES += ProgramDataTmp.ml YojsonTree.ml ProgramData.ml
 INTSFILES += ProgramDataTmp.mli YojsonTree.mli
 
-SRCSFILES += Tape.ml LoopGuard.ml Convert.ml Arguments.ml Main.ml
+SRCSFILES += Tape.ml LoopGuard.ml
+SRCSFILES += Convert.ml Verifier.ml Complexity.ml
+SRCSFILES += Arguments.ml Main.ml
+
 
 SRCDIR = ./srcs
 

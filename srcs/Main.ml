@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/30 14:10:23 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/01/30 16:25:51 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -60,6 +60,10 @@ let () =
   try
 	match Arguments.read () with
 	| Arguments.MakeO (jsonfile, silent) ->
+	   let db = ProgramData.of_jsonfile jsonfile in
+	   if not silent
+	   then ProgramData.print db;
+	   Complexity.compute db;
 	   ()
 	| Arguments.Convert (jsonfile, input, fileinput) ->
 	   let input = match fileinput with false -> input | true -> catfile input in
@@ -67,7 +71,8 @@ let () =
 	| Arguments.Exec (jsonfile, input, silent, fileinput) ->
 	   let input = match fileinput with false -> input | true -> catfile input in
 	   let db = ProgramData.of_jsonfile jsonfile in
-	   ProgramData.print db;
+	   if not silent
+	   then ProgramData.print db;
 	   let tape = Tape.of_string input db.ProgramData.blank in
 	   loop db tape db.ProgramData.initial 1 silent;
 	   ()
