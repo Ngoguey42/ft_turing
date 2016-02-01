@@ -6,11 +6,11 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/01 17:12:03 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/01 17:57:06 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
-let maxstrlen = 10
+let maxstrlen = 500
 
 module PD = ProgramData
 module CA = Core.Core_array
@@ -52,9 +52,13 @@ let alpha_filter db char =
   else Some char
 
 let tot alphalen =
-  let alphalen = float alphalen in
-  let maxlenplus1 = float @@ maxstrlen + 1 in
-  (1. -. (alphalen ** maxlenplus1)) /. (1. -. alphalen)
+  if alphalen = 1
+  then float @@ maxstrlen + 1
+  else (
+	let alphalen = float alphalen in
+	let maxlenplus1 = float @@ maxstrlen + 1 in
+	(1. -. (alphalen ** maxlenplus1)) /. (1. -. alphalen)
+  )
 
 let canvasW = 1000
 let canvasH = 800
@@ -70,7 +74,8 @@ let gnuPlotConf db maxX maxY =
   let rangeMaxX = maxX *. canvasInsetFactorX in
   let rangeMaxY = maxY *. canvasInsetFactorY in
   let range = GP.Range.XY (0., rangeMaxX, 0., rangeMaxY) in
-  output, range
+  let pointsW = 2 in
+  output, range, pointsW
 
 let pointsLstOfTupArray tupArr =
   CA.foldi
@@ -85,9 +90,9 @@ let pointsLstOfTupArray tupArr =
 let toGnuPlot db results =
   let maxY, _ = CA.last results in
   let maxX = Array.length results - 1 in
-  let output, range = gnuPlotConf db ++ float maxX ++ float maxY in
+  let output, range, pointsW = gnuPlotConf db ++ float maxX ++ float maxY in
   let pointsLst = pointsLstOfTupArray results in
-  let pointsGp = GP.Series.points_xy ~weight:3 ~color:`Red pointsLst in
+  let pointsGp = GP.Series.points_xy ~weight:pointsW ~color:`Red pointsLst in
   let gp = GP.Gp.create () in
   GP.Gp.plot
 	gp
