@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/01 18:13:48 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/01 18:56:13 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -14,7 +14,7 @@ module PD = ProgramData
 module CA = Core.Core_array
 module GP = Gnuplot
 
-let maxstrlen = 100
+let maxstrlen = 120
 
 let canvasW = 1000
 let canvasH = 800
