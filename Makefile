@@ -6,7 +6,7 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2016/01/30 16:45:52 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/02/01 16:13:23 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,8 +27,15 @@ SRCDIR = ./srcs
 
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
-FLAGS = -thread -package core,yojson
-LD_FLAGS = -g -linkpkg
+
+GNUPLOT = -I ./gnuplot-ocaml/_build/lib
+LD_GNUPLOT = $(GNUPLOT) gnuplot.cmxa
+
+FLAGS = $(GNUPLOT) -thread -package core,yojson
+
+LD_FLAGS = $(LD_GNUPLOT) -linkpkg
+LD_FLAGS_BYT = $(LD_FLAGS:.cmxa=.cma)
+LD_FLAGS_OPT = $(LD_FLAGS)
 
 all: $(NAME)
 
@@ -45,11 +52,14 @@ OBJS = $(SRCS:.ml=.cmo)
 OPTOBJS = $(SRCS:.ml=.cmx)
 CMI = $(INTS:.mli=.cmi)
 
+
+
+
 $(NAME).byt: $(CMI) $(OBJS)
-	ocamlfind ocamlc $(LD_FLAGS) $(FLAGS) -o $(NAME).byt $(OBJS)
+	ocamlfind ocamlc $(LD_FLAGS_BYT) $(FLAGS) -o $(NAME).byt $(OBJS)
 
 $(NAME).opt: $(CMI) $(OPTOBJS)
-	ocamlfind ocamlopt $(LD_FLAGS) $(FLAGS) -o $(NAME).opt $(OPTOBJS)
+	ocamlfind ocamlopt $(LD_FLAGS_OPT) $(FLAGS) -o $(NAME).opt $(OPTOBJS)
 
 .SUFFIXES:
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
@@ -75,15 +85,20 @@ fclean: clean
 install_libs: #with a working brew on macos
 	type opam >/dev/null ||\
 		(brew install opam &&\
-			opam init -n &&\
-			(~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true) &&\
-			eval `opam config env` &&\
-			opam switch 4.02.3 &&\
-			(~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true) &&\
-			eval `opam config env`\
+		opam init -n &&\
+		(~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true) &&\
+		eval `opam config env` &&\
+		opam switch 4.02.3 &&\
+		(~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true) &&\
+		eval `opam config env`\
 		)
 	ls ~/.opam/4.02.3/lib/core >/dev/null || opam install -y core
 	ls ~/.opam/4.02.3/lib/yojson >/dev/null || opam install -y yojson
 	type ocamlfind >/dev/null || opam install -y ocamlfind
+	type gnuplot >/dev/null || brew install gnuplot
+	ls ./gnuplot-ocaml >/dev/null ||\
+		(git clone https://github.com/Ngoguey42/gnuplot-ocamlFORK gnuplot-ocaml &&\
+		$(MAKE) -C gnuplot-ocaml\
+		)
 
 re: fclean all
