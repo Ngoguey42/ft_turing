@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/01 20:09:50 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/01 20:44:15 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -14,10 +14,11 @@ module PD = ProgramData
 module CA = Core.Core_array
 module GP = Gnuplot
 
-let maxstrlen = 22
+let maxstrlen = 15
+let maxtime = 1.
 
-let canvasW = 1000
-let canvasH = 800
+let canvasW = 2300
+let canvasH = 1200
 let canvasInsetPercentX = 0.1
 let canvasInsetPercentY = canvasInsetPercentX
 						  *. (float canvasW) /. (float canvasH)
@@ -27,6 +28,8 @@ let canvasInsetFactorY = 1. /. (1. -. canvasInsetPercentY)
 let (++) = (@@)
 
 let i = ref 0
+
+
 
 let rec loop results db alpha str strlen =
   incr i;
@@ -47,6 +50,7 @@ let rec loop results db alpha str strlen =
 					(str ^ (String.make 1 c))
 					(strlen + 1));
   | _, _ -> ()
+(* ) *)
 
 let alpha_filter db char =
   if char = db.PD.blank
@@ -81,32 +85,33 @@ let pointsLstOfTupArray tupArr =
 	  else (float i, float count)::lst
 	)
 
-let toGnuPlot db results =
-  let maxY, _ = CA.last results in
-  let maxX = Array.length results - 1 in
+let toGnuPlot db results maxX maxY =
+  (* let maxY, _ = CA.last results in *)
+  (* let maxX = Array.length results - 1 in *)
   let output, range, pointsW = gnuPlotConf db ++ float maxX ++ float maxY in
   let pointsLst = pointsLstOfTupArray results in
-  let linesGp = GP.Series.lines_xy ~weight:pointsW ~color:`Red pointsLst in
-  let pointsGp = GP.Series.points_xy ~weight:pointsW ~color:`Red pointsLst in
+  let linesGp = GP.Series.lines_xy ~weight:2 ~color:`Red pointsLst in
+  let pointsGp = GP.Series.points_xy ~weight:2 ~color:`Red pointsLst in
 
-  (* let pointsLst2 = List.map (fun (x, y) -> *)
-  (* 					   (\* Printf.eprintf "%f, %f ->   %f, %f\n%!" *\) *)
-  (* 					   (\* 				  x y *\) *)
-  (* 					   (\* 				  x (log y *. 10000.) *\) *)
-  (* 							 (\* ; *\) *)
-  (* 					   (x, (log y) *. (float maxY) /. (float maxX)) *)
-  (* 					 ) pointsLst in *)
-  (* let linesGp2 =  GP.Series.lines_xy ~weight:pointsW ~color:`Red pointsLst2 in *)
+  let pointsLst2 = List.map (fun (x, y) ->
+  					   (* Printf.eprintf "%f, %f ->   %f, %f\n%!" *)
+  					   (* 				  x y *)
+  					   (* 				  x (log y *. 10000.) *)
+  					   (* ; *)
+  					   (x, y *. 2.)
+  					 (* (x, (log y) *. (float maxY) /. (float maxX)) *)
+  					 ) pointsLst in
+  let linesGp2 =  GP.Series.lines_xy ~weight:1 ~color:`Red pointsLst2 in
 
   let gp = GP.Gp.create () in
   GP.Gp.plot_many gp [
 					pointsGp; linesGp;
 
-				  (* linesGp2 *)
-					 ]
-			 ~output:output
-			 ~use_grid:true
-			 ~range:range;
+					linesGp2
+				  ]
+				  ~output:output
+				  ~use_grid:true
+				  ~range:range;
   GP.Gp.close gp;
   ()
 
@@ -114,9 +119,21 @@ let compute db =
   let alpha = CA.filter_map db.PD.alphabet ~f:(alpha_filter db) in
   let results = CA.create ~len:(maxstrlen + 1) (~-1, "") in
   loop results db alpha "" 0;
-  CA.iteri results ~f:(fun i (v, str) -> Printf.eprintf "%3d\t%3d \"%s\"\n%!" i v str);
-
+  (* val foldi : 'a t -> init:'b -> f:(int -> 'b -> 'a -> 'b) -> 'b *)
+  let lasti, maxy =
+	CA.foldi
+	  results
+	  ~init:(0, 0)
+	  ~f:(fun i ((maxi, maxy) as tup) (v, str) ->
+		if v > 0 then (
+		  Printf.eprintf "%3d\t%3d \"%s\"\n%!" i v str;
+		  (i, v)
+		)
+		else tup
+	  )
+  in
   Printf.eprintf "i = %d  / %f\n%!" !i
-  @@ tot ++ Array.length alpha;
-  toGnuPlot db results;
+  @@ tot ++ (lasti + 1);
+  (* @@ tot ++ Array.length alpha; *)
+  toGnuPlot db results lasti maxy;
   ()
