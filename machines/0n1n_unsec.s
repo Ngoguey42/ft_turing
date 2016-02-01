@@ -6,11 +6,11 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/25 15:06:49 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/02/01 17:30:56 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/02/01 18:17:01 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
-	name"0n1n"
+	name"0n1n_unsec"
 	alphabet[10.ynzo]
 	blank[.]
 

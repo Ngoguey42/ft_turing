@@ -6,11 +6,11 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/01/25 14:47:31 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/02/01 17:24:59 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/02/01 18:17:09 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
-	name"unary_add"
+	name"unary_add_unsec"
 	alphabet[1.+=]
 	blank[.]
 
