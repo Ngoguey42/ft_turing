@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/01 18:56:13 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/01 20:09:50 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -14,7 +14,7 @@ module PD = ProgramData
 module CA = Core.Core_array
 module GP = Gnuplot
 
-let maxstrlen = 120
+let maxstrlen = 22
 
 let canvasW = 1000
 let canvasH = 800
@@ -88,8 +88,22 @@ let toGnuPlot db results =
   let pointsLst = pointsLstOfTupArray results in
   let linesGp = GP.Series.lines_xy ~weight:pointsW ~color:`Red pointsLst in
   let pointsGp = GP.Series.points_xy ~weight:pointsW ~color:`Red pointsLst in
+
+  (* let pointsLst2 = List.map (fun (x, y) -> *)
+  (* 					   (\* Printf.eprintf "%f, %f ->   %f, %f\n%!" *\) *)
+  (* 					   (\* 				  x y *\) *)
+  (* 					   (\* 				  x (log y *. 10000.) *\) *)
+  (* 							 (\* ; *\) *)
+  (* 					   (x, (log y) *. (float maxY) /. (float maxX)) *)
+  (* 					 ) pointsLst in *)
+  (* let linesGp2 =  GP.Series.lines_xy ~weight:pointsW ~color:`Red pointsLst2 in *)
+
   let gp = GP.Gp.create () in
-  GP.Gp.plot_many gp [pointsGp; linesGp]
+  GP.Gp.plot_many gp [
+					pointsGp; linesGp;
+
+				  (* linesGp2 *)
+					 ]
 			 ~output:output
 			 ~use_grid:true
 			 ~range:range;
