@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/02 19:13:29 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/02 20:01:50 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -16,8 +16,8 @@ module GP = Gnuplot
 module TTK = StringListTickTock
 module Class = Complexity_classes
 
-let maxstrlen = 50
-let maxtime = 60.
+let maxstrlen = 258
+let maxtime = 5.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -27,7 +27,7 @@ let canvasInsetPercentY = canvasInsetPercentX
 let canvasInsetFactorX = 1. /. (1. -. canvasInsetPercentX)
 let canvasInsetFactorY = 1. /. (1. -. canvasInsetPercentY)
 
-let refPointPercent = 0.75
+let refPointPercent = 0.5
 
 let (++) = (@@)
 
@@ -102,22 +102,38 @@ let toGnuPlot db results maxX maxY =
   let refPointY, _ = CA.unsafe_get results refPointX in
   let refPoint = (float refPointX, float refPointY) in
   let count = maxX + 1 in
+
   let classO1Lst = Class.genO1 refPoint count in
   let classO1Gp = GP.Series.lines_xy ~weight:1 ~color:`Blue classO1Lst in
+
   let classONLst = Class.genON refPoint count in
   let classONGp = GP.Series.lines_xy ~weight:1 ~color:`Green classONLst in
+
   let classON2Lst = Class.genON2 refPoint count in
   let classON2Gp = GP.Series.lines_xy
 					 ~weight:1 ~color:(`Rgb (96, 151, 159)) classON2Lst in
 
+  let classON3Lst = Class.genON3 refPoint count in
+  let classON3Gp = GP.Series.lines_xy
+					 ~weight:1 ~color:(`Rgb (81, 125, 132)) classON3Lst in
+
+  let classOlogNLst = Class.genOlogN refPoint count in
+  let classOlogNGp = GP.Series.lines_xy
+					   ~weight:1 ~color:(`Rgb (85, 43, 27)) classOlogNLst in
+
+
+(* (`Rgb(85, 43, 27)) *)
+
   (* (`Rgb (96, 151, 159)) *)
   let gp = GP.Gp.create () in
   GP.Gp.plot_many gp [
-					pointsGp; linesGp;
-					linesGp2
+					pointsGp; linesGp
+					(* linesGp2 *)
 					; classO1Gp
+					; classOlogNGp
 					; classONGp
 					; classON2Gp
+					; classON3Gp
 				  ]
 				  ~output:output
 				  ~use_grid:true
