@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/02 17:19:42 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/02 18:07:18 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -15,8 +15,8 @@ module CA = Core.Core_array
 module GP = Gnuplot
 module TTK = StringListTickTock
 
-let maxstrlen = 15
-let maxtime = 1.
+let maxstrlen = 258
+let maxtime = 60.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -44,32 +44,9 @@ let loop (results, db, alpha, ttk) =
   );
   match strlen < maxstrlen, membership with
   | true, Verifier.Member steps
-  | true, Verifier.Not steps when steps >= strlen ->
+  | true, Verifier.Not steps when steps > strlen ->
 	 CA.iter alpha ~f:(fun c -> TTK.add ttk (str ^ (String.make 1 c)))
   | _, _ -> ()
-
-
-
-let rec loop results db alpha str strlen =
-  incr i;
-  let membership = Verifier.verify db str in
-  (match membership with
-   | Verifier.Member steps ->
-	  let (prev, _) = CA.unsafe_get results strlen in
-	  if steps > prev
-	  then CA.unsafe_set results strlen (steps, str);
-	  ()
-   | _ -> ()
-  );
-  match strlen < maxstrlen, membership with
-  | true, Verifier.Member steps
-  | true, Verifier.Not steps when steps >= strlen ->
-	 CA.iter alpha ~f:(fun c ->
-			   loop results db alpha
-					(str ^ (String.make 1 c))
-					(strlen + 1));
-  | _, _ -> ()
-(* ) *)
 
 let alpha_filter db char =
   if char = db.PD.blank
@@ -105,20 +82,13 @@ let pointsLstOfTupArray tupArr =
 	)
 
 let toGnuPlot db results maxX maxY =
-  (* let maxY, _ = CA.last results in *)
-  (* let maxX = Array.length results - 1 in *)
   let output, range, pointsW = gnuPlotConf db ++ float maxX ++ float maxY in
   let pointsLst = pointsLstOfTupArray results in
   let linesGp = GP.Series.lines_xy ~weight:2 ~color:`Red pointsLst in
   let pointsGp = GP.Series.points_xy ~weight:2 ~color:`Red pointsLst in
 
   let pointsLst2 = List.map (fun (x, y) ->
-  					   (* Printf.eprintf "%f, %f ->   %f, %f\n%!" *)
-  					   (* 				  x y *)
-  					   (* 				  x (log y *. 10000.) *)
-  					   (* ; *)
   					   (x, y *. 2.)
-  					 (* (x, (log y) *. (float maxY) /. (float maxX)) *)
   					 ) pointsLst in
   let linesGp2 =  GP.Series.lines_xy ~weight:1 ~color:`Red pointsLst2 in
 
@@ -137,15 +107,27 @@ let toGnuPlot db results maxX maxY =
 let compute db =
   let alpha = CA.filter_map db.PD.alphabet ~f:(alpha_filter db) in
   let results = CA.create ~len:(maxstrlen + 1) (~-1, "") in
-  loop results db alpha "" 0;
-  (* val foldi : 'a t -> init:'b -> f:(int -> 'b -> 'a -> 'b) -> 'b *)
+  let ttk = TTK.create "" in
+  let timeout = Unix.gettimeofday () +. maxtime in
+
+  Printf.printf "Computing graph: maxtime(%fs) maxstrlen(%d)\n%!"
+				maxtime maxstrlen;
+  while Unix.gettimeofday () < timeout && not (TTK.empty ttk) do
+	loop (results, db, alpha, ttk);
+	incr i
+  done;
+  if not ++ TTK.empty ttk then (
+	Printf.eprintf "Dropping results for stren=%d\n%!"
+	@@ TTK.phase ttk;
+	results.(TTK.phase ttk) <- (~-1, "")
+  );
   let lasti, maxy =
 	CA.foldi
 	  results
 	  ~init:(0, 0)
 	  ~f:(fun i ((maxi, maxy) as tup) (v, str) ->
 		if v > 0 then (
-		  Printf.eprintf "%3d\t%3d \"%s\"\n%!" i v str;
+		  (* Printf.eprintf "%3d\t%3d \"%s\"\n%!" i v str; *)
 		  (i, v)
 		)
 		else tup
@@ -153,6 +135,5 @@ let compute db =
   in
   Printf.eprintf "i = %d  / %f\n%!" !i
   @@ tot ++ (lasti + 1);
-  (* @@ tot ++ Array.length alpha; *)
   toGnuPlot db results lasti maxy;
   ()
