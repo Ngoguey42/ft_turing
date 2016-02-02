@@ -6,13 +6,14 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/01 20:44:15 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/02 17:19:42 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
 module PD = ProgramData
 module CA = Core.Core_array
 module GP = Gnuplot
+module TTK = StringListTickTock
 
 let maxstrlen = 15
 let maxtime = 1.
@@ -28,6 +29,24 @@ let canvasInsetFactorY = 1. /. (1. -. canvasInsetPercentY)
 let (++) = (@@)
 
 let i = ref 0
+
+let loop (results, db, alpha, ttk) =
+  let str = TTK.pop ttk in
+  let strlen = TTK.phase ttk in
+  let membership = Verifier.verify db str in
+  (match membership with
+   | Verifier.Member steps ->
+	  let (prev, _) = CA.unsafe_get results strlen in
+	  if steps > prev
+	  then CA.unsafe_set results strlen (steps, str);
+	  ()
+   | _ -> ()
+  );
+  match strlen < maxstrlen, membership with
+  | true, Verifier.Member steps
+  | true, Verifier.Not steps when steps >= strlen ->
+	 CA.iter alpha ~f:(fun c -> TTK.add ttk (str ^ (String.make 1 c)))
+  | _, _ -> ()
 
 
 
