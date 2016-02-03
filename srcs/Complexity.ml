@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/02 20:01:50 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/03 14:46:58 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -17,7 +17,7 @@ module TTK = StringListTickTock
 module Class = Complexity_classes
 
 let maxstrlen = 258
-let maxtime = 5.
+let maxtime = 60.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -27,7 +27,7 @@ let canvasInsetPercentY = canvasInsetPercentX
 let canvasInsetFactorX = 1. /. (1. -. canvasInsetPercentX)
 let canvasInsetFactorY = 1. /. (1. -. canvasInsetPercentY)
 
-let refPointPercent = 0.5
+let refPointPercent = 0.65
 
 let (++) = (@@)
 
@@ -71,8 +71,7 @@ let gnuPlotConf db maxX maxY =
   let rangeMaxX = maxX *. canvasInsetFactorX in
   let rangeMaxY = maxY *. canvasInsetFactorY in
   let range = GP.Range.XY (0., rangeMaxX, 0., rangeMaxY) in
-  let pointsW = 1 in
-  output, range, pointsW
+  output, range
 
 let pointsLstOfTupArray tupArr =
   CA.foldi
@@ -87,57 +86,55 @@ let pointsLstOfTupArray tupArr =
 
 (* let makeRefPoint results maxX = *)
 
+let makeTrendLine refPoint count fn title color =
+  GP.Series.lines_xy ~weight:1 ~color ~title
+  @@ fn refPoint count
+
+
+let makeTrendLines refPoint count =
+  Printf.eprintf "count: %d\n%!" count;
+  [makeTrendLine refPoint count Class.genO1 "O(1)" `Blue
+  ;makeTrendLine refPoint count Class.genOlogN "O(logn)" @@ `Rgb (85, 43, 27)
+  ;makeTrendLine refPoint count Class.genON "O(n)" `Green
+  ;makeTrendLine refPoint count Class.genONlogN "O(nlogn)" @@ `Rgb (187, 0, 255)
+  ;makeTrendLine refPoint count Class.genON2 "O(n^2)" @@ `Rgb (96, 151, 159)
+  ;makeTrendLine refPoint count Class.genON3 "O(n^3)" @@ `Rgb (81, 125, 132)
+  ;makeTrendLine refPoint count Class.genO2N "O(2^n)" @@ `Yellow
+  ;makeTrendLine refPoint count Class.genO3N "O(3^n)" @@ `Yellow
+  ;makeTrendLine refPoint count Class.genONfact "O(n!)" @@ `Blue
+  ]
+
+let findRefPoint results maxX =
+  let y (y, _) =
+	y
+  in
+  let rec findX center dt sign =
+	match center + sign * dt with
+	| x when x > maxX || x < 0 -> failwith "Error"
+	| x when y results.(x) >= 0 -> x
+	| _ when sign = 1 -> findX center dt ~-1
+	| _ -> findX center (dt + 1) 1
+  in
+  let center = truncate ++ floor (refPointPercent *. float maxX) in
+  let refPointX = findX center 0 1 in
+  let refPointY, _ = CA.unsafe_get results refPointX in
+  (float refPointX, float refPointY)
+
 let toGnuPlot db results maxX maxY =
-  let output, range, pointsW = gnuPlotConf db ++ float maxX ++ float maxY in
+  let output, range = gnuPlotConf db ++ float maxX ++ float maxY in
   let pointsLst = pointsLstOfTupArray results in
   let linesGp = GP.Series.lines_xy ~weight:2 ~color:`Red pointsLst in
   let pointsGp = GP.Series.points_xy ~weight:2 ~color:`Red pointsLst in
+  let refPoint = findRefPoint results maxX in
 
-  let pointsLst2 = List.map (fun (x, y) ->
-  					   (x, y *. 2.)
-  					 ) pointsLst in
-  let linesGp2 =  GP.Series.lines_xy ~weight:1 ~color:`Red pointsLst2 in
-
-  let refPointX = truncate ++ floor (refPointPercent *. float maxX) in
-  let refPointY, _ = CA.unsafe_get results refPointX in
-  let refPoint = (float refPointX, float refPointY) in
-  let count = maxX + 1 in
-
-  let classO1Lst = Class.genO1 refPoint count in
-  let classO1Gp = GP.Series.lines_xy ~weight:1 ~color:`Blue classO1Lst in
-
-  let classONLst = Class.genON refPoint count in
-  let classONGp = GP.Series.lines_xy ~weight:1 ~color:`Green classONLst in
-
-  let classON2Lst = Class.genON2 refPoint count in
-  let classON2Gp = GP.Series.lines_xy
-					 ~weight:1 ~color:(`Rgb (96, 151, 159)) classON2Lst in
-
-  let classON3Lst = Class.genON3 refPoint count in
-  let classON3Gp = GP.Series.lines_xy
-					 ~weight:1 ~color:(`Rgb (81, 125, 132)) classON3Lst in
-
-  let classOlogNLst = Class.genOlogN refPoint count in
-  let classOlogNGp = GP.Series.lines_xy
-					   ~weight:1 ~color:(`Rgb (85, 43, 27)) classOlogNLst in
-
-
-(* (`Rgb(85, 43, 27)) *)
-
-  (* (`Rgb (96, 151, 159)) *)
   let gp = GP.Gp.create () in
-  GP.Gp.plot_many gp [
-					pointsGp; linesGp
-					(* linesGp2 *)
-					; classO1Gp
-					; classOlogNGp
-					; classONGp
-					; classON2Gp
-					; classON3Gp
-				  ]
-				  ~output:output
-				  ~use_grid:true
-				  ~range:range;
+  GP.Gp.plot_many
+	gp (pointsGp::linesGp::makeTrendLines refPoint (maxX + 1))
+	~output:output
+	~use_grid:true
+	~range:range
+	~labels:(GP.Labels.create ~x:"strlen" ~y:"steps" ())
+  ;
   GP.Gp.close gp;
   ()
 
