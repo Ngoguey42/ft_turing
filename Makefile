@@ -6,7 +6,7 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2016/02/02 18:28:59 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/02/07 17:12:24 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -84,20 +84,26 @@ fclean: clean
 	rm -f $(NAME).byt
 
 install_libs: #with a working brew on macos
-	type opam >/dev/null ||\
+	hash -r
+	type ocaml || brew install --build-from-source ocaml
+	hash -r
+	type opam ||\
 		(brew install opam &&\
 		opam init -n &&\
-		(~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true) &&\
+		(~/.opam/opam-init/init.zsh > /dev/null 2>/dev/null || true) &&\
 		eval `opam config env` &&\
 		opam switch 4.02.3 &&\
-		(~/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true) &&\
+		(~/.opam/opam-init/init.zsh > /dev/null 2>/dev/null || true) &&\
 		eval `opam config env`\
 		)
-	ls ~/.opam/4.02.3/lib/core >/dev/null || opam install -y core
-	ls ~/.opam/4.02.3/lib/yojson >/dev/null || opam install -y yojson
-	type ocamlfind >/dev/null || opam install -y ocamlfind
-	type gnuplot >/dev/null || brew install gnuplot
-	ls ./gnuplot-ocaml >/dev/null ||\
+	opam install -y core.113.00.00
+# ls -d  ~/.opam/4.02.3/lib/core || opam install -y core
+	ls -d ~/.opam/4.02.3/lib/yojson || opam install -y yojson
+	hash -r
+	type ocamlfind || opam install -y ocamlfind
+	hash -r
+	type gnuplot || brew install gnuplot
+	ls -d ./gnuplot-ocaml ||\
 		(git clone https://github.com/Ngoguey42/gnuplot-ocamlFORK gnuplot-ocaml &&\
 		$(MAKE) -C gnuplot-ocaml\
 		)
