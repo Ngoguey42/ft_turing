@@ -64,7 +64,11 @@ python compiler/main.py machines/*.s
 >######18h of theory of computation (math oriented, accessible):
 - https://www.youtube.com/user/hhp3/playlists
 
->######Compiler class:
+>######Linear regression:
+- http://www.dummies.com/how-to/content/how-to-calculate-a-regression-line.html
+- https://www.youtube.com/watch?v=w2FKXOa0HGA
+
+>######Misc:
 - https://class.coursera.org/compilers/lecture
 - https://class.coursera.org/algo-004/lecture
 - https://complexityzoo.uwaterloo.ca/Petting_Zoo
