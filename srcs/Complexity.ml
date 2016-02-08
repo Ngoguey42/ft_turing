@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 16:54:03 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 18:46:57 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -17,8 +17,8 @@ module GP = Gnuplot
 module TTK = StringListTickTock
 module Class = Complexity_classes
 
-let maxstrlen = 284
-let maxtime = 2.
+let maxstrlen = 2840
+let maxtime = 30.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -143,7 +143,7 @@ let toGnuPlot db results maxX maxY =
   let orders = gen_orders pointsLst refPoint (maxX + 1) in
   let orders =
 	CL.sort
-	  ~cmp:(fun {Order.correlation_coef = a} {Order.correlation_coef = b} ->
+	  ~cmp:(fun {Order.ccoef = a} {Order.ccoef = b} ->
 		truncate ((b -. a) *. 1000.))
 	  orders
   in

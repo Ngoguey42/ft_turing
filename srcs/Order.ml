@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/02/08 11:26:31 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 18:10:15 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 18:46:06 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -19,16 +19,16 @@ type t = { title : string
 		 ; color : GP.Color.t
 		 ; points : point list
 		 ; lpoints : point list
-		 ; correlation_coef : float
+		 ; ccoef : float
 		 ; slope : float
 		 ; mutable choice : bool
 		 }
 
-let calc_coef : point list -> float = fun lpoints ->
+let calc_coef_slope : point list -> float * float = fun lpoints ->
   match CL.hd lpoints with
-	(* TODO *)
+  (* TODO *)
   | None
-	-> 0.
+	-> 0., 1.
   | Some _
 	->
 	 let count = float @@ CL.length lpoints in
@@ -64,11 +64,7 @@ let calc_coef : point list -> float = fun lpoints ->
 	 Printf.eprintf "%9s -> %.2f * x + %.2f\n%!" "" slope y0;
 	 Printf.eprintf "coef: %f\n%!" coef;
 
-
-	 coef
-
-let calc_slope : point list -> float = fun lpoints ->
-  42.42
+	 coef, slope
 
 let make :
 	  string
@@ -82,28 +78,42 @@ let make :
   Printf.eprintf "\nC\n%!";
   Printf.eprintf "%s\n%!" tit;
   let lpoints = make_lpoints res ref_point count in
-  if tit = "O(n^2)" then (
-  CL.iter lpoints ~f:(fun (x, y) ->
-			Printf.eprintf "%f\t%f\n%!" x y;
+  let ccoef, slope = calc_coef_slope lpoints in
+  (* if tit = "O(n^2)" then ( *)
+  (* CL.iter lpoints ~f:(fun (x, y) -> *)
+  (* 			Printf.eprintf "%f\t%f\n%!" x y; *)
 
-		  ));
+  (* 		  )); *)
   { title = tit
   ; color = col
   ; points = make_points ref_point count
   ; lpoints
-  ; correlation_coef = calc_coef lpoints
-  ; slope = calc_slope lpoints
+  ; ccoef
+  ; slope
   ; choice = false
   }
 
-let get_coef : t -> float = fun {correlation_coef} ->
-  correlation_coef
+let get_coef : t -> float = fun {ccoef} ->
+  ccoef
 
 let get_trend_line : t -> GP.Series.t = fun {title; color; points} ->
   GP.Series.lines_xy ~weight:1 ~color ~title points
 
+let build_title : t -> string = fun {title; ccoef; slope; choice} ->
+  let hd = match choice with | true -> "->" | false -> "" in
+  match title with
+  | "O(n^2)" ->
+	 Printf.sprintf "%s r^2(%.4f) results O(n**%.4f) log-log plot" hd ccoef slope
+  | "O(2^n)" ->
+	 Printf.sprintf "%s r^2(%.4f) results O(%.4f**n) log-log plot" hd ccoef (exp slope)
+  | _ ->
+	 Printf.sprintf "%s r^2(%.4f) results %s log-log plot" hd ccoef title
+
+
+
+
 let get_linearized_line : t -> point -> point -> GP.Series.t option =
-  fun {title; color; lpoints; choice} (bl_x, bl_y) (tr_x, tr_y) ->
+  fun ({title; color; lpoints; choice} as ord) (bl_x, bl_y) (tr_x, tr_y) ->
   let xmin, xmax, ymin, ymax =
 	CL.fold_left lpoints ~init:(infinity, 0., infinity, 0.)
 				 ~f:(fun (xmin, xmax, ymin, ymax) (x, y) ->
@@ -126,6 +136,5 @@ let get_linearized_line : t -> point -> point -> GP.Series.t option =
   | None
 	-> None
   | Some _
-	-> let hd = match choice with | true -> "->" | false -> "" in
-	   let ttl = Printf.sprintf "%s results %s log-log plot" hd title in
+	-> let ttl = build_title ord in
 	   Some (GP.Series.lines_xy lpoints ~weight:1 ~color ~title:ttl)
