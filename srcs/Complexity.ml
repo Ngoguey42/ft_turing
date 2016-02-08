@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 13:25:34 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 14:45:39 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -18,7 +18,7 @@ module TTK = StringListTickTock
 module Class = Complexity_classes
 
 let maxstrlen = 258
-let maxtime = 60.
+let maxtime = 3.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -97,15 +97,22 @@ let pointsLstOfTupArray tupArr =
 (*   ;makeTrendLine refPoint count Class.genON "O(n)" `Green *)
 (*   ;makeTrendLine refPoint count Class.genONlogN "O(nlogn)" @@ `Rgb (187, 0, 255) *)
 (*   ;makeTrendLine refPoint count Class.genON2 "O(n^2)" @@ `Rgb (96, 151, 159) *)
-(*   (\* ;makeTrendLine refPoint count Class.genON3 "O(n^3)" @@ `Rgb (81, 125, 132) *\) *)
 (*   ;makeTrendLine refPoint count Class.genO2N "O(2^n)" @@ `Yellow *)
-(*   (\* ;makeTrendLine refPoint count Class.genO3N "O(3^n)" @@ `Yellow *\) *)
 (*   ;makeTrendLine refPoint count Class.genONfact "O(n!)" @@ `Blue *)
 (*   ] *)
 
 
-let gen_orders refPoint count =
-  []
+let ph _ _ _ = []
+
+let gen_orders results refPoint count =
+  [ Order.make "O(1)" `Blue results refPoint count Class.genO1 ph
+  ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count Class.genOlogN ph
+  ; Order.make "O(n)" `Green results refPoint count Class.genON ph
+  ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count Class.genONlogN ph
+  ; Order.make "O(n^2)" (`Rgb (96, 151, 159)) results refPoint count Class.genON2 ph
+  ; Order.make "O(2^n)" `Yellow results refPoint count Class.genO2N ph
+  ; Order.make "O(n!)" `Blue results refPoint count Class.genONfact ph
+  ]
 
 
 let findRefPoint results maxX =
@@ -130,7 +137,7 @@ let toGnuPlot db results maxX maxY =
   let linesGp = GP.Series.lines_xy ~weight:2 ~color:`Red pointsLst in
   let pointsGp = GP.Series.points_xy ~weight:2 ~color:`Red pointsLst in
   let refPoint = findRefPoint results maxX in
-  let orders = gen_orders refPoint (maxX + 1) in
+  let orders = gen_orders pointsLst refPoint (maxX + 1) in
   let orders =
 	CL.sort
 	  ~cmp:(fun {Order.correlation_coef = a} {Order.correlation_coef = b} ->
@@ -138,25 +145,26 @@ let toGnuPlot db results maxX maxY =
 	  orders
   in
   (match orders with
-  | hdo1::hdon::_ when hdo1.Order.title = "O(1)"
-	-> assert(hdon.Order.title = "O(N)");
-	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
-	   then hdo1.Order.choice <- true
-	   else hdon.Order.choice <- true
-  | hdon::hdo1::_ when hdo1.Order.title = "O(1)"
-	-> assert(hdon.Order.title = "O(N)");
-	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
-	   then hdo1.Order.choice <- true
-	   else hdon.Order.choice <- true
+  (* | hdo1::hdon::_ when hdo1.Order.title = "O(1)" *)
+  (* 	-> assert(hdon.Order.title = "O(N)"); *)
+  (* 	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05 *)
+  (* 	   then hdo1.Order.choice <- true *)
+  (* 	   else hdon.Order.choice <- true *)
+  (* | hdon::hdo1::_ when hdo1.Order.title = "O(1)" *)
+  (* 	-> assert(hdon.Order.title = "O(N)"); *)
+  (* 	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05 *)
+  (* 	   then hdo1.Order.choice <- true *)
+  (* 	   else hdon.Order.choice <- true *)
   | hd1::_
 	-> hd1.Order.choice <- true
   | []
 	-> failwith "noway"
   );
+  let trends = CL.map orders ~f:(fun ord -> Order.get_trend_line ord) in
 
   let gp = GP.Gp.create () in
   GP.Gp.plot_many
-	gp (pointsGp::linesGp::[])
+	gp (pointsGp::linesGp::trends)
 	~output:output
 	~use_grid:true
 	~range:range

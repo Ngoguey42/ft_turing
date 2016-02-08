@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/02/08 11:26:31 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 13:01:06 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 14:45:48 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -52,7 +52,7 @@ let get_coef : t -> float = fun {correlation_coef} ->
   correlation_coef
 
 let get_trend_line : t -> GP.Series.t = fun {title; color; points} ->
-  GP.Series.lines_xy ~weight:2 ~color ~title points
+  GP.Series.lines_xy ~weight:1 ~color ~title points
 
 let get_linearized_line : t -> point -> point -> GP.Series.t =
   fun {title; color; lpoints} bot_left top_right ->
