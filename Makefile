@@ -6,7 +6,7 @@
 #    By: fbuoro <fbuoro@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/06/24 10:51:44 by fbuoro            #+#    #+#              #
-#    Updated: 2016/02/07 17:12:24 by ngoguey          ###   ########.fr        #
+#    Updated: 2016/02/08 12:02:00 by ngoguey          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ SRCSFILES += ProgramDataTmp.ml YojsonTree.ml ProgramData.ml
 INTSFILES += ProgramDataTmp.mli YojsonTree.mli
 
 SRCSFILES += Tape.ml LoopGuard.ml
-SRCSFILES += Verifier.ml StringListTickTock.ml Complexity_classes.ml
+SRCSFILES += Verifier.ml StringListTickTock.ml Complexity_classes.ml Order.ml
 SRCSFILES += Convert.ml Complexity.ml
 SRCSFILES += Arguments.ml Main.ml
 
