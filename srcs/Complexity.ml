@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 18:46:57 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 20:28:46 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -17,12 +17,17 @@ module GP = Gnuplot
 module TTK = StringListTickTock
 module Class = Complexity_classes
 
+(* TODO: DISAMBIGUATE O1 / ON / ON2
+ * TODO: DISPLAY SUB-GRAPH BOUNDS
+ * TODO: GIVE A TITLE TO RESULTS
+*)
+
 let maxstrlen = 2840
-let maxtime = 30.
+let maxtime = 90.
 
 let canvasW = 2300
 let canvasH = 1200
-let canvasInsetPercentX = 0.06
+let canvasInsetPercentX = 0.07
 let canvasInsetPercentY = canvasInsetPercentX
 						  *. (float canvasW) /. (float canvasH)
 let canvasInsetFactorX = 1. /. (1. -. canvasInsetPercentX)
@@ -34,7 +39,8 @@ let subGraphSize = 0.4
 
 let (++) = (@@)
 
-let i = ref 0
+
+(* INPUT ENUMERATOR FUNCTIONS *)
 
 let loop (results, db, alpha, ttk) =
   let str = TTK.pop ttk in
@@ -68,6 +74,8 @@ let tot alphalen =
 	(1. -. (alphalen ** maxlenplus1)) /. (1. -. alphalen)
   )
 
+(* GNU-PLOT AND COMPLEXITY CALCULATION FUNCTIONS *)
+
 let gnuPlotConf db maxX maxY =
   let output = GP.Output.create
 				 (`Canvas ((db.PD.name ^ ".html"), canvasW, canvasH)) in
@@ -86,29 +94,10 @@ let pointsLstOfTupArray tupArr =
 	  else (float i, float count)::lst
 	)
 
-
-(* let makeTrendLine refPoint count fn title color = *)
-(*   GP.Series.lines_xy ~weight:1 ~color ~title *)
-(*   @@ fn refPoint count *)
-
-
-(* let makeTrendLines refPoint count = *)
-(*   Printf.eprintf "count: %d\n%!" count; *)
-(*   [makeTrendLine refPoint count Class.genO1 "O(1)" `Blue *)
-(*   ;makeTrendLine refPoint count Class.genOlogN "O(logn)" @@ `Rgb (85, 43, 27) *)
-(*   ;makeTrendLine refPoint count Class.genON "O(n)" `Green *)
-(*   ;makeTrendLine refPoint count Class.genONlogN "O(nlogn)" @@ `Rgb (187, 0, 255) *)
-(*   ;makeTrendLine refPoint count Class.genON2 "O(n^2)" @@ `Rgb (96, 151, 159) *)
-(*   ;makeTrendLine refPoint count Class.genO2N "O(2^n)" @@ `Yellow *)
-(*   ;makeTrendLine refPoint count Class.genONfact "O(n!)" @@ `Blue *)
-(*   ] *)
-
-
 let ph _ _ _ = []
 
 let gen_orders results refPoint count =
-  [
-	Order.make "O(1)" `Blue results refPoint count Class.genO1 ph
+  [ Order.make "O(1)" `Blue results refPoint count Class.genO1 ph
   ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count Class.genOlogN Class.linearOlogN
   ; Order.make "O(n)" `Green results refPoint count Class.genON Class.linearNoOp
   ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count Class.genONlogN Class.linearONlogN
@@ -182,11 +171,14 @@ let toGnuPlot db results maxX maxY =
   GP.Gp.close gp;
   ()
 
+(* FILE ENTRY POINT *)
+
 let compute db =
   let alpha = CA.filter_map db.PD.alphabet ~f:(alpha_filter db) in
   let results = CA.create ~len:(maxstrlen + 1) (~-1, "") in
   let ttk = TTK.create "" in
   let timeout = Unix.gettimeofday () +. maxtime in
+  let i = ref 0 in
 
   Printf.printf "Computing graph: maxtime(%fs) maxstrlen(%d)\n%!"
 				maxtime maxstrlen;
