@@ -6,12 +6,13 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/03 14:46:58 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 13:25:34 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
 module PD = ProgramData
 module CA = Core.Core_array
+module CL = Core.Core_list
 module GP = Gnuplot
 module TTK = StringListTickTock
 module Class = Complexity_classes
@@ -84,25 +85,28 @@ let pointsLstOfTupArray tupArr =
 	)
 
 
-(* let makeRefPoint results maxX = *)
-
-let makeTrendLine refPoint count fn title color =
-  GP.Series.lines_xy ~weight:1 ~color ~title
-  @@ fn refPoint count
+(* let makeTrendLine refPoint count fn title color = *)
+(*   GP.Series.lines_xy ~weight:1 ~color ~title *)
+(*   @@ fn refPoint count *)
 
 
-let makeTrendLines refPoint count =
-  Printf.eprintf "count: %d\n%!" count;
-  [makeTrendLine refPoint count Class.genO1 "O(1)" `Blue
-  ;makeTrendLine refPoint count Class.genOlogN "O(logn)" @@ `Rgb (85, 43, 27)
-  ;makeTrendLine refPoint count Class.genON "O(n)" `Green
-  ;makeTrendLine refPoint count Class.genONlogN "O(nlogn)" @@ `Rgb (187, 0, 255)
-  ;makeTrendLine refPoint count Class.genON2 "O(n^2)" @@ `Rgb (96, 151, 159)
-  ;makeTrendLine refPoint count Class.genON3 "O(n^3)" @@ `Rgb (81, 125, 132)
-  ;makeTrendLine refPoint count Class.genO2N "O(2^n)" @@ `Yellow
-  ;makeTrendLine refPoint count Class.genO3N "O(3^n)" @@ `Yellow
-  ;makeTrendLine refPoint count Class.genONfact "O(n!)" @@ `Blue
-  ]
+(* let makeTrendLines refPoint count = *)
+(*   Printf.eprintf "count: %d\n%!" count; *)
+(*   [makeTrendLine refPoint count Class.genO1 "O(1)" `Blue *)
+(*   ;makeTrendLine refPoint count Class.genOlogN "O(logn)" @@ `Rgb (85, 43, 27) *)
+(*   ;makeTrendLine refPoint count Class.genON "O(n)" `Green *)
+(*   ;makeTrendLine refPoint count Class.genONlogN "O(nlogn)" @@ `Rgb (187, 0, 255) *)
+(*   ;makeTrendLine refPoint count Class.genON2 "O(n^2)" @@ `Rgb (96, 151, 159) *)
+(*   (\* ;makeTrendLine refPoint count Class.genON3 "O(n^3)" @@ `Rgb (81, 125, 132) *\) *)
+(*   ;makeTrendLine refPoint count Class.genO2N "O(2^n)" @@ `Yellow *)
+(*   (\* ;makeTrendLine refPoint count Class.genO3N "O(3^n)" @@ `Yellow *\) *)
+(*   ;makeTrendLine refPoint count Class.genONfact "O(n!)" @@ `Blue *)
+(*   ] *)
+
+
+let gen_orders refPoint count =
+  []
+
 
 let findRefPoint results maxX =
   let y (y, _) =
@@ -121,15 +125,38 @@ let findRefPoint results maxX =
   (float refPointX, float refPointY)
 
 let toGnuPlot db results maxX maxY =
-  let output, range = gnuPlotConf db ++ float maxX ++ float maxY in
+  let output, range = gnuPlotConf db (float maxX) (float maxY) in
   let pointsLst = pointsLstOfTupArray results in
   let linesGp = GP.Series.lines_xy ~weight:2 ~color:`Red pointsLst in
   let pointsGp = GP.Series.points_xy ~weight:2 ~color:`Red pointsLst in
   let refPoint = findRefPoint results maxX in
+  let orders = gen_orders refPoint (maxX + 1) in
+  let orders =
+	CL.sort
+	  ~cmp:(fun {Order.correlation_coef = a} {Order.correlation_coef = b} ->
+		truncate ((a -. b) *. 1000.))
+	  orders
+  in
+  (match orders with
+  | hdo1::hdon::_ when hdo1.Order.title = "O(1)"
+	-> assert(hdon.Order.title = "O(N)");
+	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
+	   then hdo1.Order.choice <- true
+	   else hdon.Order.choice <- true
+  | hdon::hdo1::_ when hdo1.Order.title = "O(1)"
+	-> assert(hdon.Order.title = "O(N)");
+	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
+	   then hdo1.Order.choice <- true
+	   else hdon.Order.choice <- true
+  | hd1::_
+	-> hd1.Order.choice <- true
+  | []
+	-> failwith "noway"
+  );
 
   let gp = GP.Gp.create () in
   GP.Gp.plot_many
-	gp (pointsGp::linesGp::makeTrendLines refPoint (maxX + 1))
+	gp (pointsGp::linesGp::[])
 	~output:output
 	~use_grid:true
 	~range:range
