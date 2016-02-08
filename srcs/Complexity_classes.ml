@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/02/02 18:22:09 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 15:41:41 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 16:35:32 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -56,6 +56,15 @@ let filter (x, y) =
   | _, _ -> Some (x, y)
 
 (* Linearization Funcs *)
+let linearNoOp res ref_point count =
+  res
+
+let linearOlogN res ref_point count =
+  CL.filter_map res ~f:(fun (x, y) -> filter (log x, y))
+
+let linearONlogN res ref_point count =
+  CL.filter_map res ~f:(fun (x, y) -> filter (x *. log x, y))
+
 let linearON2 res ref_point count =
   CL.filter_map res ~f:(fun (x, y) -> filter (log x, log y))
 

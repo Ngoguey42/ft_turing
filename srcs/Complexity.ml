@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 15:40:00 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 16:54:03 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -17,18 +17,20 @@ module GP = Gnuplot
 module TTK = StringListTickTock
 module Class = Complexity_classes
 
-let maxstrlen = 258
+let maxstrlen = 284
 let maxtime = 2.
 
 let canvasW = 2300
 let canvasH = 1200
-let canvasInsetPercentX = 0.1
+let canvasInsetPercentX = 0.06
 let canvasInsetPercentY = canvasInsetPercentX
 						  *. (float canvasW) /. (float canvasH)
 let canvasInsetFactorX = 1. /. (1. -. canvasInsetPercentX)
 let canvasInsetFactorY = 1. /. (1. -. canvasInsetPercentY)
 
 let refPointPercent = 0.65
+let subGraphSize = 0.4
+
 
 let (++) = (@@)
 
@@ -106,13 +108,13 @@ let ph _ _ _ = []
 
 let gen_orders results refPoint count =
   [
-  (* 	Order.make "O(1)" `Blue results refPoint count Class.genO1 ph *)
-  (* ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count Class.genOlogN ph *)
-  (* ; Order.make "O(n)" `Green results refPoint count Class.genON ph *)
-  (* ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count Class.genONlogN ph *)
-	Order.make "O(n^2)" (`Rgb (96, 151, 159)) results refPoint count Class.genON2 Class.linearON2
+	Order.make "O(1)" `Blue results refPoint count Class.genO1 ph
+  ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count Class.genOlogN Class.linearOlogN
+  ; Order.make "O(n)" `Green results refPoint count Class.genON Class.linearNoOp
+  ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count Class.genONlogN Class.linearONlogN
+  ;	Order.make "O(n^2)" (`Rgb (96, 151, 159)) results refPoint count Class.genON2 Class.linearON2
   ; Order.make "O(2^n)" `Yellow results refPoint count Class.genO2N Class.linearO2N
-  (* ; Order.make "O(n!)" `Blue results refPoint count Class.genONfact ph *)
+  ; Order.make "O(n!)" `Blue results refPoint count Class.genONfact ph
   ]
 
 
@@ -142,30 +144,32 @@ let toGnuPlot db results maxX maxY =
   let orders =
 	CL.sort
 	  ~cmp:(fun {Order.correlation_coef = a} {Order.correlation_coef = b} ->
-		truncate ((a -. b) *. 1000.))
+		truncate ((b -. a) *. 1000.))
 	  orders
   in
   (match orders with
-  (* | hdo1::hdon::_ when hdo1.Order.title = "O(1)" *)
-  (* 	-> assert(hdon.Order.title = "O(N)"); *)
-  (* 	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05 *)
-  (* 	   then hdo1.Order.choice <- true *)
-  (* 	   else hdon.Order.choice <- true *)
-  (* | hdon::hdo1::_ when hdo1.Order.title = "O(1)" *)
-  (* 	-> assert(hdon.Order.title = "O(N)"); *)
-  (* 	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05 *)
-  (* 	   then hdo1.Order.choice <- true *)
-  (* 	   else hdon.Order.choice <- true *)
+  | hdo1::hdon::_ when hdo1.Order.title = "O(1)"
+  	-> assert(hdon.Order.title = "O(N)");
+  	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
+  	   then hdo1.Order.choice <- true
+  	   else hdon.Order.choice <- true
+  | hdon::hdo1::_ when hdo1.Order.title = "O(1)"
+  	-> assert(hdon.Order.title = "O(N)");
+  	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
+  	   then hdo1.Order.choice <- true
+  	   else hdon.Order.choice <- true
   | hd1::_
 	-> hd1.Order.choice <- true
   | []
 	-> failwith "noway"
   );
   let trends = CL.map orders ~f:(fun ord -> Order.get_trend_line ord) in
-  let l_botleft = (0., float maxY /. 2.) in
-  let l_topright = (float maxX /. 2., float maxY) in
-  let linearized = CL.map orders ~f:(fun ord -> Order.get_linearized_line
-												  ord l_botleft l_topright) in
+  let l_botleft = (0. *. canvasInsetFactorX
+				  , float maxY *. (1. -. subGraphSize) *. canvasInsetFactorY) in
+  let l_topright = (float maxX *. subGraphSize *. canvasInsetFactorX
+				   , float maxY *. canvasInsetFactorY) in
+  let linearized = CL.filter_map orders ~f:(fun ord -> Order.get_linearized_line
+														 ord l_botleft l_topright) in
 
   let gp = GP.Gp.create () in
   GP.Gp.plot_many

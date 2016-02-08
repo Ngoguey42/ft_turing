@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/02/08 11:26:31 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 15:36:10 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 16:43:33 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -25,7 +25,11 @@ type t = { title : string
 		 }
 
 let calc_coef : point list -> float = fun lpoints ->
-  42.42
+  match CL.hd lpoints with
+  | None
+	-> 0.
+  | Some _
+	-> 42.42
 
 let calc_slope : point list -> float = fun lpoints ->
   42.42
@@ -55,7 +59,7 @@ let get_coef : t -> float = fun {correlation_coef} ->
 let get_trend_line : t -> GP.Series.t = fun {title; color; points} ->
   GP.Series.lines_xy ~weight:1 ~color ~title points
 
-let get_linearized_line : t -> point -> point -> GP.Series.t =
+let get_linearized_line : t -> point -> point -> GP.Series.t option =
   fun {title; color; lpoints} (bl_x, bl_y) (tr_x, tr_y) ->
   let xmin, xmax, ymin, ymax =
 	CL.fold_left lpoints ~init:(infinity, 0., infinity, 0.)
@@ -75,9 +79,9 @@ let get_linearized_line : t -> point -> point -> GP.Series.t =
   						 ,(y -. ymin) /. src_dy *. dst_dy +. bl_y)
   					   )
   in
-  CL.iter lpoints ~f:(fun (x, y) ->
-  			Printf.eprintf "(%8f, %8f)\n%!" x y;
-
-  		  );
-  (* TODO: process lpoints for display *)
-  GP.Series.lines_xy ~weight:1 ~color ~title:(title ^ " linear") lpoints
+  match CL.hd lpoints with
+  | None
+	-> None
+  | Some _
+	-> Some (GP.Series.lines_xy lpoints ~weight:1 ~color
+								~title:("results " ^ title ^ " log-log plot"))
