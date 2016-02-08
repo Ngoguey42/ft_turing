@@ -6,11 +6,12 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/02/08 11:26:31 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 14:45:48 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 15:36:10 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
 module GP = Gnuplot
+module CL = Core.Core_list
 
 type point = float * float
 
@@ -55,7 +56,28 @@ let get_trend_line : t -> GP.Series.t = fun {title; color; points} ->
   GP.Series.lines_xy ~weight:1 ~color ~title points
 
 let get_linearized_line : t -> point -> point -> GP.Series.t =
-  fun {title; color; lpoints} bot_left top_right ->
-  let lpoints = lpoints in
+  fun {title; color; lpoints} (bl_x, bl_y) (tr_x, tr_y) ->
+  let xmin, xmax, ymin, ymax =
+	CL.fold_left lpoints ~init:(infinity, 0., infinity, 0.)
+				 ~f:(fun (xmin, xmax, ymin, ymax) (x, y) ->
+				   (min xmin x
+				   ,max xmax x
+				   ,min ymin y
+				   ,max ymax y)
+				 )
+  in
+  let src_dx, src_dy = xmax -. xmin, ymax -. ymin in
+  let dst_dx, dst_dy = tr_x -. bl_x, tr_y -. bl_y in
+  Printf.eprintf "src_dx %f  src_dy %f\n%!" src_dx src_dy;
+  Printf.eprintf "dst_dx %f  dst_dy %f\n%!" dst_dx dst_dy;
+  let lpoints = CL.map lpoints ~f:(fun (x, y) ->
+  						 ((x -. xmin) /. src_dx *. dst_dx +. bl_x
+  						 ,(y -. ymin) /. src_dy *. dst_dy +. bl_y)
+  					   )
+  in
+  CL.iter lpoints ~f:(fun (x, y) ->
+  			Printf.eprintf "(%8f, %8f)\n%!" x y;
+
+  		  );
   (* TODO: process lpoints for display *)
   GP.Series.lines_xy ~weight:1 ~color ~title:(title ^ " linear") lpoints

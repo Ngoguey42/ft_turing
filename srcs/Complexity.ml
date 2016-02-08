@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 14:45:39 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 15:40:00 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -18,7 +18,7 @@ module TTK = StringListTickTock
 module Class = Complexity_classes
 
 let maxstrlen = 258
-let maxtime = 3.
+let maxtime = 2.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -105,13 +105,14 @@ let pointsLstOfTupArray tupArr =
 let ph _ _ _ = []
 
 let gen_orders results refPoint count =
-  [ Order.make "O(1)" `Blue results refPoint count Class.genO1 ph
-  ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count Class.genOlogN ph
-  ; Order.make "O(n)" `Green results refPoint count Class.genON ph
-  ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count Class.genONlogN ph
-  ; Order.make "O(n^2)" (`Rgb (96, 151, 159)) results refPoint count Class.genON2 ph
-  ; Order.make "O(2^n)" `Yellow results refPoint count Class.genO2N ph
-  ; Order.make "O(n!)" `Blue results refPoint count Class.genONfact ph
+  [
+  (* 	Order.make "O(1)" `Blue results refPoint count Class.genO1 ph *)
+  (* ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count Class.genOlogN ph *)
+  (* ; Order.make "O(n)" `Green results refPoint count Class.genON ph *)
+  (* ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count Class.genONlogN ph *)
+	Order.make "O(n^2)" (`Rgb (96, 151, 159)) results refPoint count Class.genON2 Class.linearON2
+  ; Order.make "O(2^n)" `Yellow results refPoint count Class.genO2N Class.linearO2N
+  (* ; Order.make "O(n!)" `Blue results refPoint count Class.genONfact ph *)
   ]
 
 
@@ -161,10 +162,14 @@ let toGnuPlot db results maxX maxY =
 	-> failwith "noway"
   );
   let trends = CL.map orders ~f:(fun ord -> Order.get_trend_line ord) in
+  let l_botleft = (0., float maxY /. 2.) in
+  let l_topright = (float maxX /. 2., float maxY) in
+  let linearized = CL.map orders ~f:(fun ord -> Order.get_linearized_line
+												  ord l_botleft l_topright) in
 
   let gp = GP.Gp.create () in
   GP.Gp.plot_many
-	gp (pointsGp::linesGp::trends)
+	gp (pointsGp::linesGp::(trends @ linearized))
 	~output:output
 	~use_grid:true
 	~range:range

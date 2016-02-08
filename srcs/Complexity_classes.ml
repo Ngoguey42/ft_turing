@@ -6,13 +6,13 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/02/02 18:22:09 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 14:38:26 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/08 15:41:41 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
 module CL = Core.Core_list
 
-(* Helpers *)
+(* Trend Helpers *)
 let make (x, y) count ~f =
   let constant = y /. (f x) in
   CL.init count ~f:(fun i -> let i = float i in
@@ -43,3 +43,21 @@ let genO2N point count =
 
 let genONfact point count =
   make point count ~f:(fun x -> fact 1. @@ truncate x)
+
+
+(* Linearization Helpers *)
+let filter (x, y) =
+  match classify_float x, classify_float y with
+  | FP_infinite, _
+  | FP_nan, _
+  | _, FP_infinite
+  | _, FP_nan
+	-> None
+  | _, _ -> Some (x, y)
+
+(* Linearization Funcs *)
+let linearON2 res ref_point count =
+  CL.filter_map res ~f:(fun (x, y) -> filter (log x, log y))
+
+let linearO2N res ref_point count =
+  CL.filter_map res ~f:(fun (x, y) -> filter (x, log y))
