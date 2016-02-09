@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 20:28:46 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 12:29:37 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -22,8 +22,8 @@ module Class = Complexity_classes
  * TODO: GIVE A TITLE TO RESULTS
 *)
 
-let maxstrlen = 2840
-let maxtime = 90.
+let maxstrlen =  2840
+let maxtime = 9.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -123,11 +123,23 @@ let findRefPoint results maxX =
   let refPointY, _ = CA.unsafe_get results refPointX in
   (float refPointX, float refPointY)
 
+
+let process_title db l =
+  (* let len = List.length l in *)
+  Printf.sprintf "%s (%d points)"
+  ++ Core.Core_string.map db.PD.name ~f:(fun c -> match c with
+												  | '_' -> ' '
+												  | '^' -> ' '
+												  | _ -> c)
+  ++ List.length l
+
 let toGnuPlot db results maxX maxY =
   let output, range = gnuPlotConf db (float maxX) (float maxY) in
   let pointsLst = pointsLstOfTupArray results in
-  let linesGp = GP.Series.lines_xy ~weight:2 ~color:`Red pointsLst in
-  let pointsGp = GP.Series.points_xy ~weight:2 ~color:`Red pointsLst in
+  let linesGp = GP.Series.lines_xy
+				  ~weight:3 ~title:(process_title db pointsLst)
+				  ~color:`Red pointsLst in
+  let pointsGp = GP.Series.points_xy ~weight:1 ~color:`Red pointsLst in
   let refPoint = findRefPoint results maxX in
   let orders = gen_orders pointsLst refPoint (maxX + 1) in
   let orders =
