@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/09 14:12:00 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 15:48:49 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -69,7 +69,7 @@ let _transitions_to_string transarr states =
   in
   match str, transarr.(0) with
   | "", Final -> "\t\tFinal\n"
-  | "", _ -> assert false
+  | "", _ -> "\t\tNo Transitions\n"
   | _, _ -> str
 
 let _states_to_string states =

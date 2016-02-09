@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/09 14:10:44 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 15:51:50 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -84,6 +84,9 @@ let () =
   | Assert_failure (msg, l, _) ->
 	 Printf.printf "%!";
 	 Printf.eprintf "Assert_failure:\n%s:%d\n%!" msg l;
+  | Sys_error msg ->
+	 Printf.printf "%!";
+	 Printf.eprintf "Sys_error:\n%s\n%!" msg;
   | _ ->
 	 Printf.printf "%!";
 	 Printf.eprintf "Unknown error\n%!";
