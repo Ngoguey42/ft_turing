@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/09 15:51:50 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 16:07:05 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -55,6 +55,20 @@ let catfile filename =
 	str
   with | Sys_error msg -> failwith msg
 
+
+let check_intput db input =
+  if Core.Core_string.contains input db.ProgramData.blank
+  then failwith "Blank in input";
+  Core.Core_string.iter
+	~f:(fun c ->
+	  let opt = Core.Core_array.find
+				  db.ProgramData.alphabet ~f:(fun c'-> c = c') in
+	  match opt with
+	  | None -> failwith "Unknown char in input"
+	  | _ -> ()
+	) input
+
+
 let () =
   try
 	match Arguments.read () with
@@ -70,8 +84,7 @@ let () =
 	| Arguments.Exec (jsonfile, input, silent, fileinput) ->
 	   let input = match fileinput with false -> input | true -> catfile input in
 	   let db = ProgramData.of_jsonfile jsonfile in
-	   if Core.Core_string.contains input db.ProgramData.blank
-	   then failwith "Blank in input";
+	   check_intput db input;
 	   if not silent
 	   then ProgramData.print db;
 	   let tape = Tape.of_string input db.ProgramData.blank in
