@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/09 12:29:37 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 12:54:44 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -18,8 +18,6 @@ module TTK = StringListTickTock
 module Class = Complexity_classes
 
 (* TODO: DISAMBIGUATE O1 / ON / ON2
- * TODO: DISPLAY SUB-GRAPH BOUNDS
- * TODO: GIVE A TITLE TO RESULTS
 *)
 
 let maxstrlen =  2840
@@ -39,73 +37,24 @@ let subGraphSize = 0.4
 
 let (++) = (@@)
 
-
-(* INPUT ENUMERATOR FUNCTIONS *)
-
-let loop (results, db, alpha, ttk) =
-  let str = TTK.pop ttk in
-  let strlen = TTK.phase ttk in
-  let membership = Verifier.verify db str in
-  (match membership with
-   | Verifier.Member steps ->
-	  let (prev, _) = CA.unsafe_get results strlen in
-	  if steps > prev
-	  then CA.unsafe_set results strlen (steps, str);
-	  ()
-   | _ -> ()
-  );
-  match strlen < maxstrlen, membership with
-  | true, Verifier.Member steps
-  | true, Verifier.Not steps when steps > strlen ->
-	 CA.iter alpha ~f:(fun c -> TTK.add ttk (str ^ (String.make 1 c)))
-  | _, _ -> ()
-
-let alpha_filter db char =
-  if char = db.PD.blank
-  then None
-  else Some char
-
-let tot alphalen =
-  if alphalen = 1
-  then float @@ maxstrlen + 1
-  else (
-	let alphalen = float alphalen in
-	let maxlenplus1 = float @@ maxstrlen + 1 in
-	(1. -. (alphalen ** maxlenplus1)) /. (1. -. alphalen)
-  )
-
-(* GNU-PLOT AND COMPLEXITY CALCULATION FUNCTIONS *)
-
-let gnuPlotConf db maxX maxY =
-  let output = GP.Output.create
-				 (`Canvas ((db.PD.name ^ ".html"), canvasW, canvasH)) in
-  let rangeMaxX = maxX *. canvasInsetFactorX in
-  let rangeMaxY = maxY *. canvasInsetFactorY in
-  let range = GP.Range.XY (0., rangeMaxX, 0., rangeMaxY) in
-  output, range
-
-let pointsLstOfTupArray tupArr =
-  CA.foldi
-	tupArr
-	~init:[]
-	~f:(fun i lst (count, _) ->
-	  if count < 0
-	  then lst
-	  else (float i, float count)::lst
-	)
-
-let ph _ _ _ = []
+(* GNU-PLOT AND COMPLEXITY CALCULATION *)
 
 let gen_orders results refPoint count =
+  let ph _ _ _ = [] in
   [ Order.make "O(1)" `Blue results refPoint count Class.genO1 ph
-  ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count Class.genOlogN Class.linearOlogN
-  ; Order.make "O(n)" `Green results refPoint count Class.genON Class.linearNoOp
-  ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count Class.genONlogN Class.linearONlogN
-  ;	Order.make "O(n^2)" (`Rgb (96, 151, 159)) results refPoint count Class.genON2 Class.linearON2
-  ; Order.make "O(2^n)" `Yellow results refPoint count Class.genO2N Class.linearO2N
-  ; Order.make "O(n!)" `Blue results refPoint count Class.genONfact ph
+  ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count
+			   Class.genOlogN Class.linearOlogN
+  ; Order.make "O(n)" `Green results refPoint count
+			   Class.genON Class.linearNoOp
+  ; Order.make "O(nlogn)" (`Rgb (187, 0, 255)) results refPoint count
+			   Class.genONlogN Class.linearONlogN
+  ;	Order.make "O(n^2)" (`Rgb (96, 151, 159)) results refPoint count
+			   Class.genON2 Class.linearON2
+  ; Order.make "O(2^n)" `Yellow results refPoint count
+			   Class.genO2N Class.linearO2N
+  ; Order.make "O(n!)" `Blue results refPoint count
+			   Class.genONfact ph
   ]
-
 
 let findRefPoint results maxX =
   let y (y, _) =
@@ -123,15 +72,42 @@ let findRefPoint results maxX =
   let refPointY, _ = CA.unsafe_get results refPointX in
   (float refPointX, float refPointY)
 
+let make_subgraph_box l_botleft l_topright l_botright l_topleft =
+  GP.Series.lines_xy ~weight:4 ~color:`Black
+					 [l_botleft; l_botright; l_topright; l_topleft; l_botleft]
+
+let calc_subgraph_bounds maxX maxY =
+  let bot = float maxY *. (1. -. subGraphSize) *. canvasInsetFactorY in
+  let top = float maxY *. canvasInsetFactorY in
+  let right = float maxX *. subGraphSize *. canvasInsetFactorX in
+  let left = 0. *. canvasInsetFactorX in
+  (left, bot), (right, top), (right, bot), (left, top)
 
 let process_title db l =
-  (* let len = List.length l in *)
   Printf.sprintf "%s (%d points)"
   ++ Core.Core_string.map db.PD.name ~f:(fun c -> match c with
 												  | '_' -> ' '
 												  | '^' -> ' '
 												  | _ -> c)
   ++ List.length l
+
+let pointsLstOfTupArray tupArr =
+  CA.foldi
+	tupArr
+	~init:[]
+	~f:(fun i lst (count, _) ->
+	  if count < 0
+	  then lst
+	  else (float i, float count)::lst
+	)
+
+let gnuPlotConf db maxX maxY =
+  let output = GP.Output.create
+				 (`Canvas ((db.PD.name ^ ".html"), canvasW, canvasH)) in
+  let rangeMaxX = maxX *. canvasInsetFactorX in
+  let rangeMaxY = maxY *. canvasInsetFactorY in
+  let range = GP.Range.XY (0., rangeMaxX, 0., rangeMaxY) in
+  output, range
 
 let toGnuPlot db results maxX maxY =
   let output, range = gnuPlotConf db (float maxX) (float maxY) in
@@ -165,16 +141,15 @@ let toGnuPlot db results maxX maxY =
 	-> failwith "noway"
   );
   let trends = CL.map orders ~f:(fun ord -> Order.get_trend_line ord) in
-  let l_botleft = (0. *. canvasInsetFactorX
-				  , float maxY *. (1. -. subGraphSize) *. canvasInsetFactorY) in
-  let l_topright = (float maxX *. subGraphSize *. canvasInsetFactorX
-				   , float maxY *. canvasInsetFactorY) in
-  let linearized = CL.filter_map orders ~f:(fun ord -> Order.get_linearized_line
-														 ord l_botleft l_topright) in
+  let l_botlef, l_toprig, l_botrig, l_toplef = calc_subgraph_bounds maxX maxY in
+  let linearized = CL.filter_map orders
+								 ~f:(fun ord -> Order.get_linearized_line
+												  ord l_botlef l_toprig) in
+  let subgraph_box = make_subgraph_box l_botlef l_toprig l_botrig l_toplef in
 
   let gp = GP.Gp.create () in
   GP.Gp.plot_many
-	gp (pointsGp::linesGp::(trends @ linearized))
+	gp (pointsGp::linesGp::subgraph_box::(trends @ linearized))
 	~output:output
 	~use_grid:true
 	~range:range
@@ -182,6 +157,40 @@ let toGnuPlot db results maxX maxY =
   ;
   GP.Gp.close gp;
   ()
+
+(* TURING MACHINE ENUMERATOR *)
+
+let loop (results, db, alpha, ttk) =
+  let str = TTK.pop ttk in
+  let strlen = TTK.phase ttk in
+  let membership = Verifier.verify db str in
+  (match membership with
+   | Verifier.Member steps ->
+	  let (prev, _) = CA.unsafe_get results strlen in
+	  if steps > prev
+	  then CA.unsafe_set results strlen (steps, str);
+	  ()
+   | _ -> ()
+  );
+  match strlen < maxstrlen, membership with
+  | true, Verifier.Member steps
+  | true, Verifier.Not steps when steps > strlen ->
+	 CA.iter alpha ~f:(fun c -> TTK.add ttk (str ^ (String.make 1 c)))
+  | _, _ -> ()
+
+let alpha_filter db char =
+  if char = db.PD.blank
+  then None
+  else Some char
+
+let tot alphalen =
+  if alphalen = 1
+  then float @@ maxstrlen + 1
+  else (
+	let alphalen = float alphalen in
+	let maxlenplus1 = float @@ maxstrlen + 1 in
+	(1. -. (alphalen ** maxlenplus1)) /. (1. -. alphalen)
+  )
 
 (* FILE ENTRY POINT *)
 
@@ -204,16 +213,11 @@ let compute db =
 	results.(TTK.phase ttk) <- (~-1, "")
   );
   let lasti, maxy =
-	CA.foldi
-	  results
-	  ~init:(0, 0)
-	  ~f:(fun i ((maxi, maxy) as tup) (v, str) ->
-		if v > 0 then (
-		  (* Printf.eprintf "%3d\t%3d \"%s\"\n%!" i v str; *)
-		  (i, v)
-		)
-		else tup
-	  )
+	CA.foldi results ~init:(0, 0)
+			 ~f:(fun i ((maxi, maxy) as tup) (v, str) ->
+			   if v > 0
+			   then (i, v)
+			   else tup)
   in
   Printf.eprintf "i = %d  / %f\n%!" !i
   @@ tot ++ (lasti + 1);
