@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 15:28:54 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 16:49:59 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 14:10:44 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -56,7 +56,6 @@ let catfile filename =
   with | Sys_error msg -> failwith msg
 
 let () =
-  (* TODO: check input does not contain blank char *)
   try
 	match Arguments.read () with
 	| Arguments.MakeO (jsonfile, silent) ->
@@ -71,6 +70,8 @@ let () =
 	| Arguments.Exec (jsonfile, input, silent, fileinput) ->
 	   let input = match fileinput with false -> input | true -> catfile input in
 	   let db = ProgramData.of_jsonfile jsonfile in
+	   if Core.Core_string.contains input db.ProgramData.blank
+	   then failwith "Blank in input";
 	   if not silent
 	   then ProgramData.print db;
 	   let tape = Tape.of_string input db.ProgramData.blank in

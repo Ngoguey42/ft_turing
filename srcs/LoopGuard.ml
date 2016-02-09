@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/13 13:58:38 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/23 17:45:19 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 14:05:28 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -27,7 +27,6 @@ module Make =
 			  val equal : t -> t -> bool
 			  val tostring : t -> string
 			end) ->
-  (* functor (State : Hashtbl.HashedType) -> *)
   struct
 
 	type htelt = {
@@ -97,7 +96,6 @@ module Make =
 
 
 	let update : State.t -> unit = fun curState ->
-	  (* TODO DEBUG *)
 	  Core.Dequeue.enqueue_back _dq { claimed = true; state = curState };
 	  let backi = Core.Dequeue.back_index_exn _dq in
 
@@ -108,7 +106,6 @@ module Make =
 		StateHtbl.replace _ht curState { llast = Some last; last = backi }
 	  )
 	  else (
-		(* Printf.eprintf "\tInser %s\n%!" (State.tostring curState); *)
 		StateHtbl.add _ht curState { llast = None; last = backi }
 	  )
 	  ;

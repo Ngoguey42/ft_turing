@@ -6,16 +6,16 @@
 ;    By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+         ;
 ;                                                 +#+#+#+#+#+   +#+            ;
 ;    Created: 2016/02/09 12:51:48 by ngoguey           #+#    #+#              ;
-;    Updated: 2016/02/09 12:54:05 by ngoguey          ###   ########.fr        ;
+;    Updated: 2016/02/09 13:15:16 by ngoguey          ###   ########.fr        ;
 ;                                                                              ;
 ;******************************************************************************;
 
 	name"abc"
-	alphabet[.abcX]
+	alphabet[.X]
 	blank[.]
 
 
 main:
-	__		[X.]		(a)		R	ni
-	__		[X.]		(b)		R	ni
-	__		[X.]		(c)		R	halt
+	__		[X.]		(X)		R	ni
+	__		[X.]		(X)		R	ni
+	__		[X.]		(X)		R	halt

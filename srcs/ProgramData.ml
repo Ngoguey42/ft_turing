@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/20 14:07:39 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/25 18:30:38 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 14:12:00 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -125,7 +125,6 @@ let _make_states {ProgramDataTmp.finals
 		let transarr = match ProgramDataTmp.StringSet.mem elt finals with
 		  | true -> Array.make 256 Final
 		  | false -> Array.make 256 Undefined
-		  (* TODO: Should we append a REJECT state instead of the Undefined option here ? *)
 		in
 		a.(i) <- (elt, transarr);
 		(i + 1, a)

@@ -6,9 +6,8 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/23 14:17:01 by ngoguey           #+#    #+#             *)
-(*   Updated: 2015/12/26 20:17:24 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 14:11:37 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
 type 'a status = Fail of string | Success of 'a
-(* TODO: Monadic or not ? *)

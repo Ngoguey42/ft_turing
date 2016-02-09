@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/02/08 11:26:31 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/08 19:46:24 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 14:02:46 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -25,8 +25,7 @@ type t = { title : string
 		 }
 
 let calc_coef_slope : point list -> float * float = fun lpoints ->
-  match CL.hd lpoints with
-  (* TODO *)
+  match CL.nth lpoints 1 with
   | None
 	-> 0., 1.
   | Some _

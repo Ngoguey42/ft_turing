@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2016/01/30 16:11:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/02/09 12:54:44 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 14:02:31 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -17,11 +17,8 @@ module GP = Gnuplot
 module TTK = StringListTickTock
 module Class = Complexity_classes
 
-(* TODO: DISAMBIGUATE O1 / ON / ON2
-*)
-
-let maxstrlen =  2840
-let maxtime = 9.
+let maxstrlen =  10000
+let maxtime = 60.
 
 let canvasW = 2300
 let canvasH = 1200
@@ -41,7 +38,8 @@ let (++) = (@@)
 
 let gen_orders results refPoint count =
   let ph _ _ _ = [] in
-  [ Order.make "O(1)" `Blue results refPoint count Class.genO1 ph
+  [ Order.make "O(1)" `Blue results refPoint count
+			   Class.genO1 Class.linearNoOp
   ; Order.make "O(logn)" (`Rgb (85, 43, 27)) results refPoint count
 			   Class.genOlogN Class.linearOlogN
   ; Order.make "O(n)" `Green results refPoint count
@@ -109,6 +107,25 @@ let gnuPlotConf db maxX maxY =
   let range = GP.Range.XY (0., rangeMaxX, 0., rangeMaxY) in
   output, range
 
+let tag_best_rsquared orders =
+  match orders with
+  | hd1::_ -> hd1.Order.choice <- true
+  | [] -> failwith "noway"
+
+let sort_orders orders =
+  CL.sort orders
+		  ~cmp:(fun {Order.ccoef = ca; Order.slope = sa;  Order.title = ta}
+					{Order.ccoef = cb; Order.slope = sb;  Order.title = tb} ->
+			match ta, tb with
+			| "O(1)", _ when sa < 0.01 -> -1
+			| _, "O(1)" when sb < 0.01 -> 1
+			| "O(n)", "O(1)" when ca > 0.95 -> -1
+			| "O(1)", "O(n)" when cb > 0.95 -> 1
+			| _, _ when (cb -. ca) > 0. -> 1
+			| _, _ -> -1
+		  )
+
+
 let toGnuPlot db results maxX maxY =
   let output, range = gnuPlotConf db (float maxX) (float maxY) in
   let pointsLst = pointsLstOfTupArray results in
@@ -118,28 +135,9 @@ let toGnuPlot db results maxX maxY =
   let pointsGp = GP.Series.points_xy ~weight:1 ~color:`Red pointsLst in
   let refPoint = findRefPoint results maxX in
   let orders = gen_orders pointsLst refPoint (maxX + 1) in
-  let orders =
-	CL.sort
-	  ~cmp:(fun {Order.ccoef = a} {Order.ccoef = b} ->
-		truncate ((b -. a) *. 1000.))
-	  orders
-  in
-  (match orders with
-  | hdo1::hdon::_ when hdo1.Order.title = "O(1)"
-  	-> assert(hdon.Order.title = "O(N)");
-  	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
-  	   then hdo1.Order.choice <- true
-  	   else hdon.Order.choice <- true
-  | hdon::hdo1::_ when hdo1.Order.title = "O(1)"
-  	-> assert(hdon.Order.title = "O(N)");
-  	   if hdo1.Order.slope > 0.95 && hdo1.Order.slope < 1.05
-  	   then hdo1.Order.choice <- true
-  	   else hdon.Order.choice <- true
-  | hd1::_
-	-> hd1.Order.choice <- true
-  | []
-	-> failwith "noway"
-  );
+  let orders = sort_orders orders in
+  (* in *)
+  tag_best_rsquared orders;
   let trends = CL.map orders ~f:(fun ord -> Order.get_trend_line ord) in
   let l_botlef, l_toprig, l_botrig, l_toplef = calc_subgraph_bounds maxX maxY in
   let linearized = CL.filter_map orders
@@ -155,7 +153,7 @@ let toGnuPlot db results maxX maxY =
 	~range:range
 	~labels:(GP.Labels.create ~x:"strlen" ~y:"steps" ())
   ;
-  GP.Gp.close gp;
+	GP.Gp.close gp;
   ()
 
 (* TURING MACHINE ENUMERATOR *)
@@ -174,8 +172,9 @@ let loop (results, db, alpha, ttk) =
   );
   match strlen < maxstrlen, membership with
   | true, Verifier.Member steps
-  | true, Verifier.Not steps when steps > strlen ->
-	 CA.iter alpha ~f:(fun c -> TTK.add ttk (str ^ (String.make 1 c)))
+	-> CA.iter alpha ~f:(fun c -> TTK.add ttk (str ^ (String.make 1 c)))
+  | true, Verifier.Not steps when steps > strlen
+	-> CA.iter alpha ~f:(fun c -> TTK.add ttk (str ^ (String.make 1 c)))
   | _, _ -> ()
 
 let alpha_filter db char =
@@ -216,7 +215,10 @@ let compute db =
 	CA.foldi results ~init:(0, 0)
 			 ~f:(fun i ((maxi, maxy) as tup) (v, str) ->
 			   if v > 0
-			   then (i, v)
+			   then (
+				 (* Printf.eprintf "%3d \"%s\"\n%!" v str; *)
+				 (i, v)
+			   )
 			   else tup)
   in
   Printf.eprintf "i = %d  / %f\n%!" !i

@@ -6,7 +6,7 @@
 (*   By: ngoguey <ngoguey@student.42.fr>            +#+  +:+       +#+        *)
 (*                                                +#+#+#+#+#+   +#+           *)
 (*   Created: 2015/12/26 14:46:00 by ngoguey           #+#    #+#             *)
-(*   Updated: 2016/01/18 14:58:16 by ngoguey          ###   ########.fr       *)
+(*   Updated: 2016/02/09 14:04:28 by ngoguey          ###   ########.fr       *)
 (*                                                                            *)
 (* ************************************************************************** *)
 
@@ -64,7 +64,7 @@ let _states_to_input {ProgramData.states; ProgramData.initial} =
   statestr
 
 let _buffer_to_input {ProgramData.states; ProgramData.initial} input =
-  let flen = log (float @@ Array.length states) /. (log 2.) in (* TODO: check this line *)
+  let flen = log (float @@ Array.length states) /. (log 2.) in
   let len = truncate @@ ceil flen in
   let breg = String.make len 'a' in
   let istatebin = _val_to_binary initial in
