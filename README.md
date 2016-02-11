@@ -15,7 +15,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 - [X] Write an universal turing machine(TM5) able to run TM1
 
 #####Recommended bonuses:
-- [ ] Compute time complexity of a given TM
+- [X] Compute time complexity of a given TM
 
 #####Our work:
 - [X] Deep study of theory of computation (see **Useful links** below)
