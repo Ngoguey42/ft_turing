@@ -52,7 +52,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 
 ####Use
 ```sh
-# Install through brew: opam ocamlfind ocaml core.113.00.00 yojson gnuplot gnuplot-ocaml 
+# Install through brew: opam ocamlfind ocaml core.113.00.00 yojson gnuplot gnuplot-ocaml
 make install_libs
 
 # Project compilation
@@ -129,7 +129,7 @@ python compiler/main.py machines/*.s
 
 <BR>
 > unary\_sub\_complexity:<BR>
-![complexity1](./img/unary_sub_complexity.png)
+![complexity2](./img/unary_sub_complexity.png)
 
 
 ---
