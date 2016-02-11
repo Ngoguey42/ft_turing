@@ -58,14 +58,20 @@ make install_libs
 # Project compilation
 make
 
-# Compile machines/\*.s files to machines/\*.json:
+# Compile machines/*.s files to machines/*.json:
 python compiler/main.py machines/*.s
 
 # Run a json-turing-machine on a given input
 ./ft_turing machines/is_palindrome2.json "ABA"
 
-# Traduce a json-turing-machine into 
+# Translate a json-turing-machine and its input to a Universal-Turing-Machine input
+./ft_turing -c machines/unary_sub.json "1111-1="
 
+# Run the above input on the universal turing machine
+ ./ft_turing machines/utm.json $(./ft_turing -c machines/unary_sub.json "1111-1=")
+
+# Compute an html file through gnuplot reflecting the complexity of a given json-turing-machine
+./ft_turing -O machines/0n1n_unsec.json
 
 ```
 
