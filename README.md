@@ -50,9 +50,23 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 
 <BR><BR>
 
-####Compile machines/\*.s files to machines/\*.json:
+####Use
 ```sh
+# Install through brew: opam ocamlfind ocaml core.113.00.00 yojson gnuplot gnuplot-ocaml 
+make install_libs
+
+# Project compilation
+make
+
+# Compile machines/\*.s files to machines/\*.json:
 python compiler/main.py machines/*.s
+
+# Run a json-turing-machine on a given input
+./ft_turing machines/is_palindrome2.json "ABA"
+
+# Traduce a json-turing-machine into 
+
+
 ```
 
 <BR><BR>
