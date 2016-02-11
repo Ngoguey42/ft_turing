@@ -1,7 +1,7 @@
 # FT_TURING, Jan 2016
 >>>>> #####Deterministic Turing machine in Ocaml. (group project)
 
-#####Grade ``(tbd/100)`` ``(tbd/125)*``
+#####Grade ``(125/100)`` ``(125/125)*``
 --------  -----------------------
 
 Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
