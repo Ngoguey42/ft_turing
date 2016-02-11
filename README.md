@@ -123,5 +123,13 @@ python compiler/main.py machines/*.s
 > machines/utm.s encoding (universal turing machine):<BR>
 ![encoding](./img/utm_encoding.png)
 
+<BR>
+> 0n1n_complexity:<BR>
+![complexity1](./img/0n1n_complexity.png)
+
+<BR>
+> unary\_sub\_complexity:<BR>
+![complexity1](./img/unary_sub_complexity.png)
+
 
 ---
