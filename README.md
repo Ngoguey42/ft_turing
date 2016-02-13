@@ -14,7 +14,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 - [X] Write 5 turing machines in json form (see below)
 - [X] Write an universal turing machine(TM5) able to run TM1
 
-#####Recommended bonuses:
+#####Recommended bonus:
 - [X] Compute time complexity of a given TM
 
 #####Our work:
@@ -23,7 +23,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 - [X] Study of core/batteries-included libraries (used core/list, core/dequeue, core/array)
 - [X] [Small functional wrapper (YojsonTreeMatcher.ml)](srcs/YojsonTreeMatcher.ml?ts=4) for yojson, that unfolds two recursive variants side by side with callbacks.
 - [X] [Loop detection (LoopGuard.ml)](srcs/LoopGuard.ml?ts=4) when TM act as a LBA.
-- [X] ft_turing flag to convert json+input to TM5's input format
+- [X] option (-c) to convert a json-turing-machine and its input to TM5's input format
 - [X] Use of [log-log plotting (Complexity_classes.ml)](srcs/Complexity_classes.ml?ts=4#L58), [linear regression (Order.ml)](srcs/Order.ml?ts=4#L27) and gnuplot to compute time complexity of TMs.
 <BR><BR>
 - [X] Conception of a pseudo-asm language to describe TMs, compilable to .json format ([compiler](./compiler/))
@@ -109,27 +109,27 @@ python compiler/main.py machines/*.s
 
 ---
 
-> unary add:<BR>
+>######unary add:<BR>
 ![example_add](./img/example_add.png)
 
 <BR>
-> is input a palindrome:<BR>
+>######is input a palindrome:<BR>
 ![example_palindrome](./img/example_palindrome.png)
 
 <BR>
-> is input of form 0^2n:<BR>
+>######is input of form 0^2n:<BR>
 ![example_0p2n](./img/example_zeropower2n.png)
 
 <BR>
-> machines/utm.s encoding (universal turing machine):<BR>
+>######machines/utm.s encoding (universal turing machine):<BR>
 ![encoding](./img/utm_encoding.png)
 
 <BR>
-> 0n1n_complexity:<BR>
+>######0n1n_complexity:<BR>
 ![complexity1](./img/0n1n_complexity.png)
 
 <BR>
-> unary\_sub\_complexity:<BR>
+>###### unary\_sub\_complexity:<BR>
 ![complexity2](./img/unary_sub_complexity.png)
 
 
