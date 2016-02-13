@@ -36,18 +36,28 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 > ####Mandatory Turing Machines in ./machines:
 - TM0: machines/unary_sub.json  *given in subject.pdf as an example*
 - TM1: machines/unary_add.s
-- TM2: machines/palindrome.json	 *version1*
-- TM2: machines/is_palindrome2.s  *version2*
+- TM2: machines/palindrome.json
 - TM3: machines/0n1n.s
 - TM4: machines/zero_power_2n.json
 - TM5: machines/utm.s *universal turing machine*
 
+> ####Turing Machines in ./machines optimized for complexity calculation:
+- machines/abs.s  *O(1)*
+- machines/unary_add_unsec.s  *O(n)*
+- machines/0n1n_unsec.s  *O(nlogn)*
+- machines/unary_sub_unsec.s  *O(n^2)*
+- machines/is_palindrome2_unsec.s  *O(n^2)*
+- machines/split_input_unsec.s  *O(n^2)*
+- machines/binary_increment_unsec.s  *O(2^n)*
+
 > ####More Turing Machines in ./machines:
-- machines/binary_divisable_by3.json
-- machines/has_0011.json
-- machines/minsky_utm.s	 *1967 Minsky's universal turing machine*
+- machines/has_0011.s
+- machines/minsky_utm.s  *1967 Minsky's universal turing machine*
 - machines/split_input.s  *separate input with blanks in O(3n^2)*
-- machines/zero_second_to_last.json
+- machines/is_palindrome2.s  *version 2*
+- machines/binary_divisable_by3.s
+- machines/zero_second_to_last.s
+
 
 <BR><BR>
 
