@@ -24,7 +24,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 - [X] [Small functional wrapper (YojsonTreeMatcher.ml)](srcs/YojsonTreeMatcher.ml?ts=4) for yojson, that unfolds two recursive variants side by side with callbacks.
 - [X] [Loop detection (LoopGuard.ml)](srcs/LoopGuard.ml?ts=4) when TM act as a LBA.
 - [X] option (-c) to convert a json-turing-machine and its input to TM5's input format
-- [X] Use of [log-log plotting (Complexity_classes.ml)](srcs/Complexity_classes.ml?ts=4#L58), [linear regression (Order.ml)](srcs/Order.ml?ts=4#L27) and gnuplot to compute time complexity of TMs.
+- [X] Use of [log-log plotting (Complexity_classes.ml)](srcs/Complexity_classes.ml?ts=4#L58), [linear regression (Order.ml)](srcs/Order.ml?ts=4#L27) and gnuplot to compute time complexity of TMs. [See Below.](#0n1n_complexity)
 <BR><BR>
 - [X] Conception of a pseudo-asm language to describe TMs, compilable to .json format ([compiler](./compiler/))
 - [X] Advanced [TM5 (utm.s)](machines/utm.s?ts=4) able to run any other TM (including itself)
