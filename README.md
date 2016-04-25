@@ -100,9 +100,6 @@ python compiler/main.py machines/*.s
 - https://www.youtube.com/watch?v=w2FKXOa0HGA
 
 >######Misc:
-- https://class.coursera.org/compilers/lecture
-- https://class.coursera.org/algo-004/lecture
-- https://complexityzoo.uwaterloo.ca/Petting_Zoo
 - http://www.wolframscience.com/nksonline/toc.html
 - http://www.cba.mit.edu/events/03.11.ASE/docs/Minsky.pdf
 
