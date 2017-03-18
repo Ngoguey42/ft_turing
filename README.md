@@ -1,23 +1,24 @@
 # FT_TURING, Jan 2016
->>>>> #####Deterministic Turing machine in Ocaml. (group project)
+>>>>> #### Deterministic Turing machine in Ocaml. (group project)
 
-#####Grade ``(125/100)`` ``(125/125)*``
+##### Grade ``(125/100)`` ``(125/125)*``
 --------  -----------------------
 
 Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
+
 <BR>
 
-#####Goals:
+##### Goals:
 - [X] Create a deterministic, single headed and single tape Turing machine(TM).
 - [X] Read a TM description from a json file.
 - [X] Code in OCaml or Haskell, any version, library or tools authorized.
 - [X] Write 5 turing machines in json form (see below)
 - [X] Write an universal turing machine(TM5) able to run TM1
 
-#####Recommended bonus:
+##### Recommended bonus:
 - [X] Compute time complexity of a given TM
 
-#####Our work:
+##### Our work:
 - [X] Deep study of theory of computation (see **Useful links** below)
 <BR><BR>
 - [X] Study of core/batteries-included libraries (used core/list, core/dequeue, core/array)
@@ -31,9 +32,10 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 - [X] [TM3 (0n1n.s)](machines/0n1n.s?ts=4) running in O(Nlog(N)) and preserving input
 - [X] more TM (see below)
 <BR>
+
 <BR>
 
-> ####Mandatory Turing Machines in ./machines:
+#### Mandatory Turing Machines in ./machines:
 - TM0: machines/unary_sub.json  *given in subject.pdf as an example*
 - TM1: machines/unary_add.s
 - TM2: machines/palindrome.json
@@ -41,7 +43,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 - TM4: machines/zero_power_2n.json
 - TM5: machines/utm.s *universal turing machine*
 
-> ####Turing Machines in ./machines optimized for complexity calculation:
+#### Turing Machines in ./machines optimized for complexity calculation:
 - machines/abs.s  *O(1)*
 - machines/unary_add_unsec.s  *O(n)*
 - machines/0n1n_unsec.s  *O(nlogn)*
@@ -50,7 +52,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 - machines/split_input_unsec.s  *O(n^2)*
 - machines/binary_increment_unsec.s  *O(2^n)*
 
-> ####More Turing Machines in ./machines:
+#### More Turing Machines in ./machines:
 - machines/has_0011.s
 - machines/minsky_utm.s  *1967 Minsky's universal turing machine*
 - machines/split_input.s  *separate input with blanks in O(3n^2)*
@@ -61,7 +63,7 @@ Team: [fbuoro]() / [ngoguey](https://github.com/Ngoguey42).
 
 <BR><BR>
 
-####Use
+#### Use
 ```sh
 # Install through brew: opam ocamlfind ocaml core.113.00.00 yojson gnuplot gnuplot-ocaml
 make install_libs
@@ -88,18 +90,18 @@ python compiler/main.py machines/*.s
 
 <BR><BR>
 
->###Useful links:
-######Small presentation:
+### Useful links:
+##### Small presentation:
 - https://www.youtube.com/watch?v=7dpFeXV_hqs
 
->######18h of theory of computation (math oriented, accessible):
+###### 18h of theory of computation (math oriented, accessible):
 - https://www.youtube.com/user/hhp3/playlists
 
->######Linear regression:
+###### Linear regression:
 - http://www.dummies.com/how-to/content/how-to-calculate-a-regression-line.html
 - https://www.youtube.com/watch?v=w2FKXOa0HGA
 
->######Misc:
+###### Misc:
 - http://www.wolframscience.com/nksonline/toc.html
 - http://www.cba.mit.edu/events/03.11.ASE/docs/Minsky.pdf
 
@@ -116,27 +118,50 @@ python compiler/main.py machines/*.s
 
 ---
 
->######unary add:<BR>
+###### unary add:
+
+<BR>
+
 ![example_add](./img/example_add.png)
 
 <BR>
->######is input a palindrome:<BR>
+
+###### is input a palindrome:
+
+<BR>
+
 ![example_palindrome](./img/example_palindrome.png)
 
 <BR>
->######is input of form 0^2n:<BR>
+
+###### is input of form 0^2n:
+
+<BR>
+
 ![example_0p2n](./img/example_zeropower2n.png)
 
 <BR>
->######machines/utm.s encoding (universal turing machine):<BR>
+
+###### machines/utm.s encoding (universal turing machine):
+
+<BR>
+
 ![encoding](./img/utm_encoding.png)
 
 <BR>
->######0n1n_complexity:<BR>
+
+###### 0n1n_complexity:
+
+<BR>
+
 ![complexity1](./img/0n1n_complexity.png)
 
 <BR>
->###### unary\_sub\_complexity:<BR>
+
+######  unary\_sub\_complexity:
+
+<BR>
+
 ![complexity2](./img/unary_sub_complexity.png)
 
 
