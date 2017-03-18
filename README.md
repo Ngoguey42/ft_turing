@@ -119,50 +119,16 @@ python compiler/main.py machines/*.s
 ---
 
 ###### unary add:
-
-<BR>
-
-![example_add](./img/example_add.png)
-
-<BR>
-
+![example_add](./img/example_add.png)<BR>
 ###### is input a palindrome:
-
-<BR>
-
-![example_palindrome](./img/example_palindrome.png)
-
-<BR>
-
+![example_palindrome](./img/example_palindrome.png)<BR>
 ###### is input of form 0^2n:
-
-<BR>
-
-![example_0p2n](./img/example_zeropower2n.png)
-
-<BR>
-
+![example_0p2n](./img/example_zeropower2n.png)<BR>
 ###### machines/utm.s encoding (universal turing machine):
-
-<BR>
-
-![encoding](./img/utm_encoding.png)
-
-<BR>
-
+![encoding](./img/utm_encoding.png)<BR>
 ###### 0n1n_complexity:
-
-<BR>
-
-![complexity1](./img/0n1n_complexity.png)
-
-<BR>
-
-######  unary\_sub\_complexity:
-
-<BR>
-
+![complexity1](./img/0n1n_complexity.png)<BR>
+###### unary\_sub\_complexity:
 ![complexity2](./img/unary_sub_complexity.png)
-
 
 ---
